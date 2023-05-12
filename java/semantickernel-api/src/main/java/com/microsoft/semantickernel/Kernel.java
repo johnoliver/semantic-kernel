@@ -3,6 +3,7 @@ package com.microsoft.semantickernel;
 
 import com.microsoft.semantickernel.builders.BuildersSingleton;
 import com.microsoft.semantickernel.exceptions.SkillsNotFoundException;
+import com.microsoft.semantickernel.memory.MemoryStore;
 import com.microsoft.semantickernel.memory.SemanticTextMemory;
 import com.microsoft.semantickernel.orchestration.ReadOnlySKContext;
 import com.microsoft.semantickernel.orchestration.SKFunction;
@@ -246,6 +247,8 @@ public interface Kernel {
                     SemanticFunctionDefinition<RequestConfiguration, ContextType, Result>
                             semanticFunctionDefinition);
 
+    SemanticTextMemory getMemory();
+
     // <T extends ReadOnlySKContext<T>> T createNewContext();
 
     class Builder {
@@ -253,6 +256,12 @@ public interface Kernel {
         @Nullable private PromptTemplateEngine promptTemplateEngine = null;
 
         @Nullable private ReadOnlySkillCollection skillCollection = null;
+
+        @Nullable
+        private SemanticTextMemory memory = null;
+
+        @Nullable
+        private MemoryStore memoryStorage = null;
 
         public Builder setKernelConfig(KernelConfig kernelConfig) {
             this.kernelConfig = kernelConfig;
@@ -276,7 +285,12 @@ public interface Kernel {
 
             return BuildersSingleton.INST
                     .getKernelBuilder()
-                    .build(kernelConfig, promptTemplateEngine, skillCollection);
+                    .build(kernelConfig, promptTemplateEngine, skillCollection, memoryStorage);
+        }
+
+        public Builder withMemoryStorage(MemoryStore memoryStorage) {
+            this.memoryStorage = memoryStorage;
+            return this;
         }
     }
 
@@ -285,5 +299,11 @@ public interface Kernel {
                 KernelConfig kernelConfig,
                 @Nullable PromptTemplateEngine promptTemplateEngine,
                 @Nullable ReadOnlySkillCollection skillCollection);
+
+        Kernel build(
+                KernelConfig kernelConfig,
+                @Nullable PromptTemplateEngine promptTemplateEngine,
+                @Nullable ReadOnlySkillCollection skillCollection,
+                @Nullable MemoryStore memoryStore);
     }
 }

@@ -52,14 +52,7 @@ public class InlineFunctionTest {
     }
 
     public static void main(String[] args) throws IOException {
-        String apiKey = getToken(AZURE_CONF_PROPERTIES);
-
-        OpenAIAsyncClient client =
-                new AzureOpenAiClient(
-                        new OpenAIClientBuilder()
-                                .endpoint(getEndpoint(AZURE_CONF_PROPERTIES))
-                                .credential(new AzureKeyCredential(apiKey))
-                                .buildAsyncClient());
+        OpenAIAsyncClient client = getOpenAIAsyncClient();
 
         TextCompletion textCompletion = SKBuilders.textCompletionService().build(client, MODEL);
 
@@ -125,5 +118,17 @@ public class InlineFunctionTest {
         } else {
             LOGGER.error("Null result");
         }
+    }
+
+    public static OpenAIAsyncClient getOpenAIAsyncClient() throws IOException {
+        String apiKey = getToken(AZURE_CONF_PROPERTIES);
+
+        OpenAIAsyncClient client =
+                new AzureOpenAiClient(
+                        new OpenAIClientBuilder()
+                                .endpoint(getEndpoint(AZURE_CONF_PROPERTIES))
+                                .credential(new AzureKeyCredential(apiKey))
+                                .buildAsyncClient());
+        return client;
     }
 }

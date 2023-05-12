@@ -19,6 +19,17 @@ public class DefaultSemanticTextMemory implements SemanticTextMemory {
     @Nonnull private final EmbeddingGeneration<String, Float> _embeddingGenerator;
     @Nonnull private /*final*/ MemoryStore _storage;
 
+    public class Build {
+        SemanticTextMemory build(
+                @Nonnull MemoryStore storage,
+                @Nonnull EmbeddingGeneration<String, Float> embeddingGenerator) {
+            return new DefaultSemanticTextMemory(
+                    storage,
+                    embeddingGenerator
+            );
+        };
+    }
+
     public DefaultSemanticTextMemory(
             @Nonnull MemoryStore storage,
             @Nonnull EmbeddingGeneration<String, Float> embeddingGenerator) {

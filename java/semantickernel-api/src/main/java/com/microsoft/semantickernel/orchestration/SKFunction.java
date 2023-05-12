@@ -150,4 +150,5 @@ public interface SKFunction<
             @Nullable Supplier<ReadOnlySkillCollection> skills);
 
     ContextType buildContext();
+
 }

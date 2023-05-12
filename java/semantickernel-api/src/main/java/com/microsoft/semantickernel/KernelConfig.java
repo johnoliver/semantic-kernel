@@ -5,18 +5,19 @@ import com.microsoft.semantickernel.ai.embeddings.EmbeddingGeneration;
 import com.microsoft.semantickernel.textcompletion.CompletionFunctionDefinition;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-import javax.annotation.Nullable;
-
 public class KernelConfig {
 
-    @Nullable private final String defaultTextCompletionServiceId;
+    @Nullable
+    private final String defaultTextCompletionServiceId;
     private final Map<String, Function<Kernel, TextCompletion>> textCompletionServices;
-    @Nullable private final String defaultTextEmbeddingGenerationServiceId;
+    @Nullable
+    private final String defaultTextEmbeddingGenerationServiceId;
 
-    private final Map<String, Function<Kernel, EmbeddingGeneration<String, Double>>>
+    private final Map<String, EmbeddingGeneration<String, Double>>
             textEmbeddingGenerationServices;
     private final ArrayList<SemanticFunctionDefinition> skillDefinitions;
 
@@ -24,7 +25,7 @@ public class KernelConfig {
             @Nullable String defaultTextCompletionServiceId,
             Map<String, Function<Kernel, TextCompletion>> textCompletionServices,
             @Nullable String defaultTextEmbeddingGenerationServiceId,
-            Map<String, Function<Kernel, EmbeddingGeneration<String, Double>>>
+            Map<String, EmbeddingGeneration<String, Double>>
                     textEmbeddingGenerationServices,
             List<SemanticFunctionDefinition> skillDefinitions) {
         this.defaultTextCompletionServiceId = defaultTextCompletionServiceId;
@@ -44,15 +45,28 @@ public class KernelConfig {
         return Collections.unmodifiableList(skillDefinitions);
     }
 
+    public Map<String, EmbeddingGeneration<String, Double>> getTextEmbeddingGenerationServices(String name) {
+        return textEmbeddingGenerationServices;
+    }
+
+    public EmbeddingGeneration<String, Double> getTextEmbeddingGenerationService(@Nullable String name) {
+        if (name == null) {
+            name = defaultTextEmbeddingGenerationServiceId;
+        }
+        return textEmbeddingGenerationServices.get(name);
+    }
+
     public static class Builder {
-        @Nullable private String defaultTextCompletionServiceId = null;
+        @Nullable
+        private String defaultTextCompletionServiceId = null;
         private Map<String, Function<Kernel, TextCompletion>> textCompletionServices =
                 new HashMap<>();
-        @Nullable private String defaultTextEmbeddingGenerationServiceId = null;
+        @Nullable
+        private String defaultTextEmbeddingGenerationServiceId = null;
 
         private List<SemanticFunctionDefinition> skillBuilders = new ArrayList<>();
 
-        private Map<String, Function<Kernel, EmbeddingGeneration<String, Double>>>
+        private Map<String, EmbeddingGeneration<String, Double>>
                 textEmbeddingGenerationServices = new HashMap<>();
 
         public Builder addSkill(CompletionFunctionDefinition functionDefinition) {
@@ -90,15 +104,15 @@ public class KernelConfig {
 
         public Builder addTextEmbeddingsGenerationService(
                 String serviceId,
-                Function<Kernel, EmbeddingGeneration<String, Double>> serviceFactory) {
+                EmbeddingGeneration<String, Double> service) {
             if (serviceId == null || serviceId.isEmpty()) {
                 throw new IllegalArgumentException("Null or empty serviceId");
             }
 
-            textEmbeddingGenerationServices.put(serviceId, serviceFactory);
+            textEmbeddingGenerationServices.put(serviceId, service);
 
-            if (defaultTextCompletionServiceId == null) {
-                defaultTextCompletionServiceId = serviceId;
+            if (defaultTextEmbeddingGenerationServiceId == null) {
+                defaultTextEmbeddingGenerationServiceId = serviceId;
             }
             return this;
         }
