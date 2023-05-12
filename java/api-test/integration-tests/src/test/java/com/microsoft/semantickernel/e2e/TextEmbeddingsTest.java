@@ -80,28 +80,29 @@ public class TextEmbeddingsTest extends AbstractKernelTest {
                     + "User: {{$userInput}}\n"
                     + "ChatBot: ";
 
-        CompletionSKFunction function = memory.getFunction("retrieve", CompletionSKFunction.class);
-        CompletionSKContext context = function.buildContext();
 
-        context.getSemanticMemory()
+        kernel.getMemory()
                 .saveInformationAsync("aboutMe", "My name is Andrea", "info1", null,null)
                 .block();
 
-        context.getSemanticMemory()
+        kernel.getMemory()
                 .saveInformationAsync("aboutMe", "I currently work as a tour guide", "info2", null,null)
                 .block();
 
-        context.getSemanticMemory()
+        kernel.getMemory()
                 .saveInformationAsync("aboutMe", "I've been living in Seattle since 2005", "info3", null,null)
                 .block();
 
-        context.getSemanticMemory()
+        kernel.getMemory()
                 .saveInformationAsync("aboutMe", "I visited France and Italy five times since 2015", "info4", null,null)
                 .block();
 
-        context.getSemanticMemory()
+        kernel.getMemory()
                 .saveInformationAsync("aboutMe", "My family is from New York", "info5", null,null)
                 .block();
+
+        CompletionSKFunction function = memory.getFunction("retrieve", CompletionSKFunction.class);
+        CompletionSKContext context = function.buildContext();
 
         CompletionSKContext result = function.invokeAsync("I love Jupyter notebooks, how should I get started?", context, null).block();
 
