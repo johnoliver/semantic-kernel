@@ -3,10 +3,7 @@ package com.microsoft.semantickernel.orchestration.planner; // Copyright (c) Mic
 // reserved.
 
 import com.microsoft.semantickernel.memory.SemanticTextMemory;
-import com.microsoft.semantickernel.orchestration.DefaultCompletionSKContext;
-import com.microsoft.semantickernel.orchestration.DefaultCompletionSKFunction;
-import com.microsoft.semantickernel.orchestration.DefaultSemanticSKFunction;
-import com.microsoft.semantickernel.orchestration.ReadOnlyContextVariables;
+import com.microsoft.semantickernel.orchestration.*;
 import com.microsoft.semantickernel.planner.SequentialPlannerFunctionDefinition;
 import com.microsoft.semantickernel.planner.SequentialPlannerSKContext;
 import com.microsoft.semantickernel.planner.SequentialPlannerSKFunction;
@@ -86,6 +83,14 @@ public class DefaultSequentialPlannerSKFunction
             @Nullable SemanticTextMemory memory,
             @Nullable Supplier<ReadOnlySkillCollection> skills) {
         return new DefaultSequentialPlannerSKContext(variables, memory, skills);
+    }
+
+    @Override
+    public Mono<SequentialPlannerSKContext> invokeWithCustomInputAsync(
+            ReadOnlyContextVariables variablesClone,
+            SemanticTextMemory semanticMemory,
+            ReadOnlySkillCollection skills) {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override

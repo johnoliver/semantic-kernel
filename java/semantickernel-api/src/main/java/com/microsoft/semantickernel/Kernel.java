@@ -257,11 +257,9 @@ public interface Kernel {
 
         @Nullable private ReadOnlySkillCollection skillCollection = null;
 
-        @Nullable
-        private SemanticTextMemory memory = null;
+        @Nullable private SemanticTextMemory memory = null;
 
-        @Nullable
-        private MemoryStore memoryStorage = null;
+        @Nullable private MemoryStore memoryStorage = null;
 
         public Builder setKernelConfig(KernelConfig kernelConfig) {
             this.kernelConfig = kernelConfig;

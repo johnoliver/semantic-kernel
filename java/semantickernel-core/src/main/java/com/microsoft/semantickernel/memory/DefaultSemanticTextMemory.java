@@ -6,7 +6,9 @@ import com.microsoft.semantickernel.exceptions.NotSupportedException;
 
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,11 +25,9 @@ public class DefaultSemanticTextMemory implements SemanticTextMemory {
         SemanticTextMemory build(
                 @Nonnull MemoryStore storage,
                 @Nonnull EmbeddingGeneration<String, Float> embeddingGenerator) {
-            return new DefaultSemanticTextMemory(
-                    storage,
-                    embeddingGenerator
-            );
-        };
+            return new DefaultSemanticTextMemory(storage, embeddingGenerator);
+        }
+        ;
     }
 
     public DefaultSemanticTextMemory(
@@ -51,19 +51,36 @@ public class DefaultSemanticTextMemory implements SemanticTextMemory {
             @Nonnull String id,
             @Nullable String description,
             @Nullable String additionalMetadata) {
-        return Mono.error(new NotSupportedException("Pending implementation"));
-        //        var embedding = await this._embeddingGenerator.GenerateEmbeddingAsync(text,
-        // cancellationToken: cancel);
-        //        MemoryRecord data = MemoryRecord.LocalRecord(
-        //                id: id, text: text, description: description, additionalMetadata:
-        // additionalMetadata, embedding: embedding);
-        //
-        //        if (!(await this._storage.DoesCollectionExistAsync(collection, cancel)))
-        //        {
-        //            await this._storage.CreateCollectionAsync(collection, cancel);
-        //        }
-        //
-        //        return await this._storage.UpsertAsync(collection, record: data, cancel: cancel);
+
+        return _embeddingGenerator
+                .generateEmbeddingsAsync(Arrays.asList(text))
+                .flatMap(
+                        result -> {
+                            MemoryRecord data =
+                                    MemoryRecord.localRecord(
+                                            id,
+                                            text,
+                                            description,
+                                            result.get(0),
+                                            additionalMetadata,
+                                            null,
+                                            null);
+                            return this._storage
+                                    .doesCollectionExistAsync(collection)
+                                    .flatMap(
+                                            exists -> {
+                                                if (exists) {
+                                                    return _storage.upsertAsync(collection, data);
+                                                } else {
+                                                    return _storage.createCollectionAsync(
+                                                                    collection)
+                                                            .then()
+                                                            .then(
+                                                                    _storage.upsertAsync(
+                                                                            collection, data));
+                                                }
+                                            });
+                        });
     }
 
     @Override
@@ -90,7 +107,29 @@ public class DefaultSemanticTextMemory implements SemanticTextMemory {
             int limit,
             double minRelevanceScore,
             boolean withEmbeddings) {
-        return Mono.error(new NotSupportedException("Pending implementation"));
+
+        return _embeddingGenerator
+                .generateEmbeddingAsync(query)
+                .flatMap(
+                        queryEmbedding -> {
+                            return _storage.getNearestMatchesAsync(
+                                            collection,
+                                            queryEmbedding,
+                                            limit,
+                                            minRelevanceScore,
+                                            withEmbeddings)
+                                    .map(
+                                            result -> {
+                                                return result.stream()
+                                                        .map(
+                                                                it ->
+                                                                        MemoryQueryResult
+                                                                                .fromMemoryRecord(
+                                                                                        it.getT1(),
+                                                                                        it.getT2()))
+                                                        .collect(Collectors.toList());
+                                            });
+                        });
         //        Embedding<float> queryEmbedding = await
         // this._embeddingGenerator.GenerateEmbeddingAsync(query, cancellationToken: cancel);
         //

@@ -17,13 +17,15 @@ import com.microsoft.semantickernel.skilldefinition.ReadOnlyFunctionCollection;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
 import com.microsoft.semantickernel.templateengine.PromptTemplateEngine;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
+
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class KernelDefault implements Kernel {
 
@@ -31,8 +33,7 @@ public class KernelDefault implements Kernel {
     private final MemoryStore memoryStore;
     private ReadOnlySkillCollection skillCollection;
     private final PromptTemplateEngine promptTemplateEngine;
-    @Nullable
-    private SemanticTextMemory memory; // TODO: make this final
+    @Nullable private SemanticTextMemory memory; // TODO: make this final
 
     public KernelDefault(
             KernelConfig kernelConfig,
@@ -73,7 +74,8 @@ public class KernelDefault implements Kernel {
             }
 
             return (T) factory.apply(this);
-        } if (EmbeddingGeneration.class.isAssignableFrom(clazz)) {
+        }
+        if (EmbeddingGeneration.class.isAssignableFrom(clazz)) {
             return (T) kernelConfig.getTextEmbeddingGenerationService(name);
 
         } else {
@@ -85,12 +87,12 @@ public class KernelDefault implements Kernel {
 
     @Override
     public <
-            RequestConfiguration,
-            ContextType extends ReadOnlySKContext<ContextType>,
-            Result extends SKFunction<RequestConfiguration, ContextType>>
-    Result registerSemanticFunction(
-            SemanticFunctionDefinition<RequestConfiguration, ContextType, Result>
-                    semanticFunctionDefinition) {
+                    RequestConfiguration,
+                    ContextType extends ReadOnlySKContext<ContextType>,
+                    Result extends SKFunction<RequestConfiguration, ContextType>>
+            Result registerSemanticFunction(
+                    SemanticFunctionDefinition<RequestConfiguration, ContextType, Result>
+                            semanticFunctionDefinition) {
         Result func = (Result) semanticFunctionDefinition.build(this);
         registerSemanticFunction(func);
         return func;
@@ -117,7 +119,7 @@ public class KernelDefault implements Kernel {
     }
 
     private <RequestConfiguration, ContextType extends ReadOnlySKContext<ContextType>>
-    void registerSemanticFunction(SKFunction<RequestConfiguration, ContextType> func) {
+            void registerSemanticFunction(SKFunction<RequestConfiguration, ContextType> func) {
         skillCollection = skillCollection.addSemanticFunction(func);
     }
 

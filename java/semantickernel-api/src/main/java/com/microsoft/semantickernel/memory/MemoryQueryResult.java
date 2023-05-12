@@ -65,14 +65,8 @@ public class MemoryQueryResult {
         }
     }
 
-    internal static MemoryQueryResult FromMemoryRecord(
-        MemoryRecord rec,
-        double relevance)
-    {
-        return new MemoryQueryResult(
-            (MemoryRecordMetadata)rec.Metadata.Clone(),
-            relevance);
-    }
-
      */
+    public static MemoryQueryResult fromMemoryRecord(MemoryRecord rec, double relevance) {
+        return new MemoryQueryResult((MemoryRecordMetadata) rec.getMetadata().copy(), relevance);
+    }
 }

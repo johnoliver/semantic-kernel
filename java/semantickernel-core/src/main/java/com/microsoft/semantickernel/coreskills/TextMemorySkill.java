@@ -1,12 +1,17 @@
 // Copyright (c) Microsoft. All rights reserved.
 package com.microsoft.semantickernel.coreskills; // Copyright (c) Microsoft. All rights reserved.
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.semantickernel.memory.MemoryQueryResult;
 import com.microsoft.semantickernel.memory.SemanticTextMemory;
 import com.microsoft.semantickernel.orchestration.ReadOnlySKContext;
 import com.microsoft.semantickernel.skilldefinition.annotations.DefineSKFunction;
 import com.microsoft.semantickernel.skilldefinition.annotations.SKFunctionParameters;
 
 import reactor.core.publisher.Mono;
+
+import java.util.stream.Collectors;
 
 /// <summary>
 /// TextMemorySkill provides a skill to save or recall information from the long or short term
@@ -22,27 +27,27 @@ public class TextMemorySkill {
     /// <summary>
     /// Name of the context variable used to specify which memory collection to use.
     /// </summary>
-    public static final String collectionParam = "collection";
+    private static final String collectionParam = "collection";
 
     /// <summary>
     /// Name of the context variable used to specify memory search relevance score.
     /// </summary>
-    public static final String RelevanceParam = "relevance";
+    private static final String RelevanceParam = "relevance";
 
     /// <summary>
     /// Name of the context variable used to specify a unique key associated with stored
     // information.
     /// </summary>
-    public static final String KeyParam = "key";
+    private static final String KeyParam = "key";
 
     /// <summary>
     /// Name of the context variable used to specify the number of memories to recall
     /// </summary>
-    public static final String LimitParam = "limit";
+    private static final String LimitParam = "limit";
 
-    public static final String DefaultCollection = "generic";
-    public static final String DefaultRelevance = "0.75";
-    public static final String DefaultLimit = "1";
+    private static final String DefaultCollection = "generic";
+    private static final String DefaultRelevance = "0.75";
+    private static final String DefaultLimit = "1";
 
     /// <summary>
     /// Key-based lookup for a specific memory
@@ -106,7 +111,7 @@ public class TextMemorySkill {
                             type = String.class)
                     String text,
             @SKFunctionParameters(
-                            name = collectionParam,
+                            name = "collection",
                             description =
                                     "Memories collection associated with the information to save",
                             defaultValue = DefaultCollection,
@@ -138,7 +143,6 @@ public class TextMemorySkill {
 
     }
 
-    /*
     /// <summary>
     /// Semantic search and return up to N memories related to the input text
     /// </summary>
@@ -147,55 +151,84 @@ public class TextMemorySkill {
     /// {{memory.recall $input }} => "Paris"
     /// </example>
     /// <param name="text">The input text to find related memories for</param>
-    /// <param name="context">Contains the 'collection' to search for the topic and 'relevance' score</param>
-    [SKFunction("Semantic search and return up to N memories related to the input text")]
-    [SKFunctionName("Recall")]
-    [SKFunctionInput(Description = "The input text to find related memories for")]
-    [SKFunctionContextParameter(Name = CollectionParam, Description = "Memories collection to search", DefaultValue = DefaultCollection)]
-    [SKFunctionContextParameter(Name = RelevanceParam, Description = "The relevance score, from 0.0 to 1.0, where 1.0 means perfect match",
-        DefaultValue = DefaultRelevance)]
-    [SKFunctionContextParameter(Name = LimitParam, Description = "The maximum number of relevant memories to recall", DefaultValue = DefaultLimit)]
-    public string Recall(string text, SKContext context)
-    {
-        var collection = context.Variables.ContainsKey(CollectionParam) ? context[CollectionParam] : DefaultCollection;
-        Verify.NotEmpty(collection, "Memories collection not defined");
+    /// <param name="context">Contains the 'collection' to search for the topic and 'relevance'
+    // score</param>
+    @DefineSKFunction(
+            name = "Recall",
+            description = "Semantic search and return up to N memories related to the input text")
+    public Mono<String> recall(
+            @SKFunctionParameters(
+                            name = "input",
+                            description = "The input text to find related memories for",
+                            defaultValue = "",
+                            type = String.class)
+                    String text,
+            ReadOnlySKContext context) {
+        String collection = context.getVariables().get(collectionParam);
+        if (collection == null) {
+            collection = DefaultCollection;
+        }
+        // Verify.NotEmpty(collection, "Memories collection not defined");
 
-        var relevance = context.Variables.ContainsKey(RelevanceParam) ? context[RelevanceParam] : DefaultRelevance;
-        if (string.IsNullOrWhiteSpace(relevance)) { relevance = DefaultRelevance; }
+        String relevance = context.getVariables().get(RelevanceParam);
+        if (relevance == null || relevance.trim().isEmpty()) {
+            relevance = DefaultRelevance;
+        }
 
-        var limit = context.Variables.ContainsKey(LimitParam) ? context[LimitParam] : DefaultLimit;
-        if (string.IsNullOrWhiteSpace(limit)) { relevance = DefaultLimit; }
+        String limit = context.getVariables().get(LimitParam);
+        if (limit == null || limit.trim().isEmpty()) {
+            limit = DefaultLimit;
+        }
 
-        context.Log.LogTrace("Searching memories in collection '{0}', relevance '{1}'", collection, relevance);
+        // context.Log.LogTrace("Searching memories in collection '{0}', relevance '{1}'",
+        // collection, relevance);
 
         // TODO: support locales, e.g. "0.7" and "0,7" must both work
-        int limitInt = int.Parse(limit, CultureInfo.InvariantCulture);
-        var memories = context.Memory
-            .SearchAsync(collection, text, limitInt, minRelevanceScore: float.Parse(relevance, CultureInfo.InvariantCulture))
-            .ToEnumerable();
+        int limitInt = Integer.parseInt(limit);
 
-        context.Log.LogTrace("Done looking for memories in collection '{0}')", collection);
+        return context.getSemanticMemory()
+                .searchAsync(collection, text, limitInt, Float.parseFloat(relevance), false)
+                .map(
+                        memories -> {
 
-        string resultString;
+                            // context.Log.LogTrace("Done looking for memories in collection
+                            // '{0}')", collection);
 
-        if (limitInt == 1)
-        {
-            var memory = memories.FirstOrDefault();
-            resultString = (memory != null) ? memory.Metadata.Text : string.Empty;
-        }
-        else
-        {
-            resultString = JsonSerializer.Serialize(memories.Select(x => x.Metadata.Text));
-        }
+                            if (memories.isEmpty()) {
+                                return "";
+                            }
 
-        if (resultString.Length == 0)
-        {
-            context.Log.LogWarning("Memories not found in collection: {0}", collection);
-        }
+                            String resultString;
 
-        return resultString;
+                            if (limitInt == 1) {
+                                MemoryQueryResult memory = memories.get(0);
+                                resultString =
+                                        (memory != null) ? memory.getMetadata().getText() : "";
+                            } else {
+                                try {
+                                    resultString =
+                                            new ObjectMapper()
+                                                    .writeValueAsString(
+                                                            memories.stream()
+                                                                    .map(
+                                                                            it ->
+                                                                                    it.getMetadata()
+                                                                                            .getText())
+                                                                    .collect(Collectors.toList()));
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+
+                            if (resultString.length() == 0) {
+                                // context.Log.LogWarning("Memories not found in collection: {0}",
+                                // collection);
+                            }
+                            return resultString;
+                        });
     }
 
+    /*
     /// <summary>
     /// Save information to semantic memory
     /// </summary>

@@ -3,6 +3,7 @@ package com.microsoft.semantickernel.orchestration;
 
 import com.microsoft.semantickernel.builders.SKBuilders;
 import com.microsoft.semantickernel.memory.NullMemory;
+import com.microsoft.semantickernel.memory.SemanticTextMemory;
 import com.microsoft.semantickernel.skilldefinition.ParameterView;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
 
@@ -192,5 +193,14 @@ public abstract class AbstractSkFunction<
     @Override
     public ContextType buildContext() {
         return buildContext(SKBuilders.variables().build(), null, skillCollection);
+    }
+
+    @Override
+    public Mono<ContextType> invokeWithCustomInputAsync(
+            ReadOnlyContextVariables input,
+            SemanticTextMemory semanticMemory,
+            ReadOnlySkillCollection skills) {
+        ContextType tmpContext = buildContext(input, semanticMemory, () -> skills);
+        return invokeAsync(tmpContext, null);
     }
 }

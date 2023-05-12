@@ -151,4 +151,8 @@ public interface SKFunction<
 
     ContextType buildContext();
 
+    Mono<ContextType> invokeWithCustomInputAsync(
+            ReadOnlyContextVariables variablesClone,
+            SemanticTextMemory semanticMemory,
+            ReadOnlySkillCollection skills);
 }

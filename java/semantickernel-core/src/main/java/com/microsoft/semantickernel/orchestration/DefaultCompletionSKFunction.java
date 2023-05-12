@@ -227,7 +227,7 @@ public class DefaultCompletionSKFunction
                                 return functionConfig
                                         .getTemplate()
                                         .renderAsync(context, kernel.getPromptTemplateEngine())
-                                        .flatMapMany(
+                                        .flatMap(
                                                 prompt -> {
                                                     return client.completeAsync(
                                                             prompt, requestSettings);

@@ -64,6 +64,7 @@ class ImmutableContextVariables implements ReadOnlyContextVariables {
     /// if the pipeline reached the end.</param>
     /// <returns>The current instance</returns>
     @CheckReturnValue
+    @Override
     public ImmutableContextVariables update(@NonNull String content) {
         return setVariable(MAIN_KEY, content);
     }

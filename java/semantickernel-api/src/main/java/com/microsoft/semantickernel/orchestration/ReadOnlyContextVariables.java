@@ -3,6 +3,8 @@ package com.microsoft.semantickernel.orchestration;
 
 // Copyright (c) Microsoft. All rights reserved.
 
+import reactor.util.annotation.NonNull;
+
 import java.util.Map;
 
 import javax.annotation.CheckReturnValue;
@@ -21,6 +23,9 @@ public interface ReadOnlyContextVariables {
 
     @CheckReturnValue
     ReadOnlyContextVariables copy();
+
+    @CheckReturnValue
+    ReadOnlyContextVariables update(@NonNull String content);
 
     class Builder {
         /**

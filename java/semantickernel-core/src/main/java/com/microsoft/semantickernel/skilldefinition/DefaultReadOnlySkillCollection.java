@@ -94,6 +94,11 @@ public class DefaultReadOnlySkillCollection implements ReadOnlySkillCollection {
     }
 
     @Override
+    public boolean hasFunction(String functionName) {
+        return getFunction(functionName, SKFunction.class) != null;
+    }
+
+    @Override
     @CheckReturnValue
     public ReadOnlySkillCollection copy() {
         return new DefaultReadOnlySkillCollection(skillCollection);

@@ -18,6 +18,8 @@ public interface EmbeddingGeneration<TValue, TEmbedding extends Number> {
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of embeddings</returns>
     Mono<List<Embedding<TEmbedding>>> generateEmbeddingsAsync(List<TValue> data);
+
+    Mono<Embedding<TEmbedding>> generateEmbeddingAsync(TValue value);
 }
 
 /*

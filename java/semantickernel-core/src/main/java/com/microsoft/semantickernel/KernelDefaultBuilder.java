@@ -2,7 +2,6 @@
 package com.microsoft.semantickernel;
 
 import com.microsoft.semantickernel.memory.MemoryStore;
-import com.microsoft.semantickernel.memory.NullMemory;
 import com.microsoft.semantickernel.memory.VolatileMemoryStore;
 import com.microsoft.semantickernel.skilldefinition.DefaultReadOnlySkillCollection;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
@@ -18,8 +17,7 @@ public class KernelDefaultBuilder implements Kernel.InternalBuilder {
             KernelConfig kernelConfig,
             @Nullable PromptTemplateEngine promptTemplateEngine,
             @Nullable ReadOnlySkillCollection skillCollection) {
-        return new KernelDefault(kernelConfig, promptTemplateEngine, skillCollection, null
-        );
+        return new KernelDefault(kernelConfig, promptTemplateEngine, skillCollection, null);
     }
 
     @Override

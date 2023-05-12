@@ -502,7 +502,7 @@ public class NativeSKFunction extends AbstractSkFunction<Void, SemanticSKContext
                     Arrays.stream(method.getParameters())
                             .map(
                                     parameter -> {
-                                        if (SemanticSKContext.class.isAssignableFrom(
+                                        if (ReadOnlySKContext.class.isAssignableFrom(
                                                 parameter.getType())) {
                                             return context; // .copy();
                                         } else if (parameter.isAnnotationPresent(

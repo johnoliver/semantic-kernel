@@ -4,6 +4,7 @@ package com.microsoft.semantickernel.templateengine; // Copyright (c) Microsoft.
 
 import com.microsoft.semantickernel.orchestration.ReadOnlySKContext;
 import com.microsoft.semantickernel.templateengine.blocks.Block;
+import com.microsoft.semantickernel.templateengine.blocks.CodeBlock;
 import com.microsoft.semantickernel.templateengine.blocks.CodeRendering;
 import com.microsoft.semantickernel.templateengine.blocks.TextRendering;
 
@@ -67,12 +68,13 @@ public class DefaultPromptTemplateEngine implements PromptTemplateEngine {
     /// <inheritdoc/>
     public Mono<String> renderAsync(List<Block> blocks, ReadOnlySKContext context) {
         return Flux.fromIterable(blocks)
-                .map(
+                .flatMap(
                         block -> {
                             if (block instanceof TextRendering) {
-                                return ((TextRendering) block).render(context.getVariables());
+                                return Mono.just(
+                                        ((TextRendering) block).render(context.getVariables()));
                             } else if (block instanceof CodeRendering) {
-                                // result.Append(await dynamicBlock.RenderCodeAsync(context));
+                                return ((CodeBlock) block).renderCodeAsync(context);
                             } else {
                                 // const string error = "Unexpected block type, the block doesn't
                                 // have a rendering method";
@@ -80,7 +82,7 @@ public class DefaultPromptTemplateEngine implements PromptTemplateEngine {
                                 //    throw new
                                 // TemplateException(TemplateException.ErrorCodes.UnexpectedBlockType, error);
                             }
-                            return "";
+                            return Mono.just("");
                         })
                 .collectList()
                 .map(

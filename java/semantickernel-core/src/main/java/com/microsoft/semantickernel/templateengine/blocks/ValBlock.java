@@ -19,7 +19,7 @@ public class ValBlock extends Block implements TextRendering {
     @Override
     @Nullable
     public String render(ReadOnlyContextVariables variables) {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     /*

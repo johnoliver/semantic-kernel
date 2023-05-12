@@ -93,4 +93,9 @@ public class MemoryRecordMetadata {
         this.externalSourceName = externalSourceName;
         this.additionalMetadata = additionalMetadata;
     }
+
+    public MemoryRecordMetadata copy() {
+        return new MemoryRecordMetadata(
+                isReference, id, text, description, externalSourceName, additionalMetadata);
+    }
 }
