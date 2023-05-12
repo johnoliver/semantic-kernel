@@ -1,22 +1,23 @@
-// Copyright (c) Microsoft. All rights reserved.
-package com.microsoft.semantickernel;
+package com.microsoft.semantickernel.e2e;// Copyright (c) Microsoft. All rights reserved.
 
 import com.microsoft.openai.OpenAIAsyncClient;
+import com.microsoft.semantickernel.Kernel;
+import com.microsoft.semantickernel.KernelConfig;
 import com.microsoft.semantickernel.ai.embeddings.EmbeddingGeneration;
 import com.microsoft.semantickernel.builders.SKBuilders;
 import com.microsoft.semantickernel.connectors.ai.openai.textembeddings.OpenAITextEmbeddingGeneration;
 import com.microsoft.semantickernel.coreskills.TextMemorySkill;
 import com.microsoft.semantickernel.e2e.AbstractKernelTest;
+import com.microsoft.semantickernel.memory.VolatileMemoryStore;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlyFunctionCollection;
 import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -56,9 +57,6 @@ public class TextEmbeddingsTest extends AbstractKernelTest {
     @Test
     @EnabledIf("isAzureTestEnabled")
     public void testMemory() throws IOException {
-        String model = "text-embedding-ada-002";
-        EmbeddingGeneration<String, Double> embeddingGeneration =
-                new OpenAITextEmbeddingGeneration(getAzureOpenAIAPI(), model);
 
         Kernel kernel = buildTextEmbeddingsKernel();
 
@@ -82,17 +80,37 @@ public class TextEmbeddingsTest extends AbstractKernelTest {
                     + "User: {{$userInput}}\n"
                     + "ChatBot: ";
 
-        Mono<CompletionSKContext> mono =
-                memory.getFunction("retrieve", CompletionSKFunction.class).invokeAsync("");
-        CompletionSKContext result = mono.block();
+        CompletionSKFunction function = memory.getFunction("retrieve", CompletionSKFunction.class);
+        CompletionSKContext context = function.buildContext();
+
+        context.getSemanticMemory()
+                .saveInformationAsync("aboutMe", "My name is Andrea", "info1", null,null)
+                .block();
+
+        context.getSemanticMemory()
+                .saveInformationAsync("aboutMe", "I currently work as a tour guide", "info2", null,null)
+                .block();
+
+        context.getSemanticMemory()
+                .saveInformationAsync("aboutMe", "I've been living in Seattle since 2005", "info3", null,null)
+                .block();
+
+        context.getSemanticMemory()
+                .saveInformationAsync("aboutMe", "I visited France and Italy five times since 2015", "info4", null,null)
+                .block();
+
+        context.getSemanticMemory()
+                .saveInformationAsync("aboutMe", "My family is from New York", "info5", null,null)
+                .block();
+
+        CompletionSKContext result = function.invokeAsync("I love Jupyter notebooks, how should I get started?", context, null).block();
 
         LOGGER.info(result.getResult());
     }
 
     public void testEmbeddingGeneration(OpenAIAsyncClient client, int expectedEmbeddingSize) {
         String model = "text-embedding-ada-002";
-        EmbeddingGeneration<String, Double> embeddingGeneration =
-                new OpenAITextEmbeddingGeneration(client, model);
+        EmbeddingGeneration<String, Double> embeddingGeneration = new OpenAITextEmbeddingGeneration(client, model);
 
         List<String> data = new ArrayList<>();
         data.add("This is just");
@@ -115,13 +133,12 @@ public class TextEmbeddingsTest extends AbstractKernelTest {
 
         KernelConfig kernelConfig =
                 SKBuilders.kernelConfig()
-                        .addTextEmbeddingsGenerationService(model, kernel -> embeddingGeneration)
+                        .addTextEmbeddingsGenerationService(model, embeddingGeneration)
                         .build();
 
-        // TODO: .WithMemoryStorage(new VolatileMemoryStore())
-
-        // TODO: .WithMemoryStorage(new VolatileMemoryStore())
-
-        return SKBuilders.kernel().setKernelConfig(kernelConfig).build();
+        return SKBuilders.kernel()
+                .setKernelConfig(kernelConfig)
+                .withMemoryStorage(new VolatileMemoryStore())
+                .build();
     }
 }
