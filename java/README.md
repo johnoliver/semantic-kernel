@@ -6,22 +6,22 @@ To learn more about Microsoft Semantic Kernel, visit the [Microsoft Semantic Ker
 
 The Semantic Kernel for Java is an SDK that implements the key concepts of the Semantic Kernel in Java. It is designed to be used in Java applications and services in an idiomatic way, and to be easily integrated with other Java libraries and frameworks.
 
-## Get Started
+## Get started
 
 To run the LLM prompts and semantic functions in this kernel, make sure you have an [Open AI API Key](https://openai.com/api/) or [Azure Open AI service key](https://learn.microsoft.com/azure/cognitive-services/openai/quickstart?pivots=rest-api).
 
 ### Requirements
 
-To build the semantic kernel, you will need to have:
+To build the project, you will need to have:
 
 - **Required**: 
   - [JDK 17](https://microsoft.com/openjdk/) or newer
   - [Apache Maven](https://maven.apache.org/) 3.9.1 or newer
   - Azure OpenAI SDK for Java _(see below for instructions)_
 
-## Building the semantic kernel
+## Building the Semantic Kernel
 
-The semantic kernel is built using [Apache Maven](https://maven.apache.org/). To build the semantic kernel, you will first need to have the Azure OpenAI SDK for Java installed in your local Maven repository. At this moment, this SDK is not available on Maven Central, so you will need to build it locally from the source.
+The Semantic Kernel is built using [Apache Maven](https://maven.apache.org/). To build it you will first need to have the Azure OpenAI SDK for Java installed in your local Maven repository. At this moment, this SDK must be built locally from the source.
 
 ### Build the Azure OpenAI SDK locally
 
@@ -38,24 +38,24 @@ The semantic kernel is built using [Apache Maven](https://maven.apache.org/). To
 
        mvn -pl sdk/openai/azure-ai-openai -am install
 
-### Build the semantic kernel
+### Build the Semantic Kernel
 
 1. Clone this repository
 
         git clone git@github.com:microsoft/semantic-kernel.git
 
-2. Build the semantic kernel
+2. Build the Semantic Kernel
 
         cd semantic-kernel/java
         mvn install
 
-    - _Note: disable the integration tests if the build of the semantic kernel fails for lack of an OpenAI key_
+    - _Note: disable the integration tests if the build of fails for lack of an OpenAI key_
 
           mvn install -DskipITs
 
-## Using the semantic kernel
+## Using the Semantic Kernel
 
-Check the `samples` folder for examples of how to use the semantic kernel.
+Check the `../samples` folder for examples.
 
 ## Discord community
 
@@ -106,4 +106,3 @@ This project is licensed under the [MIT License](LICENSE).
 ## Code of Conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-
