@@ -23,27 +23,11 @@ To build the project, you will need to have:
 - **Required**: 
   - [JDK 8](https://microsoft.com/openjdk/) or newer to build the Semantic Kernel library
   - [JDK 17](https://microsoft.com/openjdk/) or newer to run samples
-  - [Apache Maven](https://maven.apache.org/) 3.9.1 or newer
   - Azure OpenAI SDK for Java _(see below for instructions)_
 
 ## Building the Semantic Kernel
 
-The Semantic Kernel is built using [Apache Maven](https://maven.apache.org/). To build it you will first need to have the Azure OpenAI SDK for Java installed in your local Maven repository. At this moment, this SDK must be built locally from the source.
-
-### Build the Azure OpenAI SDK locally
-
-2. Clone the Azure SDK OpenAI repository
-
-       git clone git@github.com:Azure/azure-sdk-for-java.git
-
-3. Switch to the OpenAI feature branch
-
-       cd azure-sdk-for-java
-       git checkout feature/open-ai
-
-4. Build and install the Azure SDK OpenAI in your local Maven Repository
-
-       mvn -pl sdk/openai/azure-ai-openai -am install
+The Semantic Kernel is built using [Apache Maven](https://maven.apache.org/).
 
 ### Build the Semantic Kernel
 
@@ -54,11 +38,9 @@ The Semantic Kernel is built using [Apache Maven](https://maven.apache.org/). To
 2. Build the Semantic Kernel
 
         cd semantic-kernel/java
-        mvn install
+        mvnw install
 
-    - _Note: disable the integration tests if the build of fails for lack of an OpenAI key_
-
-          mvn install -DskipITs
+    - _Note: by defautlt, certain tests will not run if an OpenAI key is not set_
 
 ## Using the Semantic Kernel
 
