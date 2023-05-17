@@ -46,7 +46,7 @@ public class EmbeddingVector<TEmbedding extends Number>
     }
 
     public List<TEmbedding> getVector() {
-        return vector;
+        return Collections.unmodifiableList(this.vector);
     }
 
     /**
