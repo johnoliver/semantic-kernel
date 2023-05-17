@@ -108,7 +108,8 @@ public class EmbeddingVector<TEmbedding extends Number>
                 this.getVector().stream()
                         .map(x -> x.doubleValue() * multiplier)
                         .collect(Collectors.toList());
-        return new EmbeddingVector<>((TEmbedding[]) result.toArray());
+
+        return (EmbeddingVector<TEmbedding>) new EmbeddingVector<>(result);
     }
 
     @Override
@@ -121,7 +122,8 @@ public class EmbeddingVector<TEmbedding extends Number>
                 this.getVector().stream()
                         .map(x -> x.doubleValue() / divisor)
                         .collect(Collectors.toList());
-        return new EmbeddingVector<>((TEmbedding[]) result.toArray());
+
+        return (EmbeddingVector<TEmbedding>) new EmbeddingVector<>(result);
     }
 
     /**
