@@ -4,12 +4,13 @@ package com.microsoft.semantickernel;
 import com.azure.ai.openai.models.Choice;
 import com.azure.ai.openai.models.Completions;
 import com.azure.ai.openai.models.CompletionsOptions;
-import com.microsoft.openai.AzureOpenAiClient;
+import com.microsoft.openai.AzureOpenAIClient;
 import com.microsoft.semantickernel.builders.SKBuilders;
 import com.microsoft.semantickernel.connectors.ai.openai.textcompletion.OpenAITextCompletion;
 import com.microsoft.semantickernel.extensions.KernelExtensions;
-import com.microsoft.semantickernel.orchestration.ReadOnlyContextVariables;
-import com.microsoft.semantickernel.orchestration.ReadOnlySKContext;
+import com.microsoft.semantickernel.orchestration.ContextVariables;
+import com.microsoft.semantickernel.orchestration.SKContext;
+import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
 import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
@@ -43,21 +44,16 @@ public class DefaultKernelTest {
         String prompt = "{{$history}}user: {{$user_input}}\n";
 
         CompletionSKFunction chat =
-                SKBuilders.completionFunctions()
+                kernel.getSemanticFunctionBuilder()
                         .createFunction(
                                 prompt,
                                 "ChatBot",
                                 null,
                                 null,
-                                2000,
-                                0.7,
-                                0.5,
-                                0,
-                                0,
-                                new ArrayList<>())
-                        .registerOnKernel(kernel);
+                                new PromptTemplateConfig.CompletionConfig(
+                                        0.7, 0.5, 0, 0, 2000, new ArrayList<>()));
 
-        ReadOnlyContextVariables variables = SKBuilders.variables().build();
+        ContextVariables variables = SKBuilders.variables().build();
 
         CompletionSKContext readOnlySkContext =
                 chat.buildContext(variables, null, null)
@@ -92,7 +88,7 @@ public class DefaultKernelTest {
         Kernel kernel = buildKernel(model, client);
 
         CompletionSKFunction function =
-                kernel.importSkills(
+                kernel.importSkill(
                                 "FunSkill",
                                 KernelExtensions.importSemanticSkillFromDirectory(
                                         "../../samples/skills", "FunSkill"))
@@ -124,7 +120,7 @@ public class DefaultKernelTest {
     public static Kernel buildKernel(
             String model, com.azure.ai.openai.OpenAIAsyncClient openAIAsyncClient) {
 
-        com.microsoft.openai.OpenAIAsyncClient client = new AzureOpenAiClient(openAIAsyncClient);
+        com.microsoft.openai.OpenAIAsyncClient client = new AzureOpenAIClient(openAIAsyncClient);
 
         TextCompletion textCompletion = new OpenAITextCompletion(client, model);
 
@@ -205,13 +201,9 @@ public class DefaultKernelTest {
                                 "summarize",
                                 null,
                                 null,
-                                2000,
-                                0.2,
-                                0.5,
-                                0,
-                                0,
-                                new ArrayList<>())
-                        .registerOnKernel(kernel);
+                                new PromptTemplateConfig.CompletionConfig(
+                                        0.2, 0.5, 0, 0, 2000, new ArrayList<>()));
+        kernel.registerSemanticFunction(summarize);
 
         Mono<CompletionSKContext> mono = summarize.invokeAsync(text);
         CompletionSKContext result = mono.block();
@@ -222,7 +214,7 @@ public class DefaultKernelTest {
         assertTheResultEquals(result, expectedResponse);
     }
 
-    private void assertTheResultEquals(ReadOnlySKContext result, String expected) {
+    private void assertTheResultEquals(SKContext result, String expected) {
         Assertions.assertEquals(expected, result.getResult());
     }
 

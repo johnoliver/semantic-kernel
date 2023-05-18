@@ -1,21 +1,24 @@
 // Copyright (c) Microsoft. All rights reserved.
 package com.microsoft.semantickernel.orchestration; // Copyright (c) Microsoft. All rights reserved.
 
+import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.memory.SemanticTextMemory;
 import com.microsoft.semantickernel.semanticfunctions.DefaultPromptTemplate;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplate;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
 import com.microsoft.semantickernel.semanticfunctions.SemanticFunctionConfig;
+import com.microsoft.semantickernel.skilldefinition.KernelSkillsSupplier;
 import com.microsoft.semantickernel.skilldefinition.ParameterView;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
-import com.microsoft.semantickernel.textcompletion.*;
+import com.microsoft.semantickernel.textcompletion.CompletionRequestSettings;
+import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
+import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
+import com.microsoft.semantickernel.textcompletion.TextCompletion;
 
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -28,30 +31,35 @@ import javax.annotation.Nullable;
 public class DefaultCompletionSKFunction
         extends DefaultSemanticSKFunction<CompletionRequestSettings, CompletionSKContext>
         implements CompletionSKFunction {
-    private final SKSemanticAsyncTask<CompletionSKContext> function;
-    private final CompletionRequestSettings aiRequestSettings;
-    private final Supplier<TextCompletion> aiService;
+    private final SemanticFunctionConfig functionConfig;
+    private SKSemanticAsyncTask<CompletionSKContext> function;
+    private final CompletionRequestSettings requestSettings;
+
+    @Nullable private DefaultTextCompletionSupplier aiService;
 
     public DefaultCompletionSKFunction(
-            DelegateTypes delegateType,
-            SKSemanticAsyncTask<CompletionSKContext> delegateFunction,
+            DelegateTypes delegateTypes,
             List<ParameterView> parameters,
             String skillName,
             String functionName,
             String description,
-            Supplier<ReadOnlySkillCollection> skillCollection,
-            CompletionRequestSettings aiRequestSettings,
-            Supplier<TextCompletion> aiService) {
-        super(delegateType, parameters, skillName, functionName, description, skillCollection);
+            CompletionRequestSettings requestSettings,
+            SemanticFunctionConfig functionConfig,
+            @Nullable KernelSkillsSupplier kernelSkillsSupplier) {
+        super(
+                delegateTypes,
+                parameters,
+                skillName,
+                functionName,
+                description,
+                kernelSkillsSupplier);
         // TODO
         // Verify.NotNull(delegateFunction, "The function delegate is empty");
         // Verify.ValidSkillName(skillName);
         // Verify.ValidFunctionName(functionName);
         // Verify.ParametersUniqueness(parameters);
-
-        this.function = delegateFunction;
-        this.aiRequestSettings = aiRequestSettings;
-        this.aiService = aiService;
+        this.requestSettings = requestSettings;
+        this.functionConfig = functionConfig;
     }
 
     /*
@@ -90,9 +98,9 @@ public class DefaultCompletionSKFunction
 
     @Override
     public CompletionSKContext buildContext(
-            ReadOnlyContextVariables variables,
+            ContextVariables variables,
             @Nullable SemanticTextMemory memory,
-            @Nullable Supplier<ReadOnlySkillCollection> skills) {
+            @Nullable ReadOnlySkillCollection skills) {
         return new DefaultCompletionSKContext(variables, memory, skills);
     }
 
@@ -104,8 +112,12 @@ public class DefaultCompletionSKFunction
         // this.VerifyIsSemantic();
         // this.ensureContextHasSkills(context);
 
+        if (function == null) {
+            throw new FunctionNotRegisteredException(this.getName());
+        }
+
         if (settings == null) {
-            settings = this.aiRequestSettings;
+            settings = this.requestSettings;
         }
 
         if (this.aiService.get() == null) {
@@ -122,6 +134,45 @@ public class DefaultCompletionSKFunction
     }
 
     @Override
+    public void registerOnKernel(Kernel kernel) {
+        this.function =
+                (TextCompletion client,
+                        CompletionRequestSettings requestSettings,
+                        CompletionSKContext contextInput) -> {
+                    CompletionSKContext context = contextInput.copy();
+                    // TODO
+                    // Verify.NotNull(client, "AI LLM backed is empty");
+                    return functionConfig
+                            .getTemplate()
+                            .renderAsync(context, kernel.getPromptTemplateEngine())
+                            .flatMapMany(
+                                    prompt -> {
+                                        return client.completeAsync(prompt, requestSettings);
+                                    })
+                            .single()
+                            .map(
+                                    completion -> {
+                                        return context.update(completion.get(0));
+                                    })
+                            .doOnError(
+                                    ex -> {
+                                        System.err.println(ex.getMessage());
+                                        ex.printStackTrace();
+                                        // TODO
+                                        /*
+                                        log ?.LogWarning(ex,
+                                            "Something went wrong while rendering the semantic function or while executing the text completion. Function: {0}.{1}. Error: {2}",
+                                            skillName, functionName, ex.Message);
+                                        context.Fail(ex.Message, ex);
+                                         */
+                                    });
+                };
+
+        this.setSkillsSupplier(kernel::getSkills);
+        this.aiService = () -> kernel.getService(null, TextCompletion.class);
+    }
+
+    @Override
     public Class<CompletionRequestSettings> getType() {
         return CompletionRequestSettings.class;
     }
@@ -130,17 +181,12 @@ public class DefaultCompletionSKFunction
         return "func" + UUID.randomUUID();
     }
 
-    public static CompletionFunctionDefinition createFunction(
+    public static DefaultCompletionSKFunction createFunction(
             String promptTemplate,
             @Nullable String functionName,
             @Nullable String skillName,
             @Nullable String description,
-            int maxTokens,
-            double temperature,
-            double topP,
-            double presencePenalty,
-            double frequencyPenalty,
-            @Nullable List<String> stopSequences) {
+            PromptTemplateConfig.CompletionConfig completion) {
 
         if (functionName == null) {
             functionName = randomFunctionName();
@@ -150,26 +196,13 @@ public class DefaultCompletionSKFunction
             description = "Generic function, unknown purpose";
         }
 
-        if (stopSequences == null) {
-            stopSequences = new ArrayList<>();
-        }
-
-        PromptTemplateConfig.CompletionConfig completion =
-                new PromptTemplateConfig.CompletionConfig(
-                        temperature,
-                        topP,
-                        presencePenalty,
-                        frequencyPenalty,
-                        maxTokens,
-                        stopSequences);
-
         PromptTemplateConfig config =
                 new PromptTemplateConfig(description, "completion", completion);
 
         return createFunction(promptTemplate, config, functionName, skillName);
     }
 
-    public static CompletionFunctionDefinition createFunction(
+    public static DefaultCompletionSKFunction createFunction(
             String promptTemplate,
             PromptTemplateConfig config,
             String functionName,
@@ -192,7 +225,7 @@ public class DefaultCompletionSKFunction
         return createFunction(skillName, functionName, functionConfig);
     }
 
-    public static CompletionFunctionDefinition createFunction(
+    public static DefaultCompletionSKFunction createFunction(
             String functionName, SemanticFunctionConfig functionConfig) {
         return createFunction(null, functionName, functionConfig);
     }
@@ -205,66 +238,28 @@ public class DefaultCompletionSKFunction
     /// <param name="functionConfig">Semantic function configuration.</param>
     /// <param name="log">Optional logger for the function.</param>
     /// <returns>SK function instance.</returns>
-    public static CompletionFunctionDefinition createFunction(
+    public static DefaultCompletionSKFunction createFunction(
             @Nullable String skillNameFinal,
             String functionName,
             SemanticFunctionConfig functionConfig) {
-        return CompletionFunctionDefinition.of(
-                (kernel) -> {
-                    String skillName = skillNameFinal;
-                    // Verify.NotNull(functionConfig, "Function configuration is empty");
-                    if (skillName == null) {
-                        skillName = ReadOnlySkillCollection.GlobalSkill;
-                    }
+        String skillName = skillNameFinal;
+        // Verify.NotNull(functionConfig, "Function configuration is empty");
+        if (skillName == null) {
+            skillName = ReadOnlySkillCollection.GlobalSkill;
+        }
 
-                    SKSemanticAsyncTask<CompletionSKContext> localFunc =
-                            (TextCompletion client,
-                                    CompletionRequestSettings requestSettings,
-                                    CompletionSKContext context) -> {
-                                // TODO
-                                // Verify.NotNull(client, "AI LLM backed is empty");
+        CompletionRequestSettings requestSettings =
+                CompletionRequestSettings.fromCompletionConfig(
+                        functionConfig.getConfig().getCompletionConfig());
 
-                                return functionConfig
-                                        .getTemplate()
-                                        .renderAsync(context, kernel.getPromptTemplateEngine())
-                                        .flatMapMany(
-                                                prompt -> {
-                                                    return client.completeAsync(
-                                                            prompt, requestSettings);
-                                                })
-                                        .single()
-                                        .map(
-                                                completion -> {
-                                                    return context.update(completion.get(0));
-                                                })
-                                        .doOnError(
-                                                ex -> {
-                                                    System.err.println(ex.getMessage());
-                                                    ex.printStackTrace();
-                                                    // TODO
-                                                    /*
-                                                    log ?.LogWarning(ex,
-                                                        "Something went wrong while rendering the semantic function or while executing the text completion. Function: {0}.{1}. Error: {2}",
-                                                        skillName, functionName, ex.Message);
-                                                    context.Fail(ex.Message, ex);
-                                                     */
-                                                });
-                            };
-
-                    CompletionRequestSettings requestSettings =
-                            CompletionRequestSettings.fromCompletionConfig(
-                                    functionConfig.getConfig().getCompletionConfig());
-
-                    return new DefaultCompletionSKFunction(
-                            DelegateTypes.ContextSwitchInSKContextOutTaskSKContext,
-                            localFunc,
-                            functionConfig.getTemplate().getParameters(),
-                            skillName,
-                            functionName,
-                            functionConfig.getConfig().getDescription(),
-                            kernel::getSkillCollection,
-                            requestSettings,
-                            () -> kernel.getService(null, TextCompletion.class));
-                });
+        return new DefaultCompletionSKFunction(
+                DelegateTypes.ContextSwitchInSKContextOutTaskSKContext,
+                functionConfig.getTemplate().getParameters(),
+                skillName,
+                functionName,
+                functionConfig.getConfig().getDescription(),
+                requestSettings,
+                functionConfig,
+                null);
     }
 }

@@ -3,10 +3,12 @@ package com.microsoft.semantickernel.builders;
 
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.KernelConfig;
-import com.microsoft.semantickernel.orchestration.ReadOnlyContextVariables;
-import com.microsoft.semantickernel.planner.SequentialPlannerSKFunction;
+import com.microsoft.semantickernel.ai.embeddings.EmbeddingGeneration;
+import com.microsoft.semantickernel.orchestration.ContextVariables;
+import com.microsoft.semantickernel.orchestration.SKContext;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplate;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
+import com.microsoft.semantickernel.templateengine.PromptTemplateEngine;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
 
@@ -16,12 +18,12 @@ public class SKBuilders {
         return FunctionBuilders.getCompletionBuilder();
     }
 
-    public static SequentialPlannerSKFunction.Builder plannerFunctions() {
-        return FunctionBuilders.getPlannerBuilder();
-    }
-
     public static TextCompletion.Builder textCompletionService() {
         return BuildersSingleton.INST.getTextCompletionBuilder();
+    }
+
+    public static EmbeddingGeneration.Builder<String, Double> textEmbeddingGenerationService() {
+        return BuildersSingleton.INST.getTextEmbeddingGenerationBuilder();
     }
 
     public static Kernel.Builder kernel() {
@@ -40,7 +42,15 @@ public class SKBuilders {
         return BuildersSingleton.INST.getPromptTemplateBuilder();
     }
 
-    public static ReadOnlyContextVariables.Builder variables() {
+    public static PromptTemplateEngine.Builder promptTemplateEngine() {
+        return BuildersSingleton.INST.getPromptTemplateEngineBuilder();
+    }
+
+    public static ContextVariables.Builder variables() {
         return BuildersSingleton.INST.variables();
+    }
+
+    public static SKContext.Builder context() {
+        return BuildersSingleton.INST.context();
     }
 }

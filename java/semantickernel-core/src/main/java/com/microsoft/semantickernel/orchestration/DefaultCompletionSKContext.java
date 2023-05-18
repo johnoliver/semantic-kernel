@@ -5,29 +5,32 @@ import com.microsoft.semantickernel.memory.SemanticTextMemory;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
 import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 
-import java.util.function.Supplier;
-
 import javax.annotation.Nullable;
 
-public class DefaultCompletionSKContext extends ImmutableSKContext<CompletionSKContext>
+public class DefaultCompletionSKContext extends AbstractSKContext<CompletionSKContext>
         implements CompletionSKContext {
 
-    DefaultCompletionSKContext(ReadOnlyContextVariables variables) {
+    DefaultCompletionSKContext(ContextVariables variables) {
         super(variables);
     }
 
     public DefaultCompletionSKContext(
-            ReadOnlyContextVariables variables,
+            ContextVariables variables,
             @Nullable SemanticTextMemory memory,
-            @Nullable Supplier<ReadOnlySkillCollection> skills) {
+            @Nullable ReadOnlySkillCollection skills) {
         super(variables, memory, skills);
     }
 
     @Override
+    protected CompletionSKContext getThis() {
+        return this;
+    }
+
+    @Override
     public CompletionSKContext build(
-            ReadOnlyContextVariables variables,
+            ContextVariables variables,
             @Nullable SemanticTextMemory memory,
-            @Nullable Supplier<ReadOnlySkillCollection> skills) {
+            @Nullable ReadOnlySkillCollection skills) {
         return new DefaultCompletionSKContext(variables, memory, skills);
     }
 }

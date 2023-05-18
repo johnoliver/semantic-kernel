@@ -24,6 +24,9 @@
         <module>semantickernel-bom</module>
         <module>semantickernel-api</module>
         <module>semantickernel-core</module>
+        <module>semantickernel-extensions-parent</module>
+        <module>semantickernel-connectors-parent</module>
+        <module>semantickernel-core-skills</module>
     </modules>
 
     <dependencyManagement>
@@ -67,6 +70,7 @@
                 <version>2.20.0</version>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
@@ -77,6 +81,16 @@
                 <groupId>com.azure</groupId>
                 <artifactId>azure-ai-openai</artifactId>
                 <version>1.0.0-alpha.20230505.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.semantickernel.connectors</groupId>
+                <artifactId>semantickernel-connectors</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.semantickernel.extensions</groupId>
+                <artifactId>sequentialplanner-extensions</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

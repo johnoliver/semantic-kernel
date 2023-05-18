@@ -6,8 +6,6 @@ import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
 
 import reactor.core.publisher.Mono;
 
-import java.util.function.Supplier;
-
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 
@@ -17,8 +15,7 @@ import javax.annotation.Nullable;
  * @param <RequestConfiguration> The type of the configuration argument that will be provided when
  *     the function is invoked
  */
-public interface SKFunction<
-        RequestConfiguration, ContextType extends ReadOnlySKContext<ContextType>> {
+public interface SKFunction<RequestConfiguration, ContextType extends SKContext<ContextType>> {
     /*
         /// <summary>
         /// Name of the function. The name is used by the skill collection and in prompt templates e.g. {{skillName.functionName}}
@@ -145,9 +142,14 @@ public interface SKFunction<
     String toManualString();
 
     ContextType buildContext(
-            ReadOnlyContextVariables variables,
+            ContextVariables variables,
             @Nullable SemanticTextMemory memory,
-            @Nullable Supplier<ReadOnlySkillCollection> skills);
+            @Nullable ReadOnlySkillCollection skills);
 
     ContextType buildContext();
+
+    Mono<ContextType> invokeWithCustomInputAsync(
+            ContextVariables variablesClone,
+            SemanticTextMemory semanticMemory,
+            ReadOnlySkillCollection skills);
 }

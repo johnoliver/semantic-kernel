@@ -2,7 +2,7 @@
 package com.microsoft.semantickernel.semanticfunctions; // Copyright (c) Microsoft. All rights
 // reserved.
 
-import com.microsoft.semantickernel.orchestration.ReadOnlySKContext;
+import com.microsoft.semantickernel.orchestration.SKContext;
 import com.microsoft.semantickernel.skilldefinition.ParameterView;
 import com.microsoft.semantickernel.templateengine.PromptTemplateEngine;
 
@@ -26,10 +26,9 @@ public interface PromptTemplate {
      * @param promptTemplateEngine
      * @return Prompt rendered to string
      */
-    Mono<String> renderAsync(
-            ReadOnlySKContext executionContext, PromptTemplateEngine promptTemplateEngine);
+    Mono<String> renderAsync(SKContext executionContext, PromptTemplateEngine promptTemplateEngine);
 
-    public interface Builder {
-        public PromptTemplate build(String promptTemplate, PromptTemplateConfig config);
+    interface Builder {
+        PromptTemplate build(String promptTemplate, PromptTemplateConfig config);
     }
 }

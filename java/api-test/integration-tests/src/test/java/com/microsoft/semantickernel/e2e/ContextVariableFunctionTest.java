@@ -2,7 +2,7 @@
 package com.microsoft.semantickernel.e2e;
 
 import com.microsoft.semantickernel.Kernel;
-import com.microsoft.semantickernel.builders.SKBuilders;
+import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
 import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 
@@ -45,19 +45,14 @@ public class ContextVariableFunctionTest extends AbstractKernelTest {
                     + "ChatBot: ";
 
         CompletionSKFunction chat =
-                SKBuilders.completionFunctions()
+                kernel.getSemanticFunctionBuilder()
                         .createFunction(
                                 prompt,
                                 "ChatBot",
                                 null,
                                 null,
-                                2000,
-                                0.7,
-                                0.5,
-                                0,
-                                0,
-                                new ArrayList<>())
-                        .registerOnKernel(kernel);
+                                new PromptTemplateConfig.CompletionConfig(
+                                        0.7, 0.5, 0, 0, 2000, new ArrayList<>()));
 
         CompletionSKContext readOnlySkContext = chat.buildContext();
 
@@ -102,8 +97,7 @@ public class ContextVariableFunctionTest extends AbstractKernelTest {
                         result -> {
                             LOGGER.info("Bot:\n\t\t" + result.getResult());
 
-                            String existingHistoy =
-                                    finalContext.getVariables().getVariables().get("history");
+                            String existingHistoy = finalContext.getVariables().get("history");
                             if (existingHistoy == null) {
                                 existingHistoy = "";
                             }

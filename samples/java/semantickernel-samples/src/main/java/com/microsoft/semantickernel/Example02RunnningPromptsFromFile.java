@@ -24,14 +24,14 @@ public class Example02RunnningPromptsFromFile {
    */
   public static CompletionSKFunction getJokeFunction(Kernel kernel) {
     ReadOnlyFunctionCollection skill = kernel
-        .importSkills("FunSkill", KernelExtensions.importSemanticSkillFromDirectory(
-            "samples/skills", "FunSkill"));
+            .importSkill("FunSkill", KernelExtensions.importSemanticSkillFromDirectory(
+                    "samples/skills", "FunSkill"));
 
     return skill.getFunction("Joke", CompletionSKFunction.class);
   }
 
   public static void run (boolean useAzureOpenAI) {
-    OpenAIAsyncClient client = Example00GettingStarted.getClient(useAzureOpenAI);
+    OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
     Kernel kernel = Example00GettingStarted.getKernel(client);
     CompletionSKFunction jokeFunction = getJokeFunction(kernel);
 
