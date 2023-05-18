@@ -23,7 +23,6 @@ To build the project, you will need to have:
 - **Required**: 
   - [JDK 8](https://microsoft.com/openjdk/) or newer to build the Semantic Kernel library
   - [JDK 17](https://microsoft.com/openjdk/) or newer to run samples
-  - Azure OpenAI SDK for Java _(see below for instructions)_
 
 ## Building the Semantic Kernel
 

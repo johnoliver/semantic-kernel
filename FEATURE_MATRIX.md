@@ -27,12 +27,12 @@
 ## Core Skills
 | | C# | Python | Java | Notes |
 |---|---|---|---|---|
-| TextMemorySkill                   | ✅ | ✅ | ✅ | |
+| TextMemorySkill                   | ✅ | ✅ | ❌ | Java: work in progress |
 | ConversationSummarySkill          | ✅ | ❌ | ❌ | |
 | FileIOSkill                       | ✅ | ✅ | ❌ | |
 | HttpSkill                         | ✅ | ✅ | ❌ | |
 | MathSkill                         | ✅ | ❌ | ❌ | |
-| TextSkill                         | ✅ | ✅ | ✅ | |
+| TextSkill                         | ✅ | ✅ | ❌ | Java: work in progress |
 | TimeSkill                         | ✅ | ✅ | ❌ | |
 
 ## Planning
