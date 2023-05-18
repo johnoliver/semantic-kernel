@@ -1,5 +1,11 @@
 # Kernel Feature Matrix by Language
 
+## Legent
+
+ - ✅: Supported
+ - 🔄: Work in progress
+ - ❌: Not supported
+
 ## AI Services
 | | C# | Python | Java | Notes |
 |---|---|---|---|---|
@@ -27,12 +33,12 @@
 ## Core Skills
 | | C# | Python | Java | Notes |
 |---|---|---|---|---|
-| TextMemorySkill                   | ✅ | ✅ | ❌ | Java: work in progress |
+| TextMemorySkill                   | ✅ | ✅ | 🔄 | |
 | ConversationSummarySkill          | ✅ | ❌ | ❌ | |
 | FileIOSkill                       | ✅ | ✅ | ❌ | |
 | HttpSkill                         | ✅ | ✅ | ❌ | |
 | MathSkill                         | ✅ | ❌ | ❌ | |
-| TextSkill                         | ✅ | ✅ | ❌ | Java: work in progress |
+| TextSkill                         | ✅ | ✅ | 🔄 | |
 | TimeSkill                         | ✅ | ✅ | ❌ | |
 
 ## Planning
