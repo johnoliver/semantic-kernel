@@ -1,10 +1,10 @@
 # Kernel Feature Matrix by Language
 
-## Legent
+### Legend
 
  - ✅: Supported
  - 🔄: Work in progress
- - ❌: Not supported
+ - ❌: Not supported _yet_
 
 ## AI Services
 | | C# | Python | Java | Notes |
