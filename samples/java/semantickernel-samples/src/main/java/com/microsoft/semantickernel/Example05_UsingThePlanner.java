@@ -4,7 +4,7 @@ import com.microsoft.openai.OpenAIAsyncClient;
 import com.microsoft.semantickernel.extensions.KernelExtensions;
 import com.microsoft.semantickernel.planner.sequentialplanner.SequentialPlanner;
 
-public class Example05UsingThePlanner {
+public class Example05_UsingThePlanner {
 
     public static SequentialPlanner getPlanner(Kernel kernel) {
         kernel.importSkill("SummarizeSkill", KernelExtensions.importSemanticSkillFromDirectory(
@@ -17,7 +17,7 @@ public class Example05UsingThePlanner {
 
     public static void run(boolean useAzureOpenAI) {
         OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
-        Kernel kernel = Example00GettingStarted.getKernel(client);
+        Kernel kernel = Example00_GettingStarted.getKernel(client);
 
         SequentialPlanner planner = getPlanner(kernel);
         System.out.println(planner.createPlanAsync(

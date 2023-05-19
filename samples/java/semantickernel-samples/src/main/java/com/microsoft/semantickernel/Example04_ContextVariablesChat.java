@@ -17,7 +17,7 @@ import java.util.function.Function;
  * Context Variables object which in this demo functions similarly as a key-value store that you can use when running the kernel.
  * The context is local (i.e. in your computer's RAM) and not persisted anywhere beyond the life of the JVM execution.
  */
-public class Example04ContextVariablesChat {
+public class Example04_ContextVariablesChat {
   public static void startChat (Kernel kernel)
       throws ExecutionException, InterruptedException, TimeoutException {
     String prompt ="""
@@ -101,7 +101,7 @@ public class Example04ContextVariablesChat {
   public static void run (boolean useAzureOpenAI)
       throws ExecutionException, InterruptedException, TimeoutException {
     OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
-    Kernel kernel = Example00GettingStarted.getKernel(client);
+    Kernel kernel = Example00_GettingStarted.getKernel(client);
 
     startChat(kernel);
   }
