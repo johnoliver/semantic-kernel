@@ -22,14 +22,14 @@ public class Config {
 
             return new AzureOpenAIClient(
                     new com.azure.ai.openai.OpenAIClientBuilder()
-                            .endpoint(settings.endpoint)
-                            .credential(new AzureKeyCredential(settings.key))
+                            .endpoint(settings.getEndpoint())
+                            .credential(new AzureKeyCredential(settings.getKey()))
                             .buildAsyncClient());
         }
 
         Settings.OpenAISettings settings = Settings.getOpenAISettingsFromFile(CONF_PROPERTIES);
         return new OpenAIClientBuilder()
-                .setApiKey(settings.key)
+                .setApiKey(settings.getKey())
                 .build();
     }
 }

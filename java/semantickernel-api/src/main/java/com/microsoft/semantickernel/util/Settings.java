@@ -13,14 +13,45 @@ public class Settings {
     private static final Logger LOGGER = LoggerFactory.getLogger(Settings.class);
 
     public static class OpenAISettings {
-        public String key;
-        public String organizationId;
+        private final String key;
+        private final String organizationId;
+
+        OpenAISettings(String key, String organizationId) {
+            this.key = key;
+            this.organizationId = organizationId;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getOrganizationId() {
+            return organizationId;
+        }
     }
 
     public static class AzureOpenAISettings {
-        public String key;
-        public String endpoint;
-        public String deploymentName;
+        private final String key;
+        private final String endpoint;
+        private final String deploymentName;
+
+        public AzureOpenAISettings(String key, String endpoint, String deploymentName) {
+            this.key = key;
+            this.endpoint = endpoint;
+            this.deploymentName = deploymentName;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public String getDeploymentName() {
+            return deploymentName;
+        }
     }
 
     private enum Property {
@@ -44,11 +75,9 @@ public class Settings {
      * @return OpenAISettings
      */
     public static OpenAISettings getOpenAISettingsFromFile(String path) {
-        OpenAISettings settings = new OpenAISettings();
-        settings.key = Settings.getSettingsValue(path, Property.OPEN_AI_KEY.label);
-        settings.organizationId =
-                Settings.getSettingsValue(path, Property.OPEN_AI_ORGANIZATION_ID.label, "");
-        return settings;
+        return new OpenAISettings(
+                Settings.getSettingsValue(path, Property.OPEN_AI_KEY.label),
+                Settings.getSettingsValue(path, Property.OPEN_AI_ORGANIZATION_ID.label, ""));
     }
 
     /**
@@ -59,12 +88,10 @@ public class Settings {
      * @return OpenAISettings
      */
     public static AzureOpenAISettings getAzureOpenAISettingsFromFile(String path) {
-        AzureOpenAISettings settings = new AzureOpenAISettings();
-        settings.key = Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_KEY.label);
-        settings.endpoint = Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_ENDPOINT.label);
-        settings.deploymentName =
-                Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_DEPLOYMENT_NAME.label, "");
-        return settings;
+        return new AzureOpenAISettings(
+                Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_KEY.label),
+                Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_ENDPOINT.label),
+                Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_DEPLOYMENT_NAME.label, ""));
     }
 
     private static String getSettingsValue(String SettingsFile, String propertyName) {

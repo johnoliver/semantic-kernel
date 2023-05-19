@@ -32,8 +32,8 @@ public class Example08_RetryHandler {
         AzureOpenAIClient client = new AzureOpenAIClient(
                 new OpenAIClientBuilder()
                         .retryOptions(retryOptions)
-                        .endpoint(settings.endpoint)
-                        .credential(new AzureKeyCredential(settings.key))
+                        .endpoint(settings.getEndpoint())
+                        .credential(new AzureKeyCredential(settings.getKey()))
                         .buildAsyncClient());
 
 
