@@ -30,7 +30,7 @@ public class Example02_RunnningPromptsFromFile {
     return skill.getFunction("Joke", CompletionSKFunction.class);
   }
 
-  public static void run (boolean useAzureOpenAI) {
+  public static void run (boolean useAzureOpenAI) throws IOException {
     OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
     Kernel kernel = Example00_GettingStarted.getKernel(client);
     CompletionSKFunction jokeFunction = getJokeFunction(kernel);

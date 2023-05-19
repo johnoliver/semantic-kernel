@@ -3,6 +3,8 @@ package com.microsoft.semantickernel;
 import com.microsoft.openai.OpenAIAsyncClient;
 import com.microsoft.semantickernel.builders.SKBuilders;
 
+import java.io.IOException;
+
 public class Example06_MemoryAndEmbeddings {
 
   public static Kernel getKernel(OpenAIAsyncClient client) {
@@ -22,12 +24,12 @@ public class Example06_MemoryAndEmbeddings {
     return kernel;
   }
 
-  public static void run (boolean useAzureOpenAI) {
+  public static void run (boolean useAzureOpenAI) throws IOException {
     OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
     Kernel kernel = getKernel(client);
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     run(false);
   }
 }

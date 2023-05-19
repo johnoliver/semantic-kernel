@@ -8,6 +8,8 @@ import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
 /**
  * Getting started
  *
@@ -57,13 +59,13 @@ public class Example00_GettingStarted {
     }
   }
 
-  public static void run (boolean useAzureOpenAI) {
+  public static void run (boolean useAzureOpenAI) throws IOException {
     OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
     Kernel kernel = getKernel(client);
     joke(kernel);
   }
 
-  public static void main (String args[]) {
+  public static void main (String args[]) throws IOException {
     // Send whether AzureOpenAI will be used. If false, OpenAI will be used.
     run(false);
   }

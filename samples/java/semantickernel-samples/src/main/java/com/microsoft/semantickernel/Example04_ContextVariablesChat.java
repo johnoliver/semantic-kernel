@@ -6,6 +6,7 @@ import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -99,7 +100,7 @@ public class Example04_ContextVariablesChat {
   }
 
   public static void run (boolean useAzureOpenAI)
-      throws ExecutionException, InterruptedException, TimeoutException {
+          throws ExecutionException, InterruptedException, TimeoutException, IOException {
     OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
     Kernel kernel = Example00_GettingStarted.getKernel(client);
 
@@ -107,7 +108,7 @@ public class Example04_ContextVariablesChat {
   }
 
   public static void main (String[] args)
-      throws ExecutionException, InterruptedException, TimeoutException {
+          throws ExecutionException, InterruptedException, TimeoutException, IOException {
     run(false);
   }
 }

@@ -4,6 +4,8 @@ import com.microsoft.openai.OpenAIAsyncClient;
 import com.microsoft.semantickernel.extensions.KernelExtensions;
 import com.microsoft.semantickernel.planner.sequentialplanner.SequentialPlanner;
 
+import java.io.IOException;
+
 public class Example05_UsingThePlanner {
 
     public static SequentialPlanner getPlanner(Kernel kernel) {
@@ -15,7 +17,7 @@ public class Example05_UsingThePlanner {
         return new SequentialPlanner(kernel, null, null);
     }
 
-    public static void run(boolean useAzureOpenAI) {
+    public static void run(boolean useAzureOpenAI) throws IOException {
         OpenAIAsyncClient client = Config.getClient(useAzureOpenAI);
         Kernel kernel = Example00_GettingStarted.getKernel(client);
 
@@ -27,7 +29,7 @@ public class Example05_UsingThePlanner {
         // TODO: execute the plan
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         run(true);
     }
 
