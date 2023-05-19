@@ -6,6 +6,8 @@ import com.microsoft.openai.OpenAIAsyncClient;
 import com.microsoft.openai.OpenAIClientBuilder;
 import com.microsoft.semantickernel.util.Settings;
 
+import java.io.IOException;
+
 public class Config {
 
     public static final String CONF_PROPERTIES = "samples/java/semantickernel-samples/conf.properties";
@@ -16,7 +18,7 @@ public class Config {
      * @param useAzureOpenAI whether to use AzureOpenAI or OpenAI.
      * @return client to be used by the kernel.
      */
-    public static OpenAIAsyncClient getClient(boolean useAzureOpenAI) {
+    public static OpenAIAsyncClient getClient(boolean useAzureOpenAI) throws IOException {
         if (useAzureOpenAI) {
             Settings.AzureOpenAISettings settings = Settings.getAzureOpenAISettingsFromFile(CONF_PROPERTIES);
 

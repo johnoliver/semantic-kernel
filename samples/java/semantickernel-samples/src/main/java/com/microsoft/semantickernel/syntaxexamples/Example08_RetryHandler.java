@@ -14,6 +14,7 @@ import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
 import com.microsoft.semantickernel.util.Settings;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ import static com.microsoft.semantickernel.Config.CONF_PROPERTIES;
 
 public class Example08_RetryHandler {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         RetryOptions retryOptions = new RetryOptions(new ExponentialBackoffOptions()
                 .setMaxDelay(Duration.ofSeconds(180))
                 .setBaseDelay(Duration.ofSeconds(60))

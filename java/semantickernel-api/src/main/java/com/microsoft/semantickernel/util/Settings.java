@@ -74,7 +74,7 @@ public class Settings {
      * @param path Path to the properties file
      * @return OpenAISettings
      */
-    public static OpenAISettings getOpenAISettingsFromFile(String path) {
+    public static OpenAISettings getOpenAISettingsFromFile(String path) throws IOException {
         return new OpenAISettings(
                 Settings.getSettingsValue(path, Property.OPEN_AI_KEY.label),
                 Settings.getSettingsValue(path, Property.OPEN_AI_ORGANIZATION_ID.label, ""));
@@ -87,20 +87,20 @@ public class Settings {
      * @param path Path to the properties file
      * @return OpenAISettings
      */
-    public static AzureOpenAISettings getAzureOpenAISettingsFromFile(String path) {
+    public static AzureOpenAISettings getAzureOpenAISettingsFromFile(String path) throws IOException {
         return new AzureOpenAISettings(
                 Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_KEY.label),
                 Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_ENDPOINT.label),
                 Settings.getSettingsValue(path, Property.AZURE_OPEN_AI_DEPLOYMENT_NAME.label, ""));
     }
 
-    private static String getSettingsValue(String SettingsFile, String propertyName) {
-        return getSettingsValue(SettingsFile, propertyName, null);
+    private static String getSettingsValue(String settingsFile, String propertyName) throws IOException {
+        return getSettingsValue(settingsFile, propertyName, null);
     }
 
     private static String getSettingsValue(
-            String SettingsFile, String propertyName, String defaultValue) {
-        File Settings = new File(SettingsFile);
+            String settingsFile, String propertyName, String defaultValue) throws IOException {
+        File Settings = new File(settingsFile);
         try (FileInputStream fis = new FileInputStream(Settings.getAbsolutePath())) {
             Properties props = new Properties();
             props.load(fis);
@@ -110,9 +110,9 @@ public class Settings {
             return props.getProperty(propertyName, defaultValue);
         } catch (IOException e) {
             LOGGER.error(
-                    "Unable to load config value " + propertyName + " from file " + SettingsFile,
+                    "Unable to load config value " + propertyName + " from properties file",
                     e);
-            throw new RuntimeException(SettingsFile + " not configured properly");
+            throw new IOException(settingsFile + " not configured properly");
         }
     }
 }
