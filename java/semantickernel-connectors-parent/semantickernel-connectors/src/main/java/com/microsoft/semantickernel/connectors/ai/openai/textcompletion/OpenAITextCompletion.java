@@ -63,7 +63,7 @@ public class OpenAITextCompletion extends ClientBase implements TextCompletion {
         return getClient()
                 .getCompletions(getModelId(), completionsOptions)
                 .flatMapIterable(Completions::getChoices)
-                .mapNotNull(Choice::getText)
+                .mapNotNull(Choice::getMessage)
                 .collectList();
     }
 }

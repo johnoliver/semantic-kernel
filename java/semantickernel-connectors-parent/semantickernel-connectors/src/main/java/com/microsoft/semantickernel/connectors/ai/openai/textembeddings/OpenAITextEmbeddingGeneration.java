@@ -4,6 +4,7 @@ package com.microsoft.semantickernel.connectors.ai.openai.textembeddings;
 import com.azure.ai.openai.models.EmbeddingItem;
 import com.azure.ai.openai.models.Embeddings;
 import com.azure.ai.openai.models.EmbeddingsOptions;
+import com.azure.ai.openai.models.StringListInputModel;
 import com.microsoft.openai.OpenAIAsyncClient;
 import com.microsoft.semantickernel.ai.embeddings.Embedding;
 import com.microsoft.semantickernel.ai.embeddings.EmbeddingGeneration;
@@ -26,7 +27,8 @@ public class OpenAITextEmbeddingGeneration extends ClientBase
     }
 
     protected Mono<List<Embedding<Double>>> internalGenerateTextEmbeddingsAsync(List<String> data) {
-        EmbeddingsOptions options = new EmbeddingsOptions(data).setModel(getModelId());
+        EmbeddingsOptions options =
+                new EmbeddingsOptions(new StringListInputModel(data)).setModel(getModelId());
 
         return getClient()
                 .getEmbeddings(getModelId(), options)

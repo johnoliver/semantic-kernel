@@ -69,7 +69,8 @@ class OpenAIAsyncClientImpl implements OpenAIAsyncClient {
                                         BinaryData.fromObject(embeddingsOptions),
                                         new RequestOptions()
                                                 .addHeader(
-                                                        HttpHeaderName.AUTHORIZATION,
+                                                        HttpHeaderName.AUTHORIZATION
+                                                                .getCaseSensitiveName(),
                                                         "Bearer " + this.apiKey),
                                         context))
                 .flatMap(FluxUtil::toMono)
@@ -88,7 +89,8 @@ class OpenAIAsyncClientImpl implements OpenAIAsyncClient {
                                         BinaryData.fromObject(completionsOptions),
                                         new RequestOptions()
                                                 .addHeader(
-                                                        HttpHeaderName.AUTHORIZATION,
+                                                        HttpHeaderName.AUTHORIZATION
+                                                                .getCaseSensitiveName(),
                                                         "Bearer " + this.apiKey),
                                         context))
                 .flatMap(FluxUtil::toMono)
@@ -107,7 +109,8 @@ class OpenAIAsyncClientImpl implements OpenAIAsyncClient {
                                         BinaryData.fromObject(chatCompletionsOptions),
                                         new RequestOptions()
                                                 .addHeader(
-                                                        HttpHeaderName.AUTHORIZATION,
+                                                        HttpHeaderName.AUTHORIZATION
+                                                                .getCaseSensitiveName(),
                                                         "Bearer " + this.apiKey),
                                         context))
                 .flatMap(FluxUtil::toMono)

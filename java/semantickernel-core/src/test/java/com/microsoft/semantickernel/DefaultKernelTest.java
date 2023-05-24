@@ -173,7 +173,7 @@ public class DefaultKernelTest {
         for (Tuple2<ArgumentMatcher<String>, String> response : responses) {
 
             Choice choice = Mockito.mock(Choice.class);
-            Mockito.when(choice.getText()).thenReturn(response.getT2());
+            Mockito.when(choice.getMessage()).thenReturn(response.getT2());
 
             Completions completions = Mockito.mock(Completions.class);
 
