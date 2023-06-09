@@ -5,39 +5,36 @@ import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
 import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
-
+import java.io.IOException;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.Mono;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 public class InlineFunctionTest extends AbstractKernelTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlineFunctionTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(InlineFunctionTest.class);
 
-    @Test
-    @EnabledIf("isAzureTestEnabled")
-    public void executeInlineFunction() throws IOException {
-        Kernel kernel = buildTextCompletionKernel();
-        String prompt = "{{$input}}\n" + "Summarize the content above.";
+  @Test
+  @EnabledIf("isAzureTestEnabled")
+  public void executeInlineFunction() throws IOException {
+    Kernel kernel = buildTextCompletionKernel();
+    String prompt = "{{$input}}\n" + "Summarize the content above.";
 
-        CompletionSKFunction summarize =
-                kernel.getSemanticFunctionBuilder()
-                        .createFunction(
-                                prompt,
-                                "summarize",
-                                null,
-                                null,
-                                new PromptTemplateConfig.CompletionConfig(
-                                        0.2, 0.5, 0, 0, 2000, new ArrayList<>()));
+    CompletionSKFunction summarize =
+        kernel
+            .getSemanticFunctionBuilder()
+            .createFunction(
+                prompt,
+                "summarize",
+                null,
+                null,
+                new PromptTemplateConfig.CompletionConfig(0.2, 0.5, 0, 0, 2000, new ArrayList<>()));
 
-        String text =
-                """
+    String text =
+        """
                         Demo (ancient Greek poet)
                         From Wikipedia, the free encyclopedia
                         Demo or Damo (Greek: Δεμώ, Δαμώ; fl. c. AD 200) was a Greek woman of the Roman period, known for a single epigram, engraved upon the Colossus of Memnon, which bears her name. She speaks of herself therein as a lyric poetess dedicated to the Muses, but nothing is known of her life.[1]
@@ -49,8 +46,8 @@ public class InlineFunctionTest extends AbstractKernelTest {
                         Demo, like Julia Balbilla, writes in the artificial and poetic Aeolic dialect. The language indicates she was knowledgeable in Homeric poetry—'bearing a pleasant gift', for example, alludes to the use of that phrase throughout the Iliad and Odyssey.[a][2]
                         """;
 
-        Mono<CompletionSKContext> result = summarize.invokeAsync(text);
+    Mono<CompletionSKContext> result = summarize.invokeAsync(text);
 
-        LOGGER.info("Result: " + result.block().getResult());
-    }
+    LOGGER.info("Result: " + result.block().getResult());
+  }
 }
