@@ -588,7 +588,6 @@
                             <java>
                                 <googleJavaFormat>
                                     <version>${google.java.format.version}</version>
-                                    <style>AOSP</style>
                                     <reflowLongStrings>true</reflowLongStrings>
                                 </googleJavaFormat>
                                 <licenseHeader>

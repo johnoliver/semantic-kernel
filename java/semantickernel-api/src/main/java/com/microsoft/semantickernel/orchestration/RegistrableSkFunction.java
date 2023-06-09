@@ -5,5 +5,5 @@ import com.microsoft.semantickernel.Kernel;
 
 public interface RegistrableSkFunction {
 
-    void registerOnKernel(Kernel kernel);
+  void registerOnKernel(Kernel kernel);
 }

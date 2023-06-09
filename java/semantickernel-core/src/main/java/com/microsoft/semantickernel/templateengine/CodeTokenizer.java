@@ -2,7 +2,6 @@
 package com.microsoft.semantickernel.templateengine;
 
 import com.microsoft.semantickernel.templateengine.blocks.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,197 +32,197 @@ import java.util.List;
 /// [digit]          ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 /// </summary>
 public class CodeTokenizer {
-    private enum TokenTypes {
-        None(0),
-        Value(1),
-        Variable(2),
-        FunctionId(3);
+  private enum TokenTypes {
+    None(0),
+    Value(1),
+    Variable(2),
+    FunctionId(3);
 
-        TokenTypes(int i) {}
+    TokenTypes(int i) {}
+  }
+
+  public CodeTokenizer() {}
+
+  /// <summary>
+  /// Tokenize a code block, without checking for syntax errors
+  /// </summary>
+  /// <param name="text">Text to parse</param>
+  /// <returns>A list of blocks</returns>
+  public List<Block> tokenize(String text) {
+    if (text == null) {
+      return new ArrayList<>();
     }
 
-    public CodeTokenizer() {}
+    // Remove spaces, which are ignored anyway
+    text = text.trim();
 
-    /// <summary>
-    /// Tokenize a code block, without checking for syntax errors
-    /// </summary>
-    /// <param name="text">Text to parse</param>
-    /// <returns>A list of blocks</returns>
-    public List<Block> tokenize(String text) {
-        if (text == null) {
-            return new ArrayList<>();
+    // Render NULL to ""
+    if (text.isEmpty()) {
+      return Collections.unmodifiableList(new ArrayList<>());
+    }
+
+    // Track what type of token we're reading
+    TokenTypes currentTokenType = TokenTypes.None;
+
+    // Track the content of the current token
+    StringBuilder currentTokenContent = new StringBuilder();
+
+    char textValueDelimiter = '\0';
+
+    List<Block> blocks = new ArrayList<>();
+    char nextChar = text.charAt(0);
+
+    // Tokens must be separated by spaces, track their presence
+    boolean spaceSeparatorFound = false;
+
+    // 1 char only edge case
+    if (text.length() == 1) {
+      switch (nextChar) {
+        case Symbols.VarPrefix:
+          blocks.add(new VarBlock(text));
+          break;
+
+        case Symbols.DblQuote:
+        case Symbols.SglQuote:
+          blocks.add(new ValBlock(text));
+          break;
+
+        default:
+          blocks.add(new FunctionIdBlock(text));
+          break;
+      }
+
+      return blocks;
+    }
+
+    boolean skipNextChar = false;
+    for (int nextCharCursor = 1; nextCharCursor < text.length(); nextCharCursor++) {
+      char currentChar = nextChar;
+      nextChar = text.charAt(nextCharCursor);
+
+      if (skipNextChar) {
+        skipNextChar = false;
+        continue;
+      }
+
+      // First char is easy
+      if (nextCharCursor == 1) {
+        if (isVarPrefix(currentChar)) {
+          currentTokenType = TokenTypes.Variable;
+        } else if (isQuote(currentChar)) {
+          currentTokenType = TokenTypes.Value;
+          textValueDelimiter = currentChar;
+        } else {
+          currentTokenType = TokenTypes.FunctionId;
         }
 
-        // Remove spaces, which are ignored anyway
-        text = text.trim();
+        currentTokenContent.append(currentChar);
+        continue;
+      }
 
-        // Render NULL to ""
-        if (text.isEmpty()) {
-            return Collections.unmodifiableList(new ArrayList<>());
+      // While reading a values between quotes
+      if (currentTokenType == TokenTypes.Value) {
+        // If the current char is escaping the next special char:
+        // - skip the current char (escape char)
+        // - add the next (special char)
+        // - jump to the one after (to handle "\\" properly)
+        if (currentChar == Symbols.EscapeChar && CanBeEscaped(nextChar)) {
+          currentTokenContent.append(nextChar);
+          skipNextChar = true;
+          continue;
         }
 
-        // Track what type of token we're reading
-        TokenTypes currentTokenType = TokenTypes.None;
+        currentTokenContent.append(currentChar);
 
-        // Track the content of the current token
-        StringBuilder currentTokenContent = new StringBuilder();
-
-        char textValueDelimiter = '\0';
-
-        List<Block> blocks = new ArrayList<>();
-        char nextChar = text.charAt(0);
-
-        // Tokens must be separated by spaces, track their presence
-        boolean spaceSeparatorFound = false;
-
-        // 1 char only edge case
-        if (text.length() == 1) {
-            switch (nextChar) {
-                case Symbols.VarPrefix:
-                    blocks.add(new VarBlock(text));
-                    break;
-
-                case Symbols.DblQuote:
-                case Symbols.SglQuote:
-                    blocks.add(new ValBlock(text));
-                    break;
-
-                default:
-                    blocks.add(new FunctionIdBlock(text));
-                    break;
-            }
-
-            return blocks;
+        // When we reach the end of the value
+        if (currentChar == textValueDelimiter) {
+          blocks.add(new ValBlock(currentTokenContent.toString()));
+          currentTokenContent = new StringBuilder();
+          currentTokenType = TokenTypes.None;
+          spaceSeparatorFound = false;
         }
 
-        boolean skipNextChar = false;
-        for (int nextCharCursor = 1; nextCharCursor < text.length(); nextCharCursor++) {
-            char currentChar = nextChar;
-            nextChar = text.charAt(nextCharCursor);
+        continue;
+      }
 
-            if (skipNextChar) {
-                skipNextChar = false;
-                continue;
-            }
-
-            // First char is easy
-            if (nextCharCursor == 1) {
-                if (isVarPrefix(currentChar)) {
-                    currentTokenType = TokenTypes.Variable;
-                } else if (isQuote(currentChar)) {
-                    currentTokenType = TokenTypes.Value;
-                    textValueDelimiter = currentChar;
-                } else {
-                    currentTokenType = TokenTypes.FunctionId;
-                }
-
-                currentTokenContent.append(currentChar);
-                continue;
-            }
-
-            // While reading a values between quotes
-            if (currentTokenType == TokenTypes.Value) {
-                // If the current char is escaping the next special char:
-                // - skip the current char (escape char)
-                // - add the next (special char)
-                // - jump to the one after (to handle "\\" properly)
-                if (currentChar == Symbols.EscapeChar && CanBeEscaped(nextChar)) {
-                    currentTokenContent.append(nextChar);
-                    skipNextChar = true;
-                    continue;
-                }
-
-                currentTokenContent.append(currentChar);
-
-                // When we reach the end of the value
-                if (currentChar == textValueDelimiter) {
-                    blocks.add(new ValBlock(currentTokenContent.toString()));
-                    currentTokenContent = new StringBuilder();
-                    currentTokenType = TokenTypes.None;
-                    spaceSeparatorFound = false;
-                }
-
-                continue;
-            }
-
-            // If we're not between quotes, a space signals the end of the current token
-            // Note: there might be multiple consecutive spaces
-            if (IsBlankSpace(currentChar)) {
-                if (currentTokenType == TokenTypes.Variable) {
-                    blocks.add(new VarBlock(currentTokenContent.toString()));
-                    currentTokenContent = new StringBuilder();
-                } else if (currentTokenType == TokenTypes.FunctionId) {
-                    blocks.add(new FunctionIdBlock(currentTokenContent.toString()));
-                    currentTokenContent = new StringBuilder();
-                }
-
-                spaceSeparatorFound = true;
-                currentTokenType = TokenTypes.None;
-
-                continue;
-            }
-
-            // If we're not inside a quoted value and we're not processing a space
-            currentTokenContent.append(currentChar);
-
-            if (currentTokenType == TokenTypes.None) {
-                if (!spaceSeparatorFound) {
-                    throw new TemplateException(
-                            TemplateException.ErrorCodes.SyntaxError,
-                            "Tokens must be separated by one space least");
-                }
-
-                if (isQuote(currentChar)) {
-                    // A quoted value starts here
-                    currentTokenType = TokenTypes.Value;
-                    textValueDelimiter = currentChar;
-                } else if (isVarPrefix(currentChar)) {
-                    // A variable starts here
-                    currentTokenType = TokenTypes.Variable;
-                } else {
-                    // A function Id starts here
-                    currentTokenType = TokenTypes.FunctionId;
-                }
-            }
+      // If we're not between quotes, a space signals the end of the current token
+      // Note: there might be multiple consecutive spaces
+      if (IsBlankSpace(currentChar)) {
+        if (currentTokenType == TokenTypes.Variable) {
+          blocks.add(new VarBlock(currentTokenContent.toString()));
+          currentTokenContent = new StringBuilder();
+        } else if (currentTokenType == TokenTypes.FunctionId) {
+          blocks.add(new FunctionIdBlock(currentTokenContent.toString()));
+          currentTokenContent = new StringBuilder();
         }
 
-        // Capture last token
-        currentTokenContent.append(nextChar);
-        switch (currentTokenType) {
-            case Value:
-                blocks.add(new ValBlock(currentTokenContent.toString()));
-                break;
+        spaceSeparatorFound = true;
+        currentTokenType = TokenTypes.None;
 
-            case Variable:
-                blocks.add(new VarBlock(currentTokenContent.toString()));
-                break;
+        continue;
+      }
 
-            case FunctionId:
-                blocks.add(new FunctionIdBlock(currentTokenContent.toString()));
-                break;
+      // If we're not inside a quoted value and we're not processing a space
+      currentTokenContent.append(currentChar);
 
-            case None:
-                throw new TemplateException(
-                        TemplateException.ErrorCodes.SyntaxError,
-                        "Tokens must be separated by one space least");
+      if (currentTokenType == TokenTypes.None) {
+        if (!spaceSeparatorFound) {
+          throw new TemplateException(
+              TemplateException.ErrorCodes.SyntaxError,
+              "Tokens must be separated by one space least");
         }
 
-        return blocks;
+        if (isQuote(currentChar)) {
+          // A quoted value starts here
+          currentTokenType = TokenTypes.Value;
+          textValueDelimiter = currentChar;
+        } else if (isVarPrefix(currentChar)) {
+          // A variable starts here
+          currentTokenType = TokenTypes.Variable;
+        } else {
+          // A function Id starts here
+          currentTokenType = TokenTypes.FunctionId;
+        }
+      }
     }
 
-    private static boolean isVarPrefix(char c) {
-        return (c == Symbols.VarPrefix);
+    // Capture last token
+    currentTokenContent.append(nextChar);
+    switch (currentTokenType) {
+      case Value:
+        blocks.add(new ValBlock(currentTokenContent.toString()));
+        break;
+
+      case Variable:
+        blocks.add(new VarBlock(currentTokenContent.toString()));
+        break;
+
+      case FunctionId:
+        blocks.add(new FunctionIdBlock(currentTokenContent.toString()));
+        break;
+
+      case None:
+        throw new TemplateException(
+            TemplateException.ErrorCodes.SyntaxError,
+            "Tokens must be separated by one space least");
     }
 
-    private static boolean IsBlankSpace(char c) {
-        return Character.isWhitespace(c);
-    }
+    return blocks;
+  }
 
-    private static boolean isQuote(char c) {
-        return c == Symbols.DblQuote || c == Symbols.SglQuote;
-    }
+  private static boolean isVarPrefix(char c) {
+    return (c == Symbols.VarPrefix);
+  }
 
-    private static boolean CanBeEscaped(char c) {
-        return c == Symbols.DblQuote || c == Symbols.SglQuote || c == Symbols.EscapeChar;
-    }
+  private static boolean IsBlankSpace(char c) {
+    return Character.isWhitespace(c);
+  }
+
+  private static boolean isQuote(char c) {
+    return c == Symbols.DblQuote || c == Symbols.SglQuote;
+  }
+
+  private static boolean CanBeEscaped(char c) {
+    return c == Symbols.DblQuote || c == Symbols.SglQuote || c == Symbols.EscapeChar;
+  }
 }

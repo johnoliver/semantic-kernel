@@ -4,7 +4,6 @@ package com.microsoft.semantickernel.orchestration;
 // Copyright (c) Microsoft. All rights reserved.
 
 import java.util.Map;
-
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
 
@@ -14,39 +13,39 @@ import javax.annotation.Nullable;
  */
 public interface ContextVariables {
 
-    String MAIN_KEY = "input";
+  String MAIN_KEY = "input";
 
-    Map<String, String> asMap();
+  Map<String, String> asMap();
 
-    @CheckReturnValue
-    WritableContextVariables writableClone();
+  @CheckReturnValue
+  WritableContextVariables writableClone();
 
-    interface Builder {
-        ContextVariables build();
-
-        /**
-         * Builds an instance with the given content in the default main key
-         *
-         * @param content Entry to place in the "input" slot
-         * @return an instantiation of ContextVariables
-         */
-        ContextVariables build(String content);
-
-        /**
-         * Builds an instance with the given variables
-         *
-         * @param map Existing varibles
-         * @return an instantiation of ContextVariables
-         */
-        ContextVariables build(Map<String, String> map);
-    }
+  interface Builder {
+    ContextVariables build();
 
     /**
-     * Return the variable with the given name
+     * Builds an instance with the given content in the default main key
      *
-     * @param key variable name
-     * @return content of the variable
+     * @param content Entry to place in the "input" slot
+     * @return an instantiation of ContextVariables
      */
-    @Nullable
-    String get(String key);
+    ContextVariables build(String content);
+
+    /**
+     * Builds an instance with the given variables
+     *
+     * @param map Existing varibles
+     * @return an instantiation of ContextVariables
+     */
+    ContextVariables build(Map<String, String> map);
+  }
+
+  /**
+   * Return the variable with the given name
+   *
+   * @param key variable name
+   * @return content of the variable
+   */
+  @Nullable
+  String get(String key);
 }

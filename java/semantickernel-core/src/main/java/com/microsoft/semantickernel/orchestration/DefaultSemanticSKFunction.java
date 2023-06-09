@@ -5,12 +5,9 @@ import com.microsoft.semantickernel.builders.SKBuilders;
 import com.microsoft.semantickernel.memory.NullMemory;
 import com.microsoft.semantickernel.skilldefinition.KernelSkillsSupplier;
 import com.microsoft.semantickernel.skilldefinition.ParameterView;
-
-import reactor.core.publisher.Mono;
-
 import java.util.List;
-
 import javax.annotation.Nullable;
+import reactor.core.publisher.Mono;
 
 /// <summary>
 /// Standard Semantic Kernel callable function.
@@ -19,36 +16,36 @@ import javax.annotation.Nullable;
 /// with additional methods required by the kernel.
 /// </summary>
 public abstract class DefaultSemanticSKFunction<
-                RequestConfiguration, ContextType extends SKContext<ContextType>>
-        extends AbstractSkFunction<RequestConfiguration, ContextType>
-        implements SKFunction<RequestConfiguration, ContextType> {
+        RequestConfiguration, ContextType extends SKContext<ContextType>>
+    extends AbstractSkFunction<RequestConfiguration, ContextType>
+    implements SKFunction<RequestConfiguration, ContextType> {
 
-    public DefaultSemanticSKFunction(
-            DelegateTypes delegateType,
-            List<ParameterView> parameters,
-            String skillName,
-            String functionName,
-            String description,
-            @Nullable KernelSkillsSupplier kernelSkillsSupplier) {
-        super(delegateType, parameters, skillName, functionName, description, kernelSkillsSupplier);
+  public DefaultSemanticSKFunction(
+      DelegateTypes delegateType,
+      List<ParameterView> parameters,
+      String skillName,
+      String functionName,
+      String description,
+      @Nullable KernelSkillsSupplier kernelSkillsSupplier) {
+    super(delegateType, parameters, skillName, functionName, description, kernelSkillsSupplier);
+  }
+
+  @Override
+  public Mono<ContextType> invokeAsync(
+      String input, @Nullable ContextType context, @Nullable RequestConfiguration settings) {
+    if (context == null) {
+      assertSkillSupplierRegistered();
+      context =
+          buildContext(
+              SKBuilders.variables().build(),
+              NullMemory.getInstance(),
+              super.getSkillsSupplier().get());
+    } else {
+      context = context.copy();
     }
 
-    @Override
-    public Mono<ContextType> invokeAsync(
-            String input, @Nullable ContextType context, @Nullable RequestConfiguration settings) {
-        if (context == null) {
-            assertSkillSupplierRegistered();
-            context =
-                    buildContext(
-                            SKBuilders.variables().build(),
-                            NullMemory.getInstance(),
-                            super.getSkillsSupplier().get());
-        } else {
-            context = context.copy();
-        }
+    context = context.update(input);
 
-        context = context.update(input);
-
-        return this.invokeAsync(context, settings);
-    }
+    return this.invokeAsync(context, settings);
+  }
 }

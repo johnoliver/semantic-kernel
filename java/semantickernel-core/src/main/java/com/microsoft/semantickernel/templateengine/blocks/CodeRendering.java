@@ -2,20 +2,18 @@
 package com.microsoft.semantickernel.templateengine.blocks;
 
 import com.microsoft.semantickernel.orchestration.SKContext;
-
-import reactor.core.publisher.Mono;
-
 import javax.annotation.Nullable;
+import reactor.core.publisher.Mono;
 
 /// <summary>
 /// Interface of dynamic blocks that need async IO to be rendered.
 /// </summary>
 public interface CodeRendering {
-    /// <summary>
-    /// Render the block using the given context, potentially using external I/O.
-    /// </summary>
-    /// <param name="context">SK execution context</param>
-    /// <returns>Rendered content</returns>
-    @Nullable
-    Mono<String> renderCodeAsync(SKContext context);
+  /// <summary>
+  /// Render the block using the given context, potentially using external I/O.
+  /// </summary>
+  /// <param name="context">SK execution context</param>
+  /// <returns>Rendered content</returns>
+  @Nullable
+  Mono<String> renderCodeAsync(SKContext context);
 }

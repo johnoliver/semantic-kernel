@@ -7,69 +7,66 @@ import javax.annotation.Nullable;
 /** Kernel logic exception */
 public class KernelException extends SKException {
 
-    @Nonnull private final ErrorCodes errorCode;
+  @Nonnull private final ErrorCodes errorCode;
 
-    public KernelException(@Nonnull ErrorCodes error) {
-        this(error, null, null);
-    }
+  public KernelException(@Nonnull ErrorCodes error) {
+    this(error, null, null);
+  }
 
-    public KernelException(@Nonnull ErrorCodes errorCode, @Nullable String message) {
-        this(errorCode, message, null);
-    }
+  public KernelException(@Nonnull ErrorCodes errorCode, @Nullable String message) {
+    this(errorCode, message, null);
+  }
 
-    public KernelException(
-            @Nonnull ErrorCodes errorCode,
-            @Nullable String message,
-            @Nullable Throwable innerException) {
-        super(getDefaultMessage(errorCode, message), innerException);
-        this.errorCode = errorCode;
-    }
+  public KernelException(
+      @Nonnull ErrorCodes errorCode, @Nullable String message, @Nullable Throwable innerException) {
+    super(getDefaultMessage(errorCode, message), innerException);
+    this.errorCode = errorCode;
+  }
 
-    public ErrorCodes getErrorCode() {
-        return errorCode;
-    }
+  public ErrorCodes getErrorCode() {
+    return errorCode;
+  }
 
-    /* Translate the error code into a default message */
-    private static String getDefaultMessage(
-            @Nonnull ErrorCodes errorCode, @Nullable String message) {
-        return String.format("%s: %s", errorCode.getMessage(), message);
-    }
+  /* Translate the error code into a default message */
+  private static String getDefaultMessage(@Nonnull ErrorCodes errorCode, @Nullable String message) {
+    return String.format("%s: %s", errorCode.getMessage(), message);
+  }
 
+  /// <summary>
+  /// Semantic kernel error codes.
+  /// </summary>
+  public enum ErrorCodes {
     /// <summary>
-    /// Semantic kernel error codes.
+    /// Unknown error.
     /// </summary>
-    public enum ErrorCodes {
-        /// <summary>
-        /// Unknown error.
-        /// </summary>
-        UnknownError("Unknown error"),
+    UnknownError("Unknown error"),
 
-        InvalidFunctionDescription("Invalid function description"),
+    InvalidFunctionDescription("Invalid function description"),
 
-        FunctionOverloadNotSupported("Function overload not supported"),
+    FunctionOverloadNotSupported("Function overload not supported"),
 
-        FunctionNotAvailable("Function not available"),
+    FunctionNotAvailable("Function not available"),
 
-        FunctionTypeNotSupported("Function type not supported"),
+    FunctionTypeNotSupported("Function type not supported"),
 
-        InvalidFunctionType("Invalid function type"),
+    InvalidFunctionType("Invalid function type"),
 
-        InvalidServiceConfiguration("Invalid service configuration"),
+    InvalidServiceConfiguration("Invalid service configuration"),
 
-        ServiceNotFound("Service not found"),
+    ServiceNotFound("Service not found"),
 
-        SkillCollectionNotSet("Skill collection not set"),
+    SkillCollectionNotSet("Skill collection not set"),
 
-        FunctionInvokeError("Represents an error that occurs when invoking a function");
+    FunctionInvokeError("Represents an error that occurs when invoking a function");
 
-        private final String message;
+    private final String message;
 
-        ErrorCodes(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
+    ErrorCodes(String message) {
+      this.message = message;
     }
+
+    public String getMessage() {
+      return message;
+    }
+  }
 }

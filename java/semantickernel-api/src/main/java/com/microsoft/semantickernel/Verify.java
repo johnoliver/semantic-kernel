@@ -2,7 +2,7 @@
 package com.microsoft.semantickernel;
 
 public class Verify {
-    public static void notNull(Object object) {
-        assert object != null;
-    }
+  public static void notNull(Object object) {
+    assert object != null;
+  }
 }
