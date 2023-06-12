@@ -15,8 +15,6 @@ import com.microsoft.semantickernel.templateengine.PromptTemplateEngine;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
 
-import javax.annotation.Nullable;
-
 public class SKBuilders {
     // Prevent creating object
     private SKBuilders() {}
@@ -30,8 +28,9 @@ public class SKBuilders {
      * provided
      *
      * @param kernel The kernel to register the function on
+     * @return a function builder
      */
-    public static CompletionSKFunction.Builder completionFunctions(@Nullable Kernel kernel) {
+    public static CompletionSKFunction.Builder completionFunctions(Kernel kernel) {
         return FunctionBuilders.getCompletionBuilder(kernel);
     }
 

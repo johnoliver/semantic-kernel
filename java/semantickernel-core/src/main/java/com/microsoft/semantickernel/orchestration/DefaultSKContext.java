@@ -1,0 +1,99 @@
+// Copyright (c) Microsoft. All rights reserved.
+package com.microsoft.semantickernel.orchestration;
+
+import com.microsoft.semantickernel.builders.SKBuilders;
+import com.microsoft.semantickernel.memory.NullMemory;
+import com.microsoft.semantickernel.memory.SemanticTextMemory;
+import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
+
+import javax.annotation.Nullable;
+
+public class DefaultSKContext extends AbstractSKContext {
+    public DefaultSKContext(ContextVariables variables) {
+        super(variables);
+    }
+
+    public DefaultSKContext(
+            ContextVariables variables,
+            @Nullable SemanticTextMemory memory,
+            @Nullable ReadOnlySkillCollection skillCollection) {
+        super(variables, memory, skillCollection);
+    }
+
+    @Override
+    protected SKContext getThis() {
+        return this;
+    }
+
+    @Override
+    public SKContext build(
+            ContextVariables variables,
+            @Nullable SemanticTextMemory memory,
+            @Nullable ReadOnlySkillCollection skillCollection) {
+        return new DefaultSKContext(variables, memory, skillCollection);
+    }
+
+    public static class Builder implements SKContext.Builder {
+
+        private ContextVariables variables;
+        private ReadOnlySkillCollection skills;
+        private SemanticTextMemory memory = NullMemory.getInstance();
+
+        @Override
+        public SKContext build(ReadOnlySkillCollection skills) {
+            return new DefaultSKContext(
+                    SKBuilders.variables().build(), NullMemory.getInstance(), skills);
+        }
+
+        @Override
+        public SKContext build() {
+            if (variables == null) {
+                variables = SKBuilders.variables().build();
+            }
+            return new DefaultSKContext(variables, memory, skills);
+        }
+
+        @Override
+        public SKContext build(Class<? extends SKContext> clazz) {
+            return null;
+        }
+
+        /*
+        @Override
+        public SKContext build(Class<T> clazz) {
+            if (clazz.equals(CompletionSKContext.class)) {
+                return (T) new DefaultCompletionSKContext(
+                        variables,
+                        memory,
+                        skills
+                );
+            } else if (clazz.equals(SemanticSKContext.class)) {
+                return (T) new DefaultSemanticSKContext(
+                        variables,
+                        memory,
+                        skills
+                );
+            } else {
+                throw new IllegalArgumentException("Unknown context type " + clazz.getName());
+            }
+        }*/
+
+        @Override
+        public SKContext.Builder with(ContextVariables variables) {
+            this.variables = variables;
+            return this;
+        }
+
+        @Override
+        public SKContext.Builder with(ReadOnlySkillCollection skills) {
+            this.skills = skills;
+            return this;
+        }
+
+        @Override
+        public SKContext.Builder with(SemanticTextMemory memory) {
+            this.memory = memory.copy();
+            return this;
+        }
+    }
+}

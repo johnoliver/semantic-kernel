@@ -19,14 +19,14 @@ public final class KernelConfig {
 
     private final Map<String, Function<Kernel, EmbeddingGeneration<String, Float>>>
             textEmbeddingGenerationServices;
-    private final ArrayList<SKFunction<?, ?>> skills;
+    private final ArrayList<SKFunction<?>> skills;
 
     public KernelConfig(
             Map<String, Function<Kernel, TextCompletion>> textCompletionServices,
             Map<String, Function<Kernel, EmbeddingGeneration<String, Float>>>
                     textEmbeddingGenerationServices,
             Map<String, Function<Kernel, ChatCompletion>> chatCompletionServices,
-            List<SKFunction<?, ?>> skills) {
+            List<SKFunction<?>> skills) {
         this.textCompletionServices = new HashMap<>();
         this.textCompletionServices.putAll(textCompletionServices);
         this.textEmbeddingGenerationServices = new HashMap<>(textEmbeddingGenerationServices);
@@ -39,7 +39,7 @@ public final class KernelConfig {
         return textCompletionServices.get(serviceId);
     }
 
-    public List<SKFunction<?, ?>> getSkills() {
+    public List<SKFunction<?>> getSkills() {
         return Collections.unmodifiableList(skills);
     }
 
@@ -77,14 +77,14 @@ public final class KernelConfig {
         private Map<String, Function<Kernel, TextCompletion>> textCompletionServices =
                 new HashMap<>();
 
-        private List<SKFunction<?, ?>> skillBuilders = new ArrayList<>();
+        private List<SKFunction<?>> skillBuilders = new ArrayList<>();
 
         private Map<String, Function<Kernel, EmbeddingGeneration<String, Float>>>
                 textEmbeddingGenerationServices = new HashMap<>();
         private final Map<String, Function<Kernel, ChatCompletion>> chatCompletionServices =
                 new HashMap<>();
 
-        public Builder addSkill(SKFunction<?, ?> functionDefinition) {
+        public Builder addSkill(SKFunction<?> functionDefinition) {
             skillBuilders.add(functionDefinition);
             return this;
         }

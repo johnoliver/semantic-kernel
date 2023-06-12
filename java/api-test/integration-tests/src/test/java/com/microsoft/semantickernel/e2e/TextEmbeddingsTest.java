@@ -20,7 +20,7 @@ import com.microsoft.semantickernel.coreskills.TextMemorySkill;
 import com.microsoft.semantickernel.memory.MemoryQueryResult;
 import com.microsoft.semantickernel.memory.SemanticTextMemory;
 import com.microsoft.semantickernel.memory.VolatileMemoryStore;
-import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
+import com.microsoft.semantickernel.orchestration.SKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 
 public class TextEmbeddingsTest extends AbstractKernelTest {
@@ -92,8 +92,8 @@ public class TextEmbeddingsTest extends AbstractKernelTest {
                                 .setStorage(volatileMemoryStore)
                                 .build();
 
-                CompletionSKContext context = chat.buildContext(SKBuilders.variables().build(), memory,
-                                kernel.getSkills());
+        SKContext context =
+                chat.buildContext(SKBuilders.variables().build(), memory, kernel.getSkills());
 
                 context.getSemanticMemory()
                                 .saveInformationAsync("aboutMe", "My name is Andrea", "fact1", null, null)

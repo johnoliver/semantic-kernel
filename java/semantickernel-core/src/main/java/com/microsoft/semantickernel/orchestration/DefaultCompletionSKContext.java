@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 package com.microsoft.semantickernel.orchestration;
 
-import com.microsoft.semantickernel.memory.SemanticTextMemory;
-import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
-import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
-
-import javax.annotation.Nullable;
-
+/*
 public class DefaultCompletionSKContext extends AbstractSKContext<CompletionSKContext>
         implements CompletionSKContext {
 
@@ -34,3 +29,4 @@ public class DefaultCompletionSKContext extends AbstractSKContext<CompletionSKCo
         return new DefaultCompletionSKContext(variables, memory, skills);
     }
 }
+*/

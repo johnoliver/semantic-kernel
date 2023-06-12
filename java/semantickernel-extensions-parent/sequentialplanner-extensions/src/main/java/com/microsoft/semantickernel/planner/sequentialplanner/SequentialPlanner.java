@@ -3,9 +3,10 @@ package com.microsoft.semantickernel.planner.sequentialplanner;
 
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.builders.FunctionBuilders;
-import com.microsoft.semantickernel.planner.SequentialPlannerRequestSettings;
+import com.microsoft.semantickernel.orchestration.SKContext;
+import com.microsoft.semantickernel.planner.PlanningException;
+import com.microsoft.semantickernel.planner.actionplanner.Plan;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
-import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 
 import reactor.core.publisher.Mono;
@@ -26,7 +27,7 @@ public class SequentialPlanner {
     private static final String RestrictedSkillName = "SequentialPlanner_Excluded";
 
     private final SequentialPlannerRequestSettings config;
-    private final CompletionSKContext context;
+    private final SKContext context;
 
     /// <summary>
     /// the function flow semantic function, which takes a goal and creates an xml plan that can be
@@ -84,23 +85,37 @@ public class SequentialPlanner {
     /// </summary>
     /// <param name="goal">The goal to create a plan for.</param>
     /// <returns>The plan.</returns>
-    public Mono<CompletionSKContext> createPlanAsync(String goal) {
+    public Mono<Plan> createPlanAsync(String goal) {
         if (goal == null || goal.isEmpty()) {
             // throw new PlanningException(PlanningException.ErrorCodes.InvalidGoal, "The goal
             // specified is empty");
             throw new RuntimeException();
         }
 
-        return new DefaultSequentialPlannerSKContext(context)
-                .getFunctionsManualAsync(goal, this.config)
-                .flatMap(
-                        relevantFunctionsManual -> {
-                            CompletionSKContext updatedContext =
-                                    context.setVariable(
-                                                    "available_functions", relevantFunctionsManual)
-                                            .update(goal);
+        try {
+            return new DefaultSequentialPlannerSKContext(context)
+                    .getFunctionsManualAsync(goal, this.config)
+                    .flatMap(
+                            relevantFunctionsManual -> {
+                                SKContext updatedContext =
+                                        context.setVariable(
+                                                        "available_functions",
+                                                        relevantFunctionsManual)
+                                                .update(goal);
 
-                            return functionFlowFunction.invokeAsync(updatedContext, null);
-                        });
+                                return functionFlowFunction.invokeAsync(updatedContext, null);
+                            })
+                    .map(
+                            planResult -> {
+                                String planResultString = planResult.getResult().trim();
+                                Plan plan =
+                                        SequentialPlanParser.toPlanFromXml(
+                                                planResultString, goal, context);
+                                return plan;
+                            });
+        } catch (Exception e) {
+            throw new PlanningException(
+                    PlanningException.ErrorCodes.InvalidPlan, "Plan parsing error, invalid XML", e);
+        }
     }
 }

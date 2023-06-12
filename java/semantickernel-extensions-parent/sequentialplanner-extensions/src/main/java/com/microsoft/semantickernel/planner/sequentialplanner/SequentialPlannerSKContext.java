@@ -1,14 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
-package com.microsoft.semantickernel.planner;
+package com.microsoft.semantickernel.planner.sequentialplanner;
 
-import com.microsoft.semantickernel.orchestration.SKContext;
-import com.microsoft.semantickernel.textcompletion.CompletionSKContext;
-
-import reactor.core.publisher.Mono;
-
-import javax.annotation.Nullable;
-
-public interface SequentialPlannerSKContext extends SKContext<CompletionSKContext> {
+/*
+public interface SequentialPlannerSKContext extends SKContext {
 
     public static final String PlannerMemoryCollectionName = "Planning.SKFunctionsManual";
 
@@ -17,3 +11,4 @@ public interface SequentialPlannerSKContext extends SKContext<CompletionSKContex
     public Mono<String> getFunctionsManualAsync(
             @Nullable String semanticQuery, @Nullable SequentialPlannerRequestSettings config);
 }
+*/

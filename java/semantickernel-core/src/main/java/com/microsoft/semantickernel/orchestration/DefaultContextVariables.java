@@ -105,6 +105,11 @@ class DefaultContextVariables implements ContextVariables, WritableContextVariab
     }
 
     @Override
+    public String getInput() {
+        return get(MAIN_KEY);
+    }
+
+    @Override
     @Nullable
     public String get(String key) {
         return variables.get(key);
