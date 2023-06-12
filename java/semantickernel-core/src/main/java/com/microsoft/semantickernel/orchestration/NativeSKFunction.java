@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -209,11 +210,22 @@ public class NativeSKFunction extends AbstractSkFunction<Void, SemanticSKContext
                         return Mono.error(e);
                     }
                 } else {
-                    try {
-                        mono = Mono.just(method.invoke(instance, args.toArray()));
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        return Mono.error(e);
-                    }
+                    mono =
+                            Mono.defer(
+                                    () -> {
+                                        return Mono.fromCallable(
+                                                        () -> {
+                                                            try {
+                                                                return method.invoke(
+                                                                        instance, args.toArray());
+                                                            } catch (IllegalAccessException
+                                                                    | InvocationTargetException e) {
+                                                                throw new RuntimeException(
+                                                                        e.getCause());
+                                                            }
+                                                        })
+                                                .subscribeOn(Schedulers.boundedElastic());
+                                    });
                 }
 
                 return mono.map(
