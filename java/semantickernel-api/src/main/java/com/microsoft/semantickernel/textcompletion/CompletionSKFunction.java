@@ -15,49 +15,52 @@ import javax.annotation.Nullable;
 
 public interface CompletionSKFunction extends SKFunction<CompletionRequestSettings> {
 
-    /**
-     * Method to aggregate partitioned results of a semantic function.
-     *
-     * @param partitionedInput Input to aggregate
-     * @param context Semantic Kernel context
-     * @return Aggregated results
-     */
-    Mono<SKContext> aggregatePartitionedResultsAsync(
-            List<String> partitionedInput, @Nullable SKContext context);
+	/**
+	 * Method to aggregate partitioned results of a semantic function.
+	 *
+	 * @param partitionedInput
+	 *         Input to aggregate
+	 * @param context
+	 *         Semantic Kernel context
+	 * @return Aggregated results
+	 */
+	Mono<SKContext> aggregatePartitionedResultsAsync(
+		List<String> partitionedInput, @Nullable SKContext context);
 
-    static CompletionSKFunction.Builder builder() {
-        return BuildersSingleton.INST.getFunctionBuilders().completionBuilders(null);
-    }
+	static CompletionSKFunction.Builder builder() {
+		return BuildersSingleton.INST.getFunctionBuilders().completionBuilders(null);
+	}
 
-    abstract class Builder {
+	abstract class Builder {
 
-        protected Builder() {}
+		protected Builder() {
+		}
 
-        public abstract CompletionSKFunction createFunction(
-                String promptTemplate,
-                PromptTemplateConfig config,
-                String functionName,
-                @Nullable String skillName);
+		public abstract CompletionSKFunction createFunction(
+			String promptTemplate,
+			PromptTemplateConfig config,
+			String functionName,
+			@Nullable String skillName);
 
-        public abstract CompletionSKFunction createFunction(
-                String functionName, SemanticFunctionConfig functionConfig);
+		public abstract CompletionSKFunction createFunction(
+			String functionName, SemanticFunctionConfig functionConfig);
 
-        public abstract CompletionSKFunction createFunction(
-                @Nullable String skillNameFinal,
-                String functionName,
-                SemanticFunctionConfig functionConfig);
+		public abstract CompletionSKFunction createFunction(
+			@Nullable String skillNameFinal,
+			String functionName,
+			SemanticFunctionConfig functionConfig);
 
-        public abstract CompletionSKFunction createFunction(
-                String promptTemplate,
-                @Nullable String functionName,
-                @Nullable String skillName,
-                @Nullable String description);
+		public abstract CompletionSKFunction createFunction(
+			String promptTemplate,
+			@Nullable String functionName,
+			@Nullable String skillName,
+			@Nullable String description);
 
-        public abstract CompletionSKFunction createFunction(
-                String prompt,
-                @Nullable String functionName,
-                @Nullable String skillName,
-                @Nullable String description,
-                PromptTemplateConfig.CompletionConfig completionConfig);
-    }
+		public abstract CompletionSKFunction createFunction(
+			String prompt,
+			@Nullable String functionName,
+			@Nullable String skillName,
+			@Nullable String description,
+			PromptTemplateConfig.CompletionConfig completionConfig);
+	}
 }

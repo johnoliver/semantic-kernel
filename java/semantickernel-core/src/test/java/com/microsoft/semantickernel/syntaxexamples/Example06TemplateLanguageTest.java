@@ -24,65 +24,59 @@ import java.util.ArrayList;
 
 public class Example06TemplateLanguageTest {
 
-    @Test
-    public void run() {
-        OpenAIAsyncClient client =
-                mockCompletionOpenAIAsyncClient(Tuples.of("Today is", "A-RESULT"));
+	@Test
+	public void run() {
+		OpenAIAsyncClient client = mockCompletionOpenAIAsyncClient(Tuples.of("Today is", "A-RESULT"));
 
-        KernelConfig kernelConfig =
-                SKBuilders.kernelConfig()
-                        .addTextCompletionService(
-                                "text-davinci-003",
-                                kernel ->
-                                        SKBuilders.textCompletionService()
-                                                .build(client, "text-davinci-003"))
-                        .build();
+		KernelConfig kernelConfig = SKBuilders.kernelConfig()
+			.addTextCompletionService(
+				"text-davinci-003",
+				kernel -> SKBuilders.textCompletionService()
+					.build(client, "text-davinci-003"))
+			.build();
 
-        Kernel kernel = SKBuilders.kernel().setKernelConfig(kernelConfig).build();
+		Kernel kernel = SKBuilders.kernel().setKernelConfig(kernelConfig).build();
 
-        // Load native skill into the kernel skill collection, sharing its functions
-        // with prompt
-        // templates
-        // Functions loaded here are available as "time.*"
-        kernel.importSkill(new TimeSkill(), "time");
+		// Load native skill into the kernel skill collection, sharing its functions
+		// with prompt
+		// templates
+		// Functions loaded here are available as "time.*"
+		kernel.importSkill(new TimeSkill(), "time");
 
-        // Semantic Function invoking time.Date and time.Time native functions
-        String functionDefinition =
-                "\n"
-                        + "Today is: {{time.Date}}\n"
-                        + "Current time is: {{time.Time}}\n"
-                        + "\n"
-                        + "Answer to the following questions using JSON syntax, including the data"
-                        + " used.\n"
-                        + "Is it morning, afternoon, evening, or night"
-                        + " (morning/afternoon/evening/night)?\n"
-                        + "Is it weekend time (weekend/not weekend)?";
+		// Semantic Function invoking time.Date and time.Time native functions
+		String functionDefinition = "\n"
+			+ "Today is: {{time.Date}}\n"
+			+ "Current time is: {{time.Time}}\n"
+			+ "\n"
+			+ "Answer to the following questions using JSON syntax, including the data"
+			+ " used.\n"
+			+ "Is it morning, afternoon, evening, or night"
+			+ " (morning/afternoon/evening/night)?\n"
+			+ "Is it weekend time (weekend/not weekend)?";
 
-        PromptTemplate promptRenderer =
-                SKBuilders.promptTemplate()
-                        .withPromptTemplate(functionDefinition)
-                        .build(kernel.getPromptTemplateEngine());
+		PromptTemplate promptRenderer = SKBuilders.promptTemplate()
+			.withPromptTemplate(functionDefinition)
+			.build(kernel.getPromptTemplateEngine());
 
-        SKContext skContext = SKBuilders.context().build(kernel.getSkills());
+		SKContext skContext = SKBuilders.context().build(kernel.getSkills());
 
-        PromptTemplateEngine promptTemplateEngine = SKBuilders.promptTemplateEngine().build();
+		PromptTemplateEngine promptTemplateEngine = SKBuilders.promptTemplateEngine().build();
 
-        Mono<String> renderedPrompt = promptRenderer.renderAsync(skContext);
+		Mono<String> renderedPrompt = promptRenderer.renderAsync(skContext);
 
-        // Check that it has been rendered
-        Assertions.assertTrue(!renderedPrompt.block().contains("time.Date"));
+		// Check that it has been rendered
+		Assertions.assertTrue(!renderedPrompt.block().contains("time.Date"));
 
-        // Run the prompt / semantic function
-        CompletionSKFunction kindOfDay =
-                kernel.getSemanticFunctionBuilder()
-                        .createFunction(
-                                functionDefinition,
-                                null,
-                                null,
-                                null,
-                                new PromptTemplateConfig.CompletionConfig(
-                                        0, 0, 0, 0, 256, new ArrayList<>()));
+		// Run the prompt / semantic function
+		CompletionSKFunction kindOfDay = kernel.getSemanticFunctionBuilder()
+			.createFunction(
+				functionDefinition,
+				null,
+				null,
+				null,
+				new PromptTemplateConfig.CompletionConfig(
+					0, 0, 0, 0, 256, new ArrayList<>()));
 
-        Assertions.assertEquals("A-RESULT", kindOfDay.invokeAsync("").block().getResult());
-    }
+		Assertions.assertEquals("A-RESULT", kindOfDay.invokeAsync("").block().getResult());
+	}
 }

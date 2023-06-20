@@ -11,13 +11,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface SKFunctionParameters {
 
-    String NO_DEFAULT_VALUE = "SKFunctionParameters__NO_INPUT_PROVIDED";
+	String NO_DEFAULT_VALUE = "SKFunctionParameters__NO_INPUT_PROVIDED";
 
-    String description() default "";
+	String description() default "";
 
-    String name();
+	String name();
 
-    String defaultValue() default NO_DEFAULT_VALUE;
+	String defaultValue() default NO_DEFAULT_VALUE;
 
-    Class<?> type() default String.class;
+	Class<?> type() default String.class;
 }

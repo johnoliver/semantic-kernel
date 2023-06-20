@@ -36,305 +36,303 @@ import javax.annotation.Nullable;
 /// with additional methods required by the kernel.
 /// </summary>
 public class DefaultCompletionSKFunction
-        extends DefaultSemanticSKFunction<CompletionRequestSettings>
-        implements CompletionSKFunction {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCompletionSKFunction.class);
+	extends DefaultSemanticSKFunction<CompletionRequestSettings>
+	implements CompletionSKFunction {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCompletionSKFunction.class);
 
-    private final SemanticFunctionConfig functionConfig;
-    private SKSemanticAsyncTask<SKContext> function;
-    private final CompletionRequestSettings requestSettings;
+	private final SemanticFunctionConfig functionConfig;
+	private SKSemanticAsyncTask<SKContext> function;
+	private final CompletionRequestSettings requestSettings;
 
-    @Nullable private DefaultTextCompletionSupplier aiService;
+	@Nullable
+	private DefaultTextCompletionSupplier aiService;
 
-    public DefaultCompletionSKFunction(
-            DelegateTypes delegateTypes,
-            List<ParameterView> parameters,
-            String skillName,
-            String functionName,
-            String description,
-            CompletionRequestSettings requestSettings,
-            SemanticFunctionConfig functionConfig,
-            @Nullable KernelSkillsSupplier kernelSkillsSupplier) {
-        super(
-                delegateTypes,
-                parameters,
-                skillName,
-                functionName,
-                description,
-                kernelSkillsSupplier);
-        // TODO
-        // Verify.NotNull(delegateFunction, "The function delegate is empty");
-        // Verify.ValidSkillName(skillName);
-        // Verify.ValidFunctionName(functionName);
-        // Verify.ParametersUniqueness(parameters);
-        this.requestSettings = requestSettings;
-        this.functionConfig = functionConfig;
-    }
+	public DefaultCompletionSKFunction(
+		DelegateTypes delegateTypes,
+		List<ParameterView> parameters,
+		String skillName,
+		String functionName,
+		String description,
+		CompletionRequestSettings requestSettings,
+		SemanticFunctionConfig functionConfig,
+		@Nullable KernelSkillsSupplier kernelSkillsSupplier) {
+		super(
+			delegateTypes,
+			parameters,
+			skillName,
+			functionName,
+			description,
+			kernelSkillsSupplier);
+		// TODO
+		// Verify.NotNull(delegateFunction, "The function delegate is empty");
+		// Verify.ValidSkillName(skillName);
+		// Verify.ValidFunctionName(functionName);
+		// Verify.ParametersUniqueness(parameters);
+		this.requestSettings = requestSettings;
+		this.functionConfig = functionConfig;
+	}
 
-    /*
-    /// <inheritdoc/>
-    public string Name { get; }
+	/*
+	 * /// <inheritdoc/>
+	 * public string Name { get; }
+	 * 
+	 * /// <inheritdoc/>
+	 * public string SkillName { get; }
+	 * 
+	 * /// <inheritdoc/>
+	 * public string Description { get; }
+	 * 
+	 * /// <inheritdoc/>
+	 * public bool IsSemantic { get; }
+	 * 
+	 * /// <inheritdoc/>
+	 * public CompleteRequestSettings RequestSettings
+	 * {
+	 * get { return this._aiRequestSettings; }
+	 * }
+	 * 
+	 * /// <summary>
+	 * /// List of function parameters
+	 * /// </summary>
+	 * public IList<ParameterView> Parameters { get; }
+	 * 
+	 * /// <summary>
+	 * /// Create a native function instance, wrapping a native object method
+	 * /// </summary>
+	 * /// <param name="methodContainerInstance">Object containing the method to
+	 * invoke</param>
+	 * /// <param name="methodSignature">Signature of the method to invoke</param>
+	 * /// <param name="skillName">SK skill name</param>
+	 * /// <param name="log">Application logger</param>
+	 * /// <returns>SK function instance</returns>
+	 */
 
-    /// <inheritdoc/>
-    public string SkillName { get; }
+	/**
+	 * Method to aggregate partitioned results of a semantic function
+	 *
+	 * @param partitionedInput
+	 *         Input to aggregate
+	 * @param contextIn
+	 *         Semantic Kernel context
+	 * @return Aggregated results
+	 */
+	@Override
+	public Mono<SKContext> aggregatePartitionedResultsAsync(
+		List<String> partitionedInput, @Nullable SKContext contextIn) {
 
-    /// <inheritdoc/>
-    public string Description { get; }
+		SKContext context;
+		if (contextIn == null) {
+			context = buildContext();
+		} else {
+			context = contextIn;
+		}
 
-    /// <inheritdoc/>
-    public bool IsSemantic { get; }
+		// Function that takes the current context, updates it with the latest input and
+		// invokes the
+		// function
+		BiFunction<Flux<SKContext>, String, Flux<SKContext>> executeNextChunk = (contextInput, input) -> contextInput
+			.flatMap(
+				newContext -> {
+					SKContext updated = newContext.update(input);
+					return invokeAsync(updated, null);
+				});
 
-    /// <inheritdoc/>
-    public CompleteRequestSettings RequestSettings
-    {
-        get { return this._aiRequestSettings; }
-    }
+		Mono<List<SKContext>> results = Flux.fromIterable(partitionedInput)
+			.reduceWith(() -> Flux.just(context), executeNextChunk)
+			.flatMap(Flux::collectList);
 
-    /// <summary>
-    /// List of function parameters
-    /// </summary>
-    public IList<ParameterView> Parameters { get; }
+		return results.map(
+			list -> list.stream()
+				.map(SKContext::getResult)
+				.collect(Collectors.joining("\n")))
+			.map(context::update);
+	}
 
-    /// <summary>
-    /// Create a native function instance, wrapping a native object method
-    /// </summary>
-    /// <param name="methodContainerInstance">Object containing the method to invoke</param>
-    /// <param name="methodSignature">Signature of the method to invoke</param>
-    /// <param name="skillName">SK skill name</param>
-    /// <param name="log">Application logger</param>
-    /// <returns>SK function instance</returns>
-    */
+	@Override
+	public SKContext buildContext(
+		ContextVariables variables,
+		@Nullable SemanticTextMemory memory,
+		@Nullable ReadOnlySkillCollection skills) {
+		return new DefaultSKContext(variables, memory, skills);
+	}
 
-    /**
-     * Method to aggregate partitioned results of a semantic function
-     *
-     * @param partitionedInput Input to aggregate
-     * @param contextIn Semantic Kernel context
-     * @return Aggregated results
-     */
-    @Override
-    public Mono<SKContext> aggregatePartitionedResultsAsync(
-            List<String> partitionedInput, @Nullable SKContext contextIn) {
+	// Run the semantic function
+	@Override
+	protected Mono<SKContext> invokeAsyncInternal(
+		SKContext context, @Nullable CompletionRequestSettings settings) {
+		// TODO
+		// this.VerifyIsSemantic();
+		// this.ensureContextHasSkills(context);
 
-        SKContext context;
-        if (contextIn == null) {
-            context = buildContext();
-        } else {
-            context = contextIn;
-        }
+		if (function == null) {
+			throw new FunctionNotRegisteredException(this.getName());
+		}
 
-        // Function that takes the current context, updates it with the latest input and invokes the
-        // function
-        BiFunction<Flux<SKContext>, String, Flux<SKContext>> executeNextChunk =
-                (contextInput, input) ->
-                        contextInput.flatMap(
-                                newContext -> {
-                                    SKContext updated = newContext.update(input);
-                                    return invokeAsync(updated, null);
-                                });
+		if (settings == null) {
+			settings = this.requestSettings;
+		}
 
-        Mono<List<SKContext>> results =
-                Flux.fromIterable(partitionedInput)
-                        .reduceWith(() -> Flux.just(context), executeNextChunk)
-                        .flatMap(Flux::collectList);
+		if (this.aiService.get() == null) {
+			throw new IllegalStateException("Failed to initialise aiService");
+		}
 
-        return results.map(
-                        list ->
-                                list.stream()
-                                        .map(SKContext::getResult)
-                                        .collect(Collectors.joining("\n")))
-                .map(context::update);
-    }
+		CompletionRequestSettings finalSettings = settings;
 
-    @Override
-    public SKContext buildContext(
-            ContextVariables variables,
-            @Nullable SemanticTextMemory memory,
-            @Nullable ReadOnlySkillCollection skills) {
-        return new DefaultSKContext(variables, memory, skills);
-    }
+		return function.run(this.aiService.get(), finalSettings, context)
+			.map(
+				result -> {
+					return context.update(result.getVariables());
+				});
+	}
 
-    // Run the semantic function
-    @Override
-    protected Mono<SKContext> invokeAsyncInternal(
-            SKContext context, @Nullable CompletionRequestSettings settings) {
-        // TODO
-        // this.VerifyIsSemantic();
-        // this.ensureContextHasSkills(context);
+	@Override
+	public void registerOnKernel(Kernel kernel) {
+		this.function = (TextCompletion client,
+			CompletionRequestSettings requestSettings,
+			SKContext contextInput) -> {
+			SKContext context = contextInput.copy();
+			// TODO
+			// Verify.NotNull(client, "AI LLM backed is empty");
 
-        if (function == null) {
-            throw new FunctionNotRegisteredException(this.getName());
-        }
+			PromptTemplate func = SKBuilders.promptTemplate()
+				.withPromptTemplate(functionConfig.getTemplate())
+				.withPromptTemplateConfig(functionConfig.getConfig())
+				.build(kernel.getPromptTemplateEngine());
 
-        if (settings == null) {
-            settings = this.requestSettings;
-        }
+			return func.renderAsync(context)
+				.flatMapMany(
+					prompt -> {
+						LOGGER.debug("RENDERED PROMPT: \n" + prompt);
+						return client.completeAsync(prompt, requestSettings);
+					})
+				.single()
+				.map(
+					completion -> {
+						return context.update(completion.get(0));
+					})
+				.doOnError(
+					ex -> {
+						LOGGER.warn(
+							"Something went wrong while rendering the semantic"
+								+ " function or while executing the text"
+								+ " completion. Function: {}.{}. Error: {}",
+							getSkillName(),
+							getName(),
+							ex.getMessage());
+					});
+		};
 
-        if (this.aiService.get() == null) {
-            throw new IllegalStateException("Failed to initialise aiService");
-        }
+		this.setSkillsSupplier(kernel::getSkills);
+		this.aiService = () -> kernel.getService(null, TextCompletion.class);
+	}
 
-        CompletionRequestSettings finalSettings = settings;
+	@Override
+	public Class<CompletionRequestSettings> getType() {
+		return CompletionRequestSettings.class;
+	}
 
-        return function.run(this.aiService.get(), finalSettings, context)
-                .map(
-                        result -> {
-                            return context.update(result.getVariables());
-                        });
-    }
+	private static String randomFunctionName() {
+		return "func" + UUID.randomUUID();
+	}
 
-    @Override
-    public void registerOnKernel(Kernel kernel) {
-        this.function =
-                (TextCompletion client,
-                        CompletionRequestSettings requestSettings,
-                        SKContext contextInput) -> {
-                    SKContext context = contextInput.copy();
-                    // TODO
-                    // Verify.NotNull(client, "AI LLM backed is empty");
+	public static DefaultCompletionSKFunction createFunction(
+		String promptTemplate,
+		@Nullable String functionName,
+		@Nullable String skillName,
+		@Nullable String description,
+		PromptTemplateConfig.CompletionConfig completion,
+		PromptTemplateEngine promptTemplateEngine) {
 
-                    PromptTemplate func =
-                            SKBuilders.promptTemplate()
-                                    .withPromptTemplate(functionConfig.getTemplate())
-                                    .withPromptTemplateConfig(functionConfig.getConfig())
-                                    .build(kernel.getPromptTemplateEngine());
+		if (functionName == null) {
+			functionName = randomFunctionName();
+		}
 
-                    return func.renderAsync(context)
-                            .flatMapMany(
-                                    prompt -> {
-                                        LOGGER.debug("RENDERED PROMPT: \n" + prompt);
-                                        return client.completeAsync(prompt, requestSettings);
-                                    })
-                            .single()
-                            .map(
-                                    completion -> {
-                                        return context.update(completion.get(0));
-                                    })
-                            .doOnError(
-                                    ex -> {
-                                        LOGGER.warn(
-                                                "Something went wrong while rendering the semantic"
-                                                        + " function or while executing the text"
-                                                        + " completion. Function: {}.{}. Error: {}",
-                                                getSkillName(),
-                                                getName(),
-                                                ex.getMessage());
-                                    });
-                };
+		if (description == null) {
+			description = "Generic function, unknown purpose";
+		}
 
-        this.setSkillsSupplier(kernel::getSkills);
-        this.aiService = () -> kernel.getService(null, TextCompletion.class);
-    }
+		PromptTemplateConfig config = new PromptTemplateConfig(description, "completion", completion);
 
-    @Override
-    public Class<CompletionRequestSettings> getType() {
-        return CompletionRequestSettings.class;
-    }
+		return createFunction(
+			promptTemplate, config, functionName, skillName, promptTemplateEngine);
+	}
 
-    private static String randomFunctionName() {
-        return "func" + UUID.randomUUID();
-    }
+	public static DefaultCompletionSKFunction createFunction(
+		String promptTemplate,
+		PromptTemplateConfig config,
+		String functionName,
+		@Nullable String skillName,
+		PromptTemplateEngine promptTemplateEngine) {
+		if (functionName == null) {
+			functionName = randomFunctionName();
+		}
 
-    public static DefaultCompletionSKFunction createFunction(
-            String promptTemplate,
-            @Nullable String functionName,
-            @Nullable String skillName,
-            @Nullable String description,
-            PromptTemplateConfig.CompletionConfig completion,
-            PromptTemplateEngine promptTemplateEngine) {
+		// TODO
+		// Verify.ValidFunctionName(functionName);
+		// if (!string.IsNullOrEmpty(skillName)) {
+		// Verify.ValidSkillName(skillName);
+		// }
 
-        if (functionName == null) {
-            functionName = randomFunctionName();
-        }
+		// Prepare lambda wrapping AI logic
+		SemanticFunctionConfig functionConfig = new SemanticFunctionConfig(config, promptTemplate);
 
-        if (description == null) {
-            description = "Generic function, unknown purpose";
-        }
+		return createFunction(skillName, functionName, functionConfig, promptTemplateEngine);
+	}
 
-        PromptTemplateConfig config =
-                new PromptTemplateConfig(description, "completion", completion);
+	public static DefaultCompletionSKFunction createFunction(
+		String functionName,
+		SemanticFunctionConfig functionConfig,
+		PromptTemplateEngine promptTemplateEngine) {
+		return createFunction(null, functionName, functionConfig, promptTemplateEngine);
+	}
 
-        return createFunction(
-                promptTemplate, config, functionName, skillName, promptTemplateEngine);
-    }
+	/// <summary>
+	/// Create a native function instance, given a semantic function configuration.
+	/// </summary>
+	/// <param name="skillName">Name of the skill to which the function to create
+	/// belongs.</param>
+	/// <param name="functionName">Name of the function to create.</param>
+	/// <param name="functionConfig">Semantic function configuration.</param>
+	/// <param name="log">Optional logger for the function.</param>
+	/// <returns>SK function instance.</returns>
+	public static DefaultCompletionSKFunction createFunction(
+		@Nullable String skillNameFinal,
+		String functionName,
+		SemanticFunctionConfig functionConfig,
+		PromptTemplateEngine promptTemplateEngine) {
+		String skillName = skillNameFinal;
+		// Verify.NotNull(functionConfig, "Function configuration is empty");
+		if (skillName == null) {
+			skillName = ReadOnlySkillCollection.GlobalSkill;
+		}
 
-    public static DefaultCompletionSKFunction createFunction(
-            String promptTemplate,
-            PromptTemplateConfig config,
-            String functionName,
-            @Nullable String skillName,
-            PromptTemplateEngine promptTemplateEngine) {
-        if (functionName == null) {
-            functionName = randomFunctionName();
-        }
+		CompletionRequestSettings requestSettings = CompletionRequestSettings.fromCompletionConfig(
+			functionConfig.getConfig().getCompletionConfig());
 
-        // TODO
-        // Verify.ValidFunctionName(functionName);
-        // if (!string.IsNullOrEmpty(skillName)) {
-        //    Verify.ValidSkillName(skillName);
-        // }
+		PromptTemplate promptTemplate = SKBuilders.promptTemplate()
+			.withPromptTemplate(functionConfig.getTemplate())
+			.withPromptTemplateConfig(functionConfig.getConfig())
+			.build(promptTemplateEngine);
 
-        // Prepare lambda wrapping AI logic
-        SemanticFunctionConfig functionConfig = new SemanticFunctionConfig(config, promptTemplate);
+		return new DefaultCompletionSKFunction(
+			DelegateTypes.ContextSwitchInSKContextOutTaskSKContext,
+			promptTemplate.getParameters(),
+			skillName,
+			functionName,
+			functionConfig.getConfig().getDescription(),
+			requestSettings,
+			functionConfig,
+			null);
+	}
 
-        return createFunction(skillName, functionName, functionConfig, promptTemplateEngine);
-    }
-
-    public static DefaultCompletionSKFunction createFunction(
-            String functionName,
-            SemanticFunctionConfig functionConfig,
-            PromptTemplateEngine promptTemplateEngine) {
-        return createFunction(null, functionName, functionConfig, promptTemplateEngine);
-    }
-
-    /// <summary>
-    /// Create a native function instance, given a semantic function configuration.
-    /// </summary>
-    /// <param name="skillName">Name of the skill to which the function to create belongs.</param>
-    /// <param name="functionName">Name of the function to create.</param>
-    /// <param name="functionConfig">Semantic function configuration.</param>
-    /// <param name="log">Optional logger for the function.</param>
-    /// <returns>SK function instance.</returns>
-    public static DefaultCompletionSKFunction createFunction(
-            @Nullable String skillNameFinal,
-            String functionName,
-            SemanticFunctionConfig functionConfig,
-            PromptTemplateEngine promptTemplateEngine) {
-        String skillName = skillNameFinal;
-        // Verify.NotNull(functionConfig, "Function configuration is empty");
-        if (skillName == null) {
-            skillName = ReadOnlySkillCollection.GlobalSkill;
-        }
-
-        CompletionRequestSettings requestSettings =
-                CompletionRequestSettings.fromCompletionConfig(
-                        functionConfig.getConfig().getCompletionConfig());
-
-        PromptTemplate promptTemplate =
-                SKBuilders.promptTemplate()
-                        .withPromptTemplate(functionConfig.getTemplate())
-                        .withPromptTemplateConfig(functionConfig.getConfig())
-                        .build(promptTemplateEngine);
-
-        return new DefaultCompletionSKFunction(
-                DelegateTypes.ContextSwitchInSKContextOutTaskSKContext,
-                promptTemplate.getParameters(),
-                skillName,
-                functionName,
-                functionConfig.getConfig().getDescription(),
-                requestSettings,
-                functionConfig,
-                null);
-    }
-
-    @Override
-    public FunctionView describe() {
-        return new FunctionView(
-                super.getName(),
-                super.getSkillName(),
-                super.getDescription(),
-                super.getParameters(),
-                true,
-                false);
-    }
+	@Override
+	public FunctionView describe() {
+		return new FunctionView(
+			super.getName(),
+			super.getSkillName(),
+			super.getDescription(),
+			super.getParameters(),
+			true,
+			false);
+	}
 }

@@ -12,21 +12,20 @@ import java.util.stream.Collectors;
 
 public class SkillImporter {
 
-    public static FunctionCollection importSkill(
-            Object skillInstance, String skillName, KernelSkillsSupplier skillCollectionSupplier) {
-        List<NativeSKFunction> methods =
-                Arrays.stream(skillInstance.getClass().getMethods())
-                        .filter(method -> method.isAnnotationPresent(DefineSKFunction.class))
-                        .map(
-                                method -> {
-                                    return NativeSKFunction.fromNativeMethod(
-                                            method,
-                                            skillInstance,
-                                            skillName,
-                                            skillCollectionSupplier);
-                                })
-                        .collect(Collectors.toList());
+	public static FunctionCollection importSkill(
+		Object skillInstance, String skillName, KernelSkillsSupplier skillCollectionSupplier) {
+		List<NativeSKFunction> methods = Arrays.stream(skillInstance.getClass().getMethods())
+			.filter(method -> method.isAnnotationPresent(DefineSKFunction.class))
+			.map(
+				method -> {
+					return NativeSKFunction.fromNativeMethod(
+						method,
+						skillInstance,
+						skillName,
+						skillCollectionSupplier);
+				})
+			.collect(Collectors.toList());
 
-        return new FunctionCollection(skillName, methods);
-    }
+		return new FunctionCollection(skillName, methods);
+	}
 }

@@ -17,63 +17,63 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KernelExtensions {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KernelExtensions.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(KernelExtensions.class);
 
-    private KernelExtensions() {}
+	private KernelExtensions() {
+	}
 
-    public static Map<String, SemanticFunctionConfig> importSemanticSkillFromDirectory(
-            String parentDirectory, String skillDirectoryName) {
+	public static Map<String, SemanticFunctionConfig> importSemanticSkillFromDirectory(
+		String parentDirectory, String skillDirectoryName) {
 
-        String CONFIG_FILE = "config.json";
-        String PROMPT_FILE = "skprompt.txt";
+		String CONFIG_FILE = "config.json";
+		String PROMPT_FILE = "skprompt.txt";
 
-        // Verify.ValidSkillName(skillDirectoryName);
-        File skillDir = new File(parentDirectory, skillDirectoryName);
-        // Verify.DirectoryExists(skillDir);
+		// Verify.ValidSkillName(skillDirectoryName);
+		File skillDir = new File(parentDirectory, skillDirectoryName);
+		// Verify.DirectoryExists(skillDir);
 
-        File[] files = skillDir.listFiles();
-        if (files == null) {
-            throw new KernelException(
-                    KernelException.ErrorCodes.FunctionNotAvailable,
-                    "No Skills found in directory " + skillDir.getAbsolutePath());
-        }
+		File[] files = skillDir.listFiles();
+		if (files == null) {
+			throw new KernelException(
+				KernelException.ErrorCodes.FunctionNotAvailable,
+				"No Skills found in directory " + skillDir.getAbsolutePath());
+		}
 
-        HashMap<String, SemanticFunctionConfig> skills = new HashMap<>();
+		HashMap<String, SemanticFunctionConfig> skills = new HashMap<>();
 
-        for (File dir : files) {
-            try {
-                // Continue only if prompt template exists
-                File promptPath = new File(dir, PROMPT_FILE);
-                if (!promptPath.exists()) {
-                    continue;
-                }
+		for (File dir : files) {
+			try {
+				// Continue only if prompt template exists
+				File promptPath = new File(dir, PROMPT_FILE);
+				if (!promptPath.exists()) {
+					continue;
+				}
 
-                // Load prompt configuration. Note: the configuration is
-                // optional.
-                PromptTemplateConfig config = new PromptTemplateConfig("", "", null);
+				// Load prompt configuration. Note: the configuration is
+				// optional.
+				PromptTemplateConfig config = new PromptTemplateConfig("", "", null);
 
-                File configPath = new File(dir, CONFIG_FILE);
-                if (configPath.exists()) {
-                    config = new ObjectMapper().readValue(configPath, PromptTemplateConfig.class);
+				File configPath = new File(dir, CONFIG_FILE);
+				if (configPath.exists()) {
+					config = new ObjectMapper().readValue(configPath, PromptTemplateConfig.class);
 
-                    // Verify.NotNull(config, $"Invalid prompt template
-                    // configuration, unable to parse {configPath}");
-                }
+					// Verify.NotNull(config, $"Invalid prompt template
+					// configuration, unable to parse {configPath}");
+				}
 
-                // kernel.Log.LogTrace("Config {0}: {1}", functionName,
-                // config.ToJson());
+				// kernel.Log.LogTrace("Config {0}: {1}", functionName,
+				// config.ToJson());
 
-                // Load prompt template
-                String template =
-                        new String(
-                                Files.readAllBytes(promptPath.toPath()), Charset.defaultCharset());
+				// Load prompt template
+				String template = new String(
+					Files.readAllBytes(promptPath.toPath()), Charset.defaultCharset());
 
-                skills.put(dir.getName(), new SemanticFunctionConfig(config, template));
-            } catch (IOException e) {
-                LOGGER.error("Failed to read file", e);
-            }
-        }
+				skills.put(dir.getName(), new SemanticFunctionConfig(config, template));
+			} catch (IOException e) {
+				LOGGER.error("Failed to read file", e);
+			}
+		}
 
-        return skills;
-    }
+		return skills;
+	}
 }

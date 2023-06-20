@@ -21,97 +21,97 @@ import javax.annotation.Nullable;
 /** A planner that uses semantic function to create a sequential plan. */
 public class SequentialPlanner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SequentialPlanner.class);
-    private static final String StopSequence = "<!--";
+	private static final Logger LOGGER = LoggerFactory.getLogger(SequentialPlanner.class);
+	private static final String StopSequence = "<!--";
 
-    // The name to use when creating semantic functions that are restricted from plan creation
-    private static final String RestrictedSkillName = "SequentialPlanner_Excluded";
+	// The name to use when creating semantic functions that are restricted from
+	// plan creation
+	private static final String RestrictedSkillName = "SequentialPlanner_Excluded";
 
-    private final SequentialPlannerRequestSettings config;
-    private final SKContext context;
+	private final SequentialPlannerRequestSettings config;
+	private final SKContext context;
 
-    // the function flow semantic function, which takes a goal and creates an xml plan that can be
-    // executed
-    private final CompletionSKFunction functionFlowFunction;
+	// the function flow semantic function, which takes a goal and creates an xml
+	// plan that can be
+	// executed
+	private final CompletionSKFunction functionFlowFunction;
 
-    public SequentialPlanner(
-            Kernel kernel,
-            @Nullable SequentialPlannerRequestSettings config,
-            @Nullable String prompt) {
-        // Verify.NotNull(kernel);
+	public SequentialPlanner(
+		Kernel kernel,
+		@Nullable SequentialPlannerRequestSettings config,
+		@Nullable String prompt) {
+		// Verify.NotNull(kernel);
 
-        if (config == null) {
-            config = new SequentialPlannerRequestSettings();
-        }
+		if (config == null) {
+			config = new SequentialPlannerRequestSettings();
+		}
 
-        this.config = config.addExcludedSkillName(RestrictedSkillName);
+		this.config = config.addExcludedSkillName(RestrictedSkillName);
 
-        String promptTemplate;
-        if (prompt != null) {
-            promptTemplate = prompt;
-        } else {
-            promptTemplate = EmbeddedResource.read("skprompt.txt");
-        }
+		String promptTemplate;
+		if (prompt != null) {
+			promptTemplate = prompt;
+		} else {
+			promptTemplate = EmbeddedResource.read("skprompt.txt");
+		}
 
-        this.functionFlowFunction =
-                FunctionBuilders.getCompletionBuilder(kernel)
-                        .createFunction(
-                                promptTemplate,
-                                null,
-                                RestrictedSkillName,
-                                "Given a request or command or goal generate a step by step plan to"
-                                    + " fulfill the request using functions. This ability is also"
-                                    + " known as decision making and function flow",
-                                new PromptTemplateConfig.CompletionConfig(
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                        this.config.getMaxTokens(),
-                                        new ArrayList<>()));
+		this.functionFlowFunction = FunctionBuilders.getCompletionBuilder(kernel)
+			.createFunction(
+				promptTemplate,
+				null,
+				RestrictedSkillName,
+				"Given a request or command or goal generate a step by step plan to"
+					+ " fulfill the request using functions. This ability is also"
+					+ " known as decision making and function flow",
+				new PromptTemplateConfig.CompletionConfig(
+					0.0,
+					0.0,
+					0.0,
+					0.0,
+					this.config.getMaxTokens(),
+					new ArrayList<>()));
 
-        this.context = functionFlowFunction.buildContext();
-    }
+		this.context = functionFlowFunction.buildContext();
+	}
 
-    /**
-     * Create a plan for a goal.
-     *
-     * @param goal The goal to create a plan for.
-     * @return The plan
-     */
-    public Mono<Plan> createPlanAsync(String goal) {
-        if (goal == null || goal.isEmpty()) {
-            throw new PlanningException(
-                    PlanningException.ErrorCodes.InvalidGoal, "The goal specified is empty");
-        }
+	/**
+	 * Create a plan for a goal.
+	 *
+	 * @param goal
+	 *         The goal to create a plan for.
+	 * @return The plan
+	 */
+	public Mono<Plan> createPlanAsync(String goal) {
+		if (goal == null || goal.isEmpty()) {
+			throw new PlanningException(
+				PlanningException.ErrorCodes.InvalidGoal, "The goal specified is empty");
+		}
 
-        try {
-            return new DefaultSequentialPlannerSKContext(context)
-                    .getFunctionsManualAsync(goal, this.config)
-                    .flatMap(
-                            relevantFunctionsManual -> {
-                                SKContext updatedContext =
-                                        context.setVariable(
-                                                        "available_functions",
-                                                        relevantFunctionsManual)
-                                                .update(goal);
+		try {
+			return new DefaultSequentialPlannerSKContext(context)
+				.getFunctionsManualAsync(goal, this.config)
+				.flatMap(
+					relevantFunctionsManual -> {
+						SKContext updatedContext = context.setVariable(
+							"available_functions",
+							relevantFunctionsManual)
+							.update(goal);
 
-                                return functionFlowFunction.invokeAsync(updatedContext, null);
-                            })
-                    .map(
-                            planResult -> {
-                                String planResultString = planResult.getResult().trim();
+						return functionFlowFunction.invokeAsync(updatedContext, null);
+					})
+				.map(
+					planResult -> {
+						String planResultString = planResult.getResult().trim();
 
-                                LOGGER.debug("Plan result: " + planResultString);
+						LOGGER.debug("Plan result: " + planResultString);
 
-                                Plan plan =
-                                        SequentialPlanParser.toPlanFromXml(
-                                                planResultString, goal, context);
-                                return plan;
-                            });
-        } catch (Exception e) {
-            throw new PlanningException(
-                    PlanningException.ErrorCodes.InvalidPlan, "Plan parsing error, invalid XML", e);
-        }
-    }
+						Plan plan = SequentialPlanParser.toPlanFromXml(
+							planResultString, goal, context);
+						return plan;
+					});
+		} catch (Exception e) {
+			throw new PlanningException(
+				PlanningException.ErrorCodes.InvalidPlan, "Plan parsing error, invalid XML", e);
+		}
+	}
 }

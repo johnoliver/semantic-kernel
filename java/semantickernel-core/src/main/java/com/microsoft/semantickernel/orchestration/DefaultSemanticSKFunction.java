@@ -19,39 +19,38 @@ import javax.annotation.Nullable;
 /// with additional methods required by the kernel.
 /// </summary>
 public abstract class DefaultSemanticSKFunction<RequestConfiguration>
-        extends AbstractSkFunction<RequestConfiguration>
-        implements SKFunction<RequestConfiguration> {
+	extends AbstractSkFunction<RequestConfiguration>
+	implements SKFunction<RequestConfiguration> {
 
-    public DefaultSemanticSKFunction(
-            DelegateTypes delegateType,
-            List<ParameterView> parameters,
-            String skillName,
-            String functionName,
-            String description,
-            @Nullable KernelSkillsSupplier kernelSkillsSupplier) {
-        super(delegateType, parameters, skillName, functionName, description, kernelSkillsSupplier);
-    }
+	public DefaultSemanticSKFunction(
+		DelegateTypes delegateType,
+		List<ParameterView> parameters,
+		String skillName,
+		String functionName,
+		String description,
+		@Nullable KernelSkillsSupplier kernelSkillsSupplier) {
+		super(delegateType, parameters, skillName, functionName, description, kernelSkillsSupplier);
+	}
 
-    @Override
-    public Mono<SKContext> invokeAsync(
-            @Nullable String input,
-            @Nullable SKContext context,
-            @Nullable RequestConfiguration settings) {
-        if (context == null) {
-            assertSkillSupplierRegistered();
-            context =
-                    buildContext(
-                            SKBuilders.variables().build(),
-                            NullMemory.getInstance(),
-                            super.getSkillsSupplier().get());
-        } else {
-            context = context.copy();
-        }
+	@Override
+	public Mono<SKContext> invokeAsync(
+		@Nullable String input,
+		@Nullable SKContext context,
+		@Nullable RequestConfiguration settings) {
+		if (context == null) {
+			assertSkillSupplierRegistered();
+			context = buildContext(
+				SKBuilders.variables().build(),
+				NullMemory.getInstance(),
+				super.getSkillsSupplier().get());
+		} else {
+			context = context.copy();
+		}
 
-        if (input != null) {
-            context = context.update(input);
-        }
+		if (input != null) {
+			context = context.update(input);
+		}
 
-        return this.invokeAsync(context, settings);
-    }
+		return this.invokeAsync(context, settings);
+	}
 }

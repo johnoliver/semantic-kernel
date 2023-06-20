@@ -594,11 +594,10 @@
                         </executions>
                         <configuration>
                             <java>
-                                <googleJavaFormat>
-                                    <version>${google.java.format.version}</version>
-                                    <style>AOSP</style>
-                                    <reflowLongStrings>true</reflowLongStrings>
-                                </googleJavaFormat>
+                                <eclipse>
+                                    <version>4.16</version>
+                                    <file>eclipse-formatter.xml</file>
+                                </eclipse>
                                 <licenseHeader>
                                     <content>// Copyright (c) Microsoft. All rights reserved.</content>
                                 </licenseHeader>

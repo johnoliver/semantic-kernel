@@ -17,73 +17,76 @@ import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
 
 public class SKBuilders {
-    // Prevent creating object
-    private SKBuilders() {}
+	// Prevent creating object
+	private SKBuilders() {
+	}
 
-    public static CompletionSKFunction.Builder completionFunctions() {
-        return completionFunctions(null);
-    }
+	public static CompletionSKFunction.Builder completionFunctions() {
+		return completionFunctions(null);
+	}
 
-    /**
-     * A CompletionSKFunction builder, the created function will be registered on the kernel
-     * provided
-     *
-     * @param kernel The kernel to register the function on
-     * @return a function builder
-     */
-    public static CompletionSKFunction.Builder completionFunctions(Kernel kernel) {
-        return FunctionBuilders.getCompletionBuilder(kernel);
-    }
+	/**
+	 * A CompletionSKFunction builder, the created function will be registered on
+	 * the kernel
+	 * provided
+	 *
+	 * @param kernel
+	 *         The kernel to register the function on
+	 * @return a function builder
+	 */
+	public static CompletionSKFunction.Builder completionFunctions(Kernel kernel) {
+		return FunctionBuilders.getCompletionBuilder(kernel);
+	}
 
-    public static TextCompletion.Builder textCompletionService() {
-        return BuildersSingleton.INST.getTextCompletionBuilder();
-    }
+	public static TextCompletion.Builder textCompletionService() {
+		return BuildersSingleton.INST.getTextCompletionBuilder();
+	}
 
-    public static EmbeddingGeneration.Builder<String, Float> textEmbeddingGenerationService() {
-        return BuildersSingleton.INST.getTextEmbeddingGenerationBuilder();
-    }
+	public static EmbeddingGeneration.Builder<String, Float> textEmbeddingGenerationService() {
+		return BuildersSingleton.INST.getTextEmbeddingGenerationBuilder();
+	}
 
-    public static Kernel.Builder kernel() {
-        return new Kernel.Builder();
-    }
+	public static Kernel.Builder kernel() {
+		return new Kernel.Builder();
+	}
 
-    public static KernelConfig.Builder kernelConfig() {
-        return new KernelConfig.Builder();
-    }
+	public static KernelConfig.Builder kernelConfig() {
+		return new KernelConfig.Builder();
+	}
 
-    public static SemanticTextMemory.Builder semanticTextMemory() {
-        return BuildersSingleton.INST.getSemanticTextMemoryBuilder();
-    }
+	public static SemanticTextMemory.Builder semanticTextMemory() {
+		return BuildersSingleton.INST.getSemanticTextMemoryBuilder();
+	}
 
-    public static MemoryStore.Builder memoryStore() {
-        return BuildersSingleton.INST.memoryStoreBuilder();
-    }
+	public static MemoryStore.Builder memoryStore() {
+		return BuildersSingleton.INST.memoryStoreBuilder();
+	}
 
-    public static ReadOnlySkillCollection.Builder skillCollection() {
-        return BuildersSingleton.INST.getReadOnlySkillCollection();
-    }
+	public static ReadOnlySkillCollection.Builder skillCollection() {
+		return BuildersSingleton.INST.getReadOnlySkillCollection();
+	}
 
-    public static PromptTemplate.Builder promptTemplate() {
-        return BuildersSingleton.INST.getPromptTemplateBuilder();
-    }
+	public static PromptTemplate.Builder promptTemplate() {
+		return BuildersSingleton.INST.getPromptTemplateBuilder();
+	}
 
-    public static PromptTemplateEngine.Builder promptTemplateEngine() {
-        return BuildersSingleton.INST.getPromptTemplateEngineBuilder();
-    }
+	public static PromptTemplateEngine.Builder promptTemplateEngine() {
+		return BuildersSingleton.INST.getPromptTemplateEngineBuilder();
+	}
 
-    public static ContextVariables.Builder variables() {
-        return BuildersSingleton.INST.variables();
-    }
+	public static ContextVariables.Builder variables() {
+		return BuildersSingleton.INST.variables();
+	}
 
-    public static SKContext.Builder context() {
-        return BuildersSingleton.INST.context();
-    }
+	public static SKContext.Builder context() {
+		return BuildersSingleton.INST.context();
+	}
 
-    public static PromptTemplateConfig.CompletionConfigBuilder completionConfig() {
-        return new PromptTemplateConfig.CompletionConfigBuilder();
-    }
+	public static PromptTemplateConfig.CompletionConfigBuilder completionConfig() {
+		return new PromptTemplateConfig.CompletionConfigBuilder();
+	}
 
-    public static ChatCompletion.Builder chatCompletion() {
-        return BuildersSingleton.INST.getChatCompletion();
-    }
+	public static ChatCompletion.Builder chatCompletion() {
+		return BuildersSingleton.INST.getChatCompletion();
+	}
 }

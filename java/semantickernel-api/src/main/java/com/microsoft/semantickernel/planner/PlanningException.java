@@ -8,52 +8,53 @@ import javax.annotation.Nullable;
 
 /** Exception thrown for errors related to planning. */
 public class PlanningException extends SKException {
-    @Nonnull private final ErrorCodes errorCode;
+	@Nonnull
+	private final ErrorCodes errorCode;
 
-    public PlanningException(@Nonnull ErrorCodes error) {
-        this(error, null, null);
-    }
+	public PlanningException(@Nonnull ErrorCodes error) {
+		this(error, null, null);
+	}
 
-    public PlanningException(@Nonnull ErrorCodes errorCode, @Nullable String message) {
-        this(errorCode, message, null);
-    }
+	public PlanningException(@Nonnull ErrorCodes errorCode, @Nullable String message) {
+		this(errorCode, message, null);
+	}
 
-    public PlanningException(
-            @Nonnull ErrorCodes errorCode,
-            @Nullable String message,
-            @Nullable Throwable innerException) {
-        super(getDefaultMessage(errorCode, message), innerException);
-        this.errorCode = errorCode;
-    }
+	public PlanningException(
+		@Nonnull ErrorCodes errorCode,
+		@Nullable String message,
+		@Nullable Throwable innerException) {
+		super(getDefaultMessage(errorCode, message), innerException);
+		this.errorCode = errorCode;
+	}
 
-    public ErrorCodes getErrorCode() {
-        return errorCode;
-    }
+	public ErrorCodes getErrorCode() {
+		return errorCode;
+	}
 
-    /* Translate the error code into a default message */
-    private static String getDefaultMessage(
-            @Nonnull ErrorCodes errorCode, @Nullable String message) {
-        return String.format("%s: %s", errorCode.getMessage(), message);
-    }
+	/* Translate the error code into a default message */
+	private static String getDefaultMessage(
+		@Nonnull ErrorCodes errorCode, @Nullable String message) {
+		return String.format("%s: %s", errorCode.getMessage(), message);
+	}
 
-    /** Error codes for PlanningException */
-    public enum ErrorCodes {
-        UnknownError("Unknown error"),
+	/** Error codes for PlanningException */
+	public enum ErrorCodes {
+		UnknownError("Unknown error"),
 
-        InvalidGoal("Invalid goal"),
+		InvalidGoal("Invalid goal"),
 
-        InvalidPlan("Invalid plan"),
+		InvalidPlan("Invalid plan"),
 
-        InvalidConfiguration("Invalid configuration");
+		InvalidConfiguration("Invalid configuration");
 
-        private final String message;
+		private final String message;
 
-        ErrorCodes(String message) {
-            this.message = message;
-        }
+		ErrorCodes(String message) {
+			this.message = message;
+		}
 
-        public String getMessage() {
-            return message;
-        }
-    }
+		public String getMessage() {
+			return message;
+		}
+	}
 }

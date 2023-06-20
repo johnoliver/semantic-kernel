@@ -9,11 +9,11 @@ import javax.annotation.Nullable;
 /// Interface of static blocks that don't need async IO to be rendered.
 /// </summary>
 public interface TextRendering {
-    /// <summary>
-    /// Render the block using only the given variables.
-    /// </summary>
-    /// <param name="variables">Optional variables used to render the block</param>
-    /// <returns>Rendered content</returns>
-    @Nullable
-    String render(ContextVariables variables);
+	/// <summary>
+	/// Render the block using only the given variables.
+	/// </summary>
+	/// <param name="variables">Optional variables used to render the block</param>
+	/// <returns>Rendered content</returns>
+	@Nullable
+	String render(ContextVariables variables);
 }

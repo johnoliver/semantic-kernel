@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test;
 
 public class Example01NativeFunctionsTest {
 
-    @Test
-    public void run() {
-        // Load native skill
-        TextSkill text = new TextSkill();
+	@Test
+	public void run() {
+		// Load native skill
+		TextSkill text = new TextSkill();
 
-        // Use function without kernel
-        String result = text.uppercase("ciao!");
+		// Use function without kernel
+		String result = text.uppercase("ciao!");
 
-        Assertions.assertEquals("CIAO!", result);
-    }
+		Assertions.assertEquals("CIAO!", result);
+	}
 }

@@ -18,76 +18,71 @@ import java.util.stream.Stream;
 /// Prompt template.
 /// </summary>
 public class DefaultPromptTemplate implements PromptTemplate {
-    private final String promptTemplate;
-    private final PromptTemplateConfig config;
-    private final PromptTemplateEngine templateEngine;
+	private final String promptTemplate;
+	private final PromptTemplateConfig config;
+	private final PromptTemplateEngine templateEngine;
 
-    public DefaultPromptTemplate(
-            String promptTemplate,
-            PromptTemplateConfig config,
-            PromptTemplateEngine templateEngine) {
-        this.promptTemplate = promptTemplate;
-        this.config = config;
-        this.templateEngine = templateEngine;
-    }
+	public DefaultPromptTemplate(
+		String promptTemplate,
+		PromptTemplateConfig config,
+		PromptTemplateEngine templateEngine) {
+		this.promptTemplate = promptTemplate;
+		this.config = config;
+		this.templateEngine = templateEngine;
+	}
 
-    @Override
-    public List<ParameterView> getParameters() {
-        // Parameters from config.json
-        List<ParameterView> result =
-                this.config.getInput().getParameters().stream()
-                        .filter(Objects::nonNull)
-                        .map(
-                                p ->
-                                        new ParameterView(
-                                                p.getName(),
-                                                p.getDescription(),
-                                                p.getDefaultValue()))
-                        .collect(Collectors.toList());
+	@Override
+	public List<ParameterView> getParameters() {
+		// Parameters from config.json
+		List<ParameterView> result = this.config.getInput().getParameters().stream()
+			.filter(Objects::nonNull)
+			.map(
+				p -> new ParameterView(
+					p.getName(),
+					p.getDescription(),
+					p.getDefaultValue()))
+			.collect(Collectors.toList());
 
-        List<String> seen =
-                result.stream().map(ParameterView::getName).collect(Collectors.toList());
+		List<String> seen = result.stream().map(ParameterView::getName).collect(Collectors.toList());
 
-        List<VarBlock> listFromTemplate =
-                templateEngine.extractBlocks(this.promptTemplate).stream()
-                        .filter(Objects::nonNull)
-                        .filter(x -> x.getType() == BlockTypes.Variable)
-                        .map(x -> (VarBlock) x)
-                        .collect(Collectors.toList());
+		List<VarBlock> listFromTemplate = templateEngine.extractBlocks(this.promptTemplate).stream()
+			.filter(Objects::nonNull)
+			.filter(x -> x.getType() == BlockTypes.Variable)
+			.map(x -> (VarBlock) x)
+			.collect(Collectors.toList());
 
-        List<ParameterView> newParams =
-                listFromTemplate.stream()
-                        .filter(x -> !seen.contains(x.getName()))
-                        .map(x -> new ParameterView(x.getName()))
-                        .collect(Collectors.toList());
+		List<ParameterView> newParams = listFromTemplate.stream()
+			.filter(x -> !seen.contains(x.getName()))
+			.map(x -> new ParameterView(x.getName()))
+			.collect(Collectors.toList());
 
-        return Stream.concat(result.stream(), newParams.stream()).collect(Collectors.toList());
-    }
+		return Stream.concat(result.stream(), newParams.stream()).collect(Collectors.toList());
+	}
 
-    @Override
-    public Mono<String> renderAsync(SKContext executionContext) {
-        return templateEngine.renderAsync(this.promptTemplate, executionContext);
-    }
+	@Override
+	public Mono<String> renderAsync(SKContext executionContext) {
+		return templateEngine.renderAsync(this.promptTemplate, executionContext);
+	}
 
-    public static final class Builder extends PromptTemplate.Builder {
-        private String promptTemplate;
-        private PromptTemplateConfig config;
+	public static final class Builder extends PromptTemplate.Builder {
+		private String promptTemplate;
+		private PromptTemplateConfig config;
 
-        @Override
-        public PromptTemplate build(PromptTemplateEngine promptTemplateEngine) {
-            return new DefaultPromptTemplate(promptTemplate, config, promptTemplateEngine);
-        }
+		@Override
+		public PromptTemplate build(PromptTemplateEngine promptTemplateEngine) {
+			return new DefaultPromptTemplate(promptTemplate, config, promptTemplateEngine);
+		}
 
-        @Override
-        public Builder withPromptTemplate(String promptTemplate) {
-            this.promptTemplate = promptTemplate;
-            return this;
-        }
+		@Override
+		public Builder withPromptTemplate(String promptTemplate) {
+			this.promptTemplate = promptTemplate;
+			return this;
+		}
 
-        @Override
-        public Builder withPromptTemplateConfig(PromptTemplateConfig config) {
-            this.config = config;
-            return this;
-        }
-    }
+		@Override
+		public Builder withPromptTemplateConfig(PromptTemplateConfig config) {
+			this.config = config;
+			return this;
+		}
+	}
 }

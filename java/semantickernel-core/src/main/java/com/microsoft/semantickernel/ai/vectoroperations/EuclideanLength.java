@@ -2,5 +2,5 @@
 package com.microsoft.semantickernel.ai.vectoroperations;
 
 public interface EuclideanLength {
-    double euclideanLength();
+	double euclideanLength();
 }

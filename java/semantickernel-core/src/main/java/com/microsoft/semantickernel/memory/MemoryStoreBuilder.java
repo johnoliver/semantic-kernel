@@ -2,8 +2,8 @@
 package com.microsoft.semantickernel.memory;
 
 public class MemoryStoreBuilder implements MemoryStore.Builder {
-    @Override
-    public MemoryStore buildVolatileMemoryStore() {
-        return new VolatileMemoryStore();
-    }
+	@Override
+	public MemoryStore buildVolatileMemoryStore() {
+		return new VolatileMemoryStore();
+	}
 }

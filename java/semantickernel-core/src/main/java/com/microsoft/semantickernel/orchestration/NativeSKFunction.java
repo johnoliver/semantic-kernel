@@ -39,407 +39,391 @@ import javax.annotation.Nullable;
 /// </summary>
 public class NativeSKFunction extends AbstractSkFunction<Void> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NativeSKFunction.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NativeSKFunction.class);
 
-    private final SKNativeTask<SKContext> function;
+	private final SKNativeTask<SKContext> function;
 
-    public NativeSKFunction(
-            AbstractSkFunction.DelegateTypes delegateType,
-            SKNativeTask<SKContext> delegateFunction,
-            List<ParameterView> parameters,
-            String skillName,
-            String functionName,
-            String description,
-            KernelSkillsSupplier skillCollection) {
-        super(delegateType, parameters, skillName, functionName, description, skillCollection);
-        // TODO
-        // Verify.NotNull(delegateFunction, "The function delegate is empty");
-        // Verify.ValidSkillName(skillName);
-        // Verify.ValidFunctionName(functionName);
-        // Verify.ParametersUniqueness(parameters);
+	public NativeSKFunction(
+		AbstractSkFunction.DelegateTypes delegateType,
+		SKNativeTask<SKContext> delegateFunction,
+		List<ParameterView> parameters,
+		String skillName,
+		String functionName,
+		String description,
+		KernelSkillsSupplier skillCollection) {
+		super(delegateType, parameters, skillName, functionName, description, skillCollection);
+		// TODO
+		// Verify.NotNull(delegateFunction, "The function delegate is empty");
+		// Verify.ValidSkillName(skillName);
+		// Verify.ValidFunctionName(functionName);
+		// Verify.ParametersUniqueness(parameters);
 
-        this.function = delegateFunction;
-    }
+		this.function = delegateFunction;
+	}
 
-    @Override
-    public FunctionView describe() {
-        return new FunctionView(
-                super.getName(),
-                super.getSkillName(),
-                super.getDescription(),
-                super.getParameters(),
-                false,
-                false);
-    }
+	@Override
+	public FunctionView describe() {
+		return new FunctionView(
+			super.getName(),
+			super.getSkillName(),
+			super.getDescription(),
+			super.getParameters(),
+			false,
+			false);
+	}
 
-    @Override
-    public Class<Void> getType() {
-        return Void.class;
-    }
+	@Override
+	public Class<Void> getType() {
+		return Void.class;
+	}
 
-    @Override
-    public void registerOnKernel(Kernel kernel) {
-        // No actions needed
-    }
+	@Override
+	public void registerOnKernel(Kernel kernel) {
+		// No actions needed
+	}
 
-    private static class MethodDetails {
-        public final boolean hasSkFunctionAttribute;
-        public final AbstractSkFunction.DelegateTypes type;
-        public final SKNativeTask<SKContext> function;
-        public final List<ParameterView> parameters;
-        public final String name;
-        public final String description;
+	private static class MethodDetails {
+		public final boolean hasSkFunctionAttribute;
+		public final AbstractSkFunction.DelegateTypes type;
+		public final SKNativeTask<SKContext> function;
+		public final List<ParameterView> parameters;
+		public final String name;
+		public final String description;
 
-        private MethodDetails(
-                boolean hasSkFunctionAttribute,
-                AbstractSkFunction.DelegateTypes type,
-                SKNativeTask<SKContext> function,
-                List<ParameterView> parameters,
-                String name,
-                String description) {
-            this.hasSkFunctionAttribute = hasSkFunctionAttribute;
-            this.type = type;
-            this.function = function;
-            this.parameters = parameters;
-            this.name = name;
-            this.description = description;
-        }
-    }
+		private MethodDetails(
+			boolean hasSkFunctionAttribute,
+			AbstractSkFunction.DelegateTypes type,
+			SKNativeTask<SKContext> function,
+			List<ParameterView> parameters,
+			String name,
+			String description) {
+			this.hasSkFunctionAttribute = hasSkFunctionAttribute;
+			this.type = type;
+			this.function = function;
+			this.parameters = parameters;
+			this.name = name;
+			this.description = description;
+		}
+	}
 
-    public static NativeSKFunction fromNativeMethod(
-            Method methodSignature,
-            Object methodContainerInstance,
-            String skillName,
-            KernelSkillsSupplier kernelSkillsSupplier) {
-        if (skillName == null || skillName.isEmpty()) {
-            skillName = ReadOnlySkillCollection.GlobalSkill;
-        }
+	public static NativeSKFunction fromNativeMethod(
+		Method methodSignature,
+		Object methodContainerInstance,
+		String skillName,
+		KernelSkillsSupplier kernelSkillsSupplier) {
+		if (skillName == null || skillName.isEmpty()) {
+			skillName = ReadOnlySkillCollection.GlobalSkill;
+		}
 
-        MethodDetails methodDetails = getMethodDetails(methodSignature, methodContainerInstance);
+		MethodDetails methodDetails = getMethodDetails(methodSignature, methodContainerInstance);
 
-        // If the given method is not a valid SK function
-        if (!methodSignature.isAnnotationPresent(DefineSKFunction.class)) {
-            throw new RuntimeException("Not a valid function");
-        }
+		// If the given method is not a valid SK function
+		if (!methodSignature.isAnnotationPresent(DefineSKFunction.class)) {
+			throw new RuntimeException("Not a valid function");
+		}
 
-        return new NativeSKFunction(
-                methodDetails.type,
-                methodDetails.function,
-                methodDetails.parameters,
-                skillName,
-                methodDetails.name,
-                methodDetails.description,
-                kernelSkillsSupplier);
-    }
+		return new NativeSKFunction(
+			methodDetails.type,
+			methodDetails.function,
+			methodDetails.parameters,
+			skillName,
+			methodDetails.name,
+			methodDetails.description,
+			kernelSkillsSupplier);
+	}
 
-    @Override
-    public SKContext buildContext(
-            ContextVariables variables,
-            @Nullable SemanticTextMemory memory,
-            @Nullable ReadOnlySkillCollection skills) {
-        return new DefaultSKContext(variables, memory, skills);
-    }
+	@Override
+	public SKContext buildContext(
+		ContextVariables variables,
+		@Nullable SemanticTextMemory memory,
+		@Nullable ReadOnlySkillCollection skills) {
+		return new DefaultSKContext(variables, memory, skills);
+	}
 
-    // Run the native function
-    @Override
-    protected Mono<SKContext> invokeAsyncInternal(SKContext context, @Nullable Void settings) {
-        return this.function.run(context);
-    }
+	// Run the native function
+	@Override
+	protected Mono<SKContext> invokeAsyncInternal(SKContext context, @Nullable Void settings) {
+		return this.function.run(context);
+	}
 
-    private static MethodDetails getMethodDetails(
-            Method methodSignature, Object methodContainerInstance) {
-        // Verify.NotNull(methodSignature, "Method is NULL");
+	private static MethodDetails getMethodDetails(
+		Method methodSignature, Object methodContainerInstance) {
+		// Verify.NotNull(methodSignature, "Method is NULL");
 
-        // String name = methodSignature.getName();
+		// String name = methodSignature.getName();
 
-        boolean hasSkFunctionAttribute =
-                methodSignature.isAnnotationPresent(DefineSKFunction.class);
+		boolean hasSkFunctionAttribute = methodSignature.isAnnotationPresent(DefineSKFunction.class);
 
-        if (!hasSkFunctionAttribute) {
-            throw new RuntimeException("method is not annotated with DefineSKFunction");
-        }
-        DelegateTypes type = getDelegateType(methodSignature);
-        SKNativeTask<SKContext> function = getFunction(methodSignature, methodContainerInstance);
+		if (!hasSkFunctionAttribute) {
+			throw new RuntimeException("method is not annotated with DefineSKFunction");
+		}
+		DelegateTypes type = getDelegateType(methodSignature);
+		SKNativeTask<SKContext> function = getFunction(methodSignature, methodContainerInstance);
 
-        // boolean hasStringParam =
-        //    Arrays.asList(methodSignature.getGenericParameterTypes()).contains(String.class);
+		// boolean hasStringParam =
+		// Arrays.asList(methodSignature.getGenericParameterTypes()).contains(String.class);
 
-        String name = methodSignature.getAnnotation(DefineSKFunction.class).name();
+		String name = methodSignature.getAnnotation(DefineSKFunction.class).name();
 
-        if (name == null || name.isEmpty()) {
-            name = methodSignature.getName();
-        }
+		if (name == null || name.isEmpty()) {
+			name = methodSignature.getName();
+		}
 
-        String description = methodSignature.getAnnotation(DefineSKFunction.class).description();
+		String description = methodSignature.getAnnotation(DefineSKFunction.class).description();
 
-        List<ParameterView> parameters = getParameters(methodSignature);
+		List<ParameterView> parameters = getParameters(methodSignature);
 
-        return new MethodDetails(
-                hasSkFunctionAttribute, type, function, parameters, name, description);
-    }
+		return new MethodDetails(
+			hasSkFunctionAttribute, type, function, parameters, name, description);
+	}
 
-    private static List<ParameterView> getParameters(Method method) {
+	private static List<ParameterView> getParameters(Method method) {
 
-        List<ParameterView> params =
-                Arrays.stream(method.getParameters())
-                        .filter(
-                                parameter ->
-                                        parameter.isAnnotationPresent(SKFunctionParameters.class)
-                                                || parameter.isAnnotationPresent(
-                                                        SKFunctionInputAttribute.class))
-                        .map(
-                                parameter -> {
-                                    if (parameter.isAnnotationPresent(SKFunctionParameters.class)) {
-                                        SKFunctionParameters annotation =
-                                                parameter.getAnnotation(SKFunctionParameters.class);
-                                        return new ParameterView(
-                                                annotation.name(),
-                                                annotation.description(),
-                                                annotation.defaultValue());
-                                    } else {
-                                        SKFunctionInputAttribute annotation =
-                                                parameter.getAnnotation(
-                                                        SKFunctionInputAttribute.class);
-                                        return new ParameterView("input");
-                                    }
-                                })
-                        .collect(Collectors.toList());
+		List<ParameterView> params = Arrays.stream(method.getParameters())
+			.filter(
+				parameter -> parameter.isAnnotationPresent(SKFunctionParameters.class)
+					|| parameter.isAnnotationPresent(
+						SKFunctionInputAttribute.class))
+			.map(
+				parameter -> {
+					if (parameter.isAnnotationPresent(SKFunctionParameters.class)) {
+						SKFunctionParameters annotation = parameter.getAnnotation(SKFunctionParameters.class);
+						return new ParameterView(
+							annotation.name(),
+							annotation.description(),
+							annotation.defaultValue());
+					} else {
+						SKFunctionInputAttribute annotation = parameter.getAnnotation(
+							SKFunctionInputAttribute.class);
+						return new ParameterView("input");
+					}
+				})
+			.collect(Collectors.toList());
 
-        HashSet<ParameterView> out = new HashSet<>();
-        out.addAll(params);
+		HashSet<ParameterView> out = new HashSet<>();
+		out.addAll(params);
 
-        boolean hasInput = params.stream().anyMatch(p -> p.getName().equals("input"));
+		boolean hasInput = params.stream().anyMatch(p -> p.getName().equals("input"));
 
-        if (!hasInput) {
-            List<ParameterView> inputArgs =
-                    determineInputArgs(method).stream()
-                            .map(
-                                    parameter -> {
-                                        return new ParameterView("input");
-                                    })
-                            .collect(Collectors.toList());
-            out.addAll(inputArgs);
-        }
+		if (!hasInput) {
+			List<ParameterView> inputArgs = determineInputArgs(method).stream()
+				.map(
+					parameter -> {
+						return new ParameterView("input");
+					})
+				.collect(Collectors.toList());
+			out.addAll(inputArgs);
+		}
 
-        return out.stream().collect(Collectors.toList());
-    }
+		return out.stream().collect(Collectors.toList());
+	}
 
-    private static SKNativeTask<SKContext> getFunction(Method method, Object instance) {
-        return (contextInput) -> {
-            SKContext context = contextInput.copy();
+	private static SKNativeTask<SKContext> getFunction(Method method, Object instance) {
+		return (contextInput) -> {
+			SKContext context = contextInput.copy();
 
-            Set<Parameter> inputArgs = determineInputArgs(method);
+			Set<Parameter> inputArgs = determineInputArgs(method);
 
-            try {
-                List<Object> args =
-                        Arrays.stream(method.getParameters())
-                                .map(
-                                        parameter -> {
-                                            if (SKContext.class.isAssignableFrom(
-                                                    parameter.getType())) {
-                                                return context; // .copy();
-                                            } else {
-                                                String value =
-                                                        getArgumentValue(
-                                                                method, context, parameter,
-                                                                inputArgs);
-                                                if (value != null) {
-                                                    return value;
-                                                } else {
-                                                    throw new AIException(
-                                                            AIException.ErrorCodes
-                                                                    .InvalidConfiguration,
-                                                            "Unknown arg " + parameter.getName());
-                                                }
-                                            }
-                                        })
-                                .collect(Collectors.toList());
+			try {
+				List<Object> args = Arrays.stream(method.getParameters())
+					.map(
+						parameter -> {
+							if (SKContext.class.isAssignableFrom(
+								parameter.getType())) {
+								return context; // .copy();
+							} else {
+								String value = getArgumentValue(
+									method, context, parameter,
+									inputArgs);
+								if (value != null) {
+									return value;
+								} else {
+									throw new AIException(
+										AIException.ErrorCodes.InvalidConfiguration,
+										"Unknown arg " + parameter.getName());
+								}
+							}
+						})
+					.collect(Collectors.toList());
 
-                Mono mono;
-                if (method.getReturnType().isAssignableFrom(Mono.class)) {
-                    try {
-                        mono = (Mono) method.invoke(instance, args.toArray());
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        return Mono.error(e);
-                    }
-                } else {
-                    mono =
-                            Mono.defer(
-                                    () -> {
-                                        return Mono.fromCallable(
-                                                        () -> {
-                                                            try {
-                                                                Object result =
-                                                                        method.invoke(
-                                                                                instance,
-                                                                                args.toArray());
+				Mono mono;
+				if (method.getReturnType().isAssignableFrom(Mono.class)) {
+					try {
+						mono = (Mono) method.invoke(instance, args.toArray());
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						return Mono.error(e);
+					}
+				} else {
+					mono = Mono.defer(
+						() -> {
+							return Mono.fromCallable(
+								() -> {
+									try {
+										Object result = method.invoke(
+											instance,
+											args.toArray());
 
-                                                                return result;
-                                                            } catch (IllegalAccessException
-                                                                    | InvocationTargetException e) {
-                                                                throw new RuntimeException(
-                                                                        e.getCause());
-                                                            }
-                                                        })
-                                                .subscribeOn(Schedulers.boundedElastic());
-                                    });
-                }
+										return result;
+									} catch (IllegalAccessException
+										| InvocationTargetException e) {
+										throw new RuntimeException(
+											e.getCause());
+									}
+								})
+								.subscribeOn(Schedulers.boundedElastic());
+						});
+				}
 
-                return mono.map(
-                        it -> {
-                            if (it instanceof SKContext) {
-                                return it;
-                            } else {
-                                return context.update((String) it);
-                            }
-                        });
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
-        };
-    }
+				return mono.map(
+					it -> {
+						if (it instanceof SKContext) {
+							return it;
+						} else {
+							return context.update((String) it);
+						}
+					});
+			} catch (Exception e) {
+				return Mono.error(e);
+			}
+		};
+	}
 
-    private static String getArgumentValue(
-            Method method, SKContext context, Parameter parameter, Set<Parameter> inputArgs) {
-        String variableName = getGetVariableName(parameter);
+	private static String getArgumentValue(
+		Method method, SKContext context, Parameter parameter, Set<Parameter> inputArgs) {
+		String variableName = getGetVariableName(parameter);
 
-        String arg = context.getVariables().get(variableName);
-        if (arg == null) {
-            // If this is bound to input get the input value
-            if (inputArgs.contains(parameter)) {
-                String input = context.getVariables().get(ContextVariables.MAIN_KEY);
-                if (input != null && !input.isEmpty()) {
-                    arg = input;
-                }
-            }
+		String arg = context.getVariables().get(variableName);
+		if (arg == null) {
+			// If this is bound to input get the input value
+			if (inputArgs.contains(parameter)) {
+				String input = context.getVariables().get(ContextVariables.MAIN_KEY);
+				if (input != null && !input.isEmpty()) {
+					arg = input;
+				}
+			}
 
-            if (arg == null || arg.isEmpty()) {
-                SKFunctionParameters annotation =
-                        parameter.getAnnotation(SKFunctionParameters.class);
-                if (annotation != null) {
-                    arg = annotation.defaultValue();
-                }
-            }
-        }
+			if (arg == null || arg.isEmpty()) {
+				SKFunctionParameters annotation = parameter.getAnnotation(SKFunctionParameters.class);
+				if (annotation != null) {
+					arg = annotation.defaultValue();
+				}
+			}
+		}
 
-        if ((arg == null || arg.isEmpty()) && variableName.matches("arg\\d")) {
-            LOGGER.warn(
-                    "For the function "
-                            + method.getDeclaringClass().getName()
-                            + "."
-                            + method.getName()
-                            + ", the parameter argument name was detected as \""
-                            + variableName
-                            + "\" this indicates that the argument name for this function was"
-                            + " removed during compilation. To support this function its arguments"
-                            + " must be annotated with @SKFunctionParameters with the name defined,"
-                            + " or @SKFunctionInputAttribute.");
-        }
+		if ((arg == null || arg.isEmpty()) && variableName.matches("arg\\d")) {
+			LOGGER.warn(
+				"For the function "
+					+ method.getDeclaringClass().getName()
+					+ "."
+					+ method.getName()
+					+ ", the parameter argument name was detected as \""
+					+ variableName
+					+ "\" this indicates that the argument name for this function was"
+					+ " removed during compilation. To support this function its arguments"
+					+ " must be annotated with @SKFunctionParameters with the name defined,"
+					+ " or @SKFunctionInputAttribute.");
+		}
 
-        if (NO_DEFAULT_VALUE.equals(arg)) {
-            return null;
-        }
-        return arg;
-    }
+		if (NO_DEFAULT_VALUE.equals(arg)) {
+			return null;
+		}
+		return arg;
+	}
 
-    private static String getGetVariableName(Parameter parameter) {
-        SKFunctionParameters annotation = parameter.getAnnotation(SKFunctionParameters.class);
+	private static String getGetVariableName(Parameter parameter) {
+		SKFunctionParameters annotation = parameter.getAnnotation(SKFunctionParameters.class);
 
-        if (annotation == null || annotation.name() == null || annotation.name().isEmpty()) {
-            return parameter.getName();
-        }
-        return annotation.name();
-    }
+		if (annotation == null || annotation.name() == null || annotation.name().isEmpty()) {
+			return parameter.getName();
+		}
+		return annotation.name();
+	}
 
-    private static Set<Parameter> determineInputArgs(Method method) {
-        // Something is bound to the input if either:
-        // - it is annotated with @SKFunctionInputAttribute
-        // - SKFunctionParameters annotation has a name of "input"
-        // - the arg name is "input"
-        // - there is only 1 string argument to the function
+	private static Set<Parameter> determineInputArgs(Method method) {
+		// Something is bound to the input if either:
+		// - it is annotated with @SKFunctionInputAttribute
+		// - SKFunctionParameters annotation has a name of "input"
+		// - the arg name is "input"
+		// - there is only 1 string argument to the function
 
-        // Get all parameters annotated with SKFunctionInputAttribute
-        List<Parameter> annotated =
-                Arrays.stream(method.getParameters())
-                        .filter(it -> it.isAnnotationPresent(SKFunctionInputAttribute.class))
-                        .collect(Collectors.toList());
+		// Get all parameters annotated with SKFunctionInputAttribute
+		List<Parameter> annotated = Arrays.stream(method.getParameters())
+			.filter(it -> it.isAnnotationPresent(SKFunctionInputAttribute.class))
+			.collect(Collectors.toList());
 
-        if (annotated.size() > 1) {
-            LOGGER.warn(
-                    "Multiple arguments of "
-                            + method.getName()
-                            + " have the @SKFunctionInputAttribute annotation. This is likely an"
-                            + " error.");
-        }
+		if (annotated.size() > 1) {
+			LOGGER.warn(
+				"Multiple arguments of "
+					+ method.getName()
+					+ " have the @SKFunctionInputAttribute annotation. This is likely an"
+					+ " error.");
+		}
 
-        // Get all parameters annotated with SKFunctionParameters with a name of "input"
-        List<Parameter> annotatedWithName =
-                Arrays.stream(method.getParameters())
-                        .filter(it -> it.isAnnotationPresent(SKFunctionParameters.class))
-                        .filter(it -> it.getName().equals("input"))
-                        .collect(Collectors.toList());
+		// Get all parameters annotated with SKFunctionParameters with a name of "input"
+		List<Parameter> annotatedWithName = Arrays.stream(method.getParameters())
+			.filter(it -> it.isAnnotationPresent(SKFunctionParameters.class))
+			.filter(it -> it.getName().equals("input"))
+			.collect(Collectors.toList());
 
-        if (annotatedWithName.size() > 1) {
-            LOGGER.warn(
-                    "Multiple arguments of "
-                            + method.getName()
-                            + " have the name input. This is likely an error.");
-        }
+		if (annotatedWithName.size() > 1) {
+			LOGGER.warn(
+				"Multiple arguments of "
+					+ method.getName()
+					+ " have the name input. This is likely an error.");
+		}
 
-        // Get all parameters named "input", this will frequently fail as compilers strip out
-        // argument names
-        List<Parameter> calledInput =
-                Arrays.stream(method.getParameters())
-                        .filter(it -> getGetVariableName(it).equals("input"))
-                        .collect(Collectors.toList());
+		// Get all parameters named "input", this will frequently fail as compilers
+		// strip out
+		// argument names
+		List<Parameter> calledInput = Arrays.stream(method.getParameters())
+			.filter(it -> getGetVariableName(it).equals("input"))
+			.collect(Collectors.toList());
 
-        // Get parameter if there is only 1 string, and it has not been annotated with
-        // SKFunctionParameters
-        List<Parameter> soloString =
-                Arrays.stream(method.getParameters())
-                        .filter(it -> it.getType().equals(String.class))
-                        .filter(
-                                it ->
-                                        !(it.isAnnotationPresent(SKFunctionParameters.class)
-                                                && !it.getAnnotation(SKFunctionParameters.class)
-                                                        .name()
-                                                        .isEmpty()))
-                        .collect(Collectors.toList());
-        if (soloString.size() > 1) {
-            soloString.clear();
-        }
+		// Get parameter if there is only 1 string, and it has not been annotated with
+		// SKFunctionParameters
+		List<Parameter> soloString = Arrays.stream(method.getParameters())
+			.filter(it -> it.getType().equals(String.class))
+			.filter(
+				it -> !(it.isAnnotationPresent(SKFunctionParameters.class)
+					&& !it.getAnnotation(SKFunctionParameters.class)
+						.name()
+						.isEmpty()))
+			.collect(Collectors.toList());
+		if (soloString.size() > 1) {
+			soloString.clear();
+		}
 
-        Set<Parameter> params = new HashSet<>();
-        params.addAll(annotated);
-        params.addAll(annotatedWithName);
-        params.addAll(calledInput);
-        params.addAll(soloString);
+		Set<Parameter> params = new HashSet<>();
+		params.addAll(annotated);
+		params.addAll(annotatedWithName);
+		params.addAll(calledInput);
+		params.addAll(soloString);
 
-        if (params.size() > 1) {
-            LOGGER.warn(
-                    "Multiple arguments of "
-                            + method.getName()
-                            + " are bound to the input variable. This is likely an error.");
-        }
+		if (params.size() > 1) {
+			LOGGER.warn(
+				"Multiple arguments of "
+					+ method.getName()
+					+ " are bound to the input variable. This is likely an error.");
+		}
 
-        return params;
-    }
+		return params;
+	}
 
-    // Inspect a method and returns the corresponding delegate and related info
-    private static AbstractSkFunction.DelegateTypes getDelegateType(Method method) {
-        // TODO ALL TYPES
-        if (method.getReturnType().equals(String.class)) {
-            return AbstractSkFunction.DelegateTypes.OutString;
-        }
+	// Inspect a method and returns the corresponding delegate and related info
+	private static AbstractSkFunction.DelegateTypes getDelegateType(Method method) {
+		// TODO ALL TYPES
+		if (method.getReturnType().equals(String.class)) {
+			return AbstractSkFunction.DelegateTypes.OutString;
+		}
 
-        if (method.getReturnType().getName().equals("void")) {
-            return DelegateTypes.Void;
-        }
+		if (method.getReturnType().getName().equals("void")) {
+			return DelegateTypes.Void;
+		}
 
-        if (method.getReturnType().equals(Mono.class)) {
-            return AbstractSkFunction.DelegateTypes.InSKContextOutTaskString;
-        }
+		if (method.getReturnType().equals(Mono.class)) {
+			return AbstractSkFunction.DelegateTypes.InSKContextOutTaskString;
+		}
 
-        throw new RuntimeException("Unknown function type");
-    }
+		throw new RuntimeException("Unknown function type");
+	}
 }

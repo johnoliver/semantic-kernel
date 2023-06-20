@@ -20,48 +20,44 @@ import reactor.util.function.Tuples;
 
 public class Example04CombineLLMPromptsAndNativeCodeTest {
 
-    @Test
-    public void run() {
-        OpenAIAsyncClient client =
-                mockCompletionOpenAIAsyncClient(
-                        Tuples.of(
-                                "Gran Torre Santiago is the tallest building in South America",
-                                "A-SUMMARY"));
+	@Test
+	public void run() {
+		OpenAIAsyncClient client = mockCompletionOpenAIAsyncClient(
+			Tuples.of(
+				"Gran Torre Santiago is the tallest building in South America",
+				"A-SUMMARY"));
 
-        KernelConfig kernelConfig =
-                SKBuilders.kernelConfig()
-                        .addTextCompletionService(
-                                "text-davinci-002",
-                                kernel -> new OpenAITextCompletion(client, "text-davinci-002"))
-                        .addTextCompletionService(
-                                "text-davinci-003",
-                                kernel -> new OpenAITextCompletion(client, "text-davinci-003"))
-                        .setDefaultTextCompletionService("text-davinci-003")
-                        .build();
+		KernelConfig kernelConfig = SKBuilders.kernelConfig()
+			.addTextCompletionService(
+				"text-davinci-002",
+				kernel -> new OpenAITextCompletion(client, "text-davinci-002"))
+			.addTextCompletionService(
+				"text-davinci-003",
+				kernel -> new OpenAITextCompletion(client, "text-davinci-003"))
+			.setDefaultTextCompletionService("text-davinci-003")
+			.build();
 
-        Kernel kernel = SKBuilders.kernel().setKernelConfig(kernelConfig).build();
-        kernel.importSkill(new SearchEngineSkill(), null);
-        kernel.importSkill(
-                "SummarizeSkill",
-                KernelExtensions.importSemanticSkillFromDirectory(
-                        "../../samples/skills", "SummarizeSkill"));
+		Kernel kernel = SKBuilders.kernel().setKernelConfig(kernelConfig).build();
+		kernel.importSkill(new SearchEngineSkill(), null);
+		kernel.importSkill(
+			"SummarizeSkill",
+			KernelExtensions.importSemanticSkillFromDirectory(
+				"../../samples/skills", "SummarizeSkill"));
 
-        // Run
-        String ask = "What's the tallest building in South America?";
+		// Run
+		String ask = "What's the tallest building in South America?";
 
-        Mono<SKContext> result =
-                kernel.runAsync(ask, kernel.getSkills().getFunction("Search", null));
+		Mono<SKContext> result = kernel.runAsync(ask, kernel.getSkills().getFunction("Search", null));
 
-        Assertions.assertEquals(
-                "Gran Torre Santiago is the tallest building in South America",
-                result.block().getResult());
+		Assertions.assertEquals(
+			"Gran Torre Santiago is the tallest building in South America",
+			result.block().getResult());
 
-        result =
-                kernel.runAsync(
-                        ask,
-                        kernel.getSkills().getFunction("Search", null),
-                        kernel.getSkill("SummarizeSkill").getFunction("Summarize", null));
+		result = kernel.runAsync(
+			ask,
+			kernel.getSkills().getFunction("Search", null),
+			kernel.getSkill("SummarizeSkill").getFunction("Summarize", null));
 
-        Assertions.assertEquals("A-SUMMARY", result.block().getResult());
-    }
+		Assertions.assertEquals("A-SUMMARY", result.block().getResult());
+	}
 }

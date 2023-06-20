@@ -24,78 +24,73 @@ import reactor.util.function.Tuples;
 import java.util.ArrayList;
 
 public class OpenAIChatCompletionTest {
-    @Test
-    public void azureOpenAIChatSampleAsync() {
-        OpenAIAsyncClient client =
-                mockCompletionOpenAIAsyncClient(Tuples.of("Today is", "A-RESULT"));
+	@Test
+	public void azureOpenAIChatSampleAsync() {
+		OpenAIAsyncClient client = mockCompletionOpenAIAsyncClient(Tuples.of("Today is", "A-RESULT"));
 
-        String message = "Hi, I'm looking for book suggestions";
-        Example17ChatGPTTest.mockResponse(client, message, "1st response");
+		String message = "Hi, I'm looking for book suggestions";
+		Example17ChatGPTTest.mockResponse(client, message, "1st response");
 
-        String result = getRunExample(client, message);
-        Assertions.assertEquals("1st response", result);
-    }
+		String result = getRunExample(client, message);
+		Assertions.assertEquals("1st response", result);
+	}
 
-    private static String getRunExample(OpenAIAsyncClient client, String message) {
-        KernelConfig kernelConfig =
-                SKBuilders.kernelConfig()
-                        .addChatCompletionService(
-                                "gpt-3.5-turbo-0301",
-                                kernel ->
-                                        SKBuilders.chatCompletion()
-                                                .build(client, "gpt-3.5-turbo-0301"))
-                        .build();
+	private static String getRunExample(OpenAIAsyncClient client, String message) {
+		KernelConfig kernelConfig = SKBuilders.kernelConfig()
+			.addChatCompletionService(
+				"gpt-3.5-turbo-0301",
+				kernel -> SKBuilders.chatCompletion()
+					.build(client, "gpt-3.5-turbo-0301"))
+			.build();
 
-        Kernel kernel = SKBuilders.kernel().setKernelConfig(kernelConfig).build();
+		Kernel kernel = SKBuilders.kernel().setKernelConfig(kernelConfig).build();
 
-        ChatCompletion<OpenAIChatHistory> chatGPT = kernel.getService(null, ChatCompletion.class);
+		ChatCompletion<OpenAIChatHistory> chatGPT = kernel.getService(null, ChatCompletion.class);
 
-        OpenAIChatHistory chatHistory =
-                chatGPT.createNewChat("You are a librarian, expert about books");
+		OpenAIChatHistory chatHistory = chatGPT.createNewChat("You are a librarian, expert about books");
 
-        // First user message
-        chatHistory.addUserMessage(message);
-        ChatHistory.Message createdMessage = chatHistory.getLastMessage().get();
-        Assertions.assertEquals(ChatHistory.AuthorRoles.User, createdMessage.getAuthorRoles());
-        Assertions.assertEquals(message, createdMessage.getContent());
+		// First user message
+		chatHistory.addUserMessage(message);
+		ChatHistory.Message createdMessage = chatHistory.getLastMessage().get();
+		Assertions.assertEquals(ChatHistory.AuthorRoles.User, createdMessage.getAuthorRoles());
+		Assertions.assertEquals(message, createdMessage.getContent());
 
-        // First bot assistant message
-        return chatGPT.generateMessageAsync(chatHistory, null).block();
-    }
+		// First bot assistant message
+		return chatGPT.generateMessageAsync(chatHistory, null).block();
+	}
 
-    private static class runExample {
-        public final OpenAIChatHistory chatHistory;
-        public final String reply;
+	private static class runExample {
+		public final OpenAIChatHistory chatHistory;
+		public final String reply;
 
-        public runExample(OpenAIChatHistory chatHistory, String reply) {
-            this.chatHistory = chatHistory;
-            this.reply = reply;
-        }
-    }
+		public runExample(OpenAIChatHistory chatHistory, String reply) {
+			this.chatHistory = chatHistory;
+			this.reply = reply;
+		}
+	}
 
-    @Test
-    public void emptyResponseThrowsError() {
-        OpenAIAsyncClient client =
-                mockCompletionOpenAIAsyncClient(Tuples.of("Today is", "A-RESULT"));
+	@Test
+	public void emptyResponseThrowsError() {
+		OpenAIAsyncClient client = mockCompletionOpenAIAsyncClient(Tuples.of("Today is", "A-RESULT"));
 
-        String message = "Hi, I'm looking for book suggestions";
+		String message = "Hi, I'm looking for book suggestions";
 
-        ChatCompletions completion = Mockito.mock(ChatCompletions.class);
-        Mockito.when(completion.getChoices()).thenReturn(new ArrayList<>());
+		ChatCompletions completion = Mockito.mock(ChatCompletions.class);
+		Mockito.when(completion.getChoices()).thenReturn(new ArrayList<>());
 
-        Mockito.when(
-                        client.getChatCompletions(
-                                Mockito.any(),
-                                Mockito.<ChatCompletionsOptions>argThat(
-                                        msg -> {
-                                            return msg != null
-                                                    && msg.getMessages()
-                                                            .get(msg.getMessages().size() - 1)
-                                                            .getContent()
-                                                            .equals(message);
-                                        })))
-                .thenReturn(Mono.just(completion));
+		Mockito.when(
+			client.getChatCompletions(
+				Mockito.any(),
+				Mockito.<ChatCompletionsOptions>argThat(
+					msg -> {
+						return msg != null
+							&& msg.getMessages()
+								.get(msg.getMessages().size() - 1)
+								.getContent()
+								.equals(message);
+					})))
+			.thenReturn(Mono.just(completion));
 
-        Assertions.assertThrows(AIException.class, () -> getRunExample(client, message));
-    }
+		Assertions.assertThrows(AIException.class, () -> getRunExample(client, message));
+	}
 }

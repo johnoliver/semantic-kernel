@@ -14,21 +14,20 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 public class Example02PipelineTest {
-    @Test
-    public void run() {
-        OpenAIAsyncClient client = DefaultKernelTest.mockCompletionOpenAIAsyncClient();
-        Kernel kernel = DefaultKernelTest.buildKernel("model", client);
+	@Test
+	public void run() {
+		OpenAIAsyncClient client = DefaultKernelTest.mockCompletionOpenAIAsyncClient();
+		Kernel kernel = DefaultKernelTest.buildKernel("model", client);
 
-        // Load native skill
-        ReadOnlyFunctionCollection text = kernel.importSkill(new TextSkill(), null);
+		// Load native skill
+		ReadOnlyFunctionCollection text = kernel.importSkill(new TextSkill(), null);
 
-        Mono<SKContext> result =
-                kernel.runAsync(
-                        "    i n f i n i t e     s p a c e     ",
-                        text.getFunction("LStrip"),
-                        text.getFunction("RStrip"),
-                        text.getFunction("Uppercase"));
+		Mono<SKContext> result = kernel.runAsync(
+			"    i n f i n i t e     s p a c e     ",
+			text.getFunction("LStrip"),
+			text.getFunction("RStrip"),
+			text.getFunction("Uppercase"));
 
-        Assertions.assertEquals("I N F I N I T E     S P A C E", result.block().getResult());
-    }
+		Assertions.assertEquals("I N F I N I T E     S P A C E", result.block().getResult());
+	}
 }

@@ -22,161 +22,173 @@ import javax.annotation.Nullable;
 /** Interface for the semantic kernel. */
 public interface Kernel {
 
-    /**
-     * Settings required to execute functions, including details about AI dependencies, e.g.
-     * endpoints and API keys.
-     */
-    KernelConfig getConfig();
+	/**
+	 * Settings required to execute functions, including details about AI
+	 * dependencies, e.g.
+	 * endpoints and API keys.
+	 */
+	KernelConfig getConfig();
 
-    /**
-     * Reference to the engine rendering prompt templates
-     *
-     * @return
-     */
-    PromptTemplateEngine getPromptTemplateEngine();
+	/**
+	 * Reference to the engine rendering prompt templates
+	 *
+	 * @return
+	 */
+	PromptTemplateEngine getPromptTemplateEngine();
 
-    /**
-     * Return the memory store used by the kernel.
-     *
-     * @return the MemoryStore instance
-     */
-    SemanticTextMemory getMemoryStore();
+	/**
+	 * Return the memory store used by the kernel.
+	 *
+	 * @return the MemoryStore instance
+	 */
+	SemanticTextMemory getMemoryStore();
 
-    /**
-     * Set the SemanticTextMemory to use.
-     *
-     * @param memory {@link SemanticTextMemory} instance
-     */
-    void registerMemory(SemanticTextMemory memory);
+	/**
+	 * Set the SemanticTextMemory to use.
+	 *
+	 * @param memory
+	 *         {@link SemanticTextMemory} instance
+	 */
+	void registerMemory(SemanticTextMemory memory);
 
-    /**
-     * Run a pipeline composed of synchronous and asynchronous functions.
-     *
-     * @param pipeline List of functions
-     * @return Result of the function composition
-     */
-    Mono<SKContext> runAsync(SKFunction<?>... pipeline);
+	/**
+	 * Run a pipeline composed of synchronous and asynchronous functions.
+	 *
+	 * @param pipeline
+	 *         List of functions
+	 * @return Result of the function composition
+	 */
+	Mono<SKContext> runAsync(SKFunction<?>... pipeline);
 
-    /**
-     * Run a pipeline composed of synchronous and asynchronous functions.
-     *
-     * @param input Input to process
-     * @param pipeline List of functions
-     * @return Result of the function composition
-     */
-    Mono<SKContext> runAsync(String input, SKFunction<?>... pipeline);
+	/**
+	 * Run a pipeline composed of synchronous and asynchronous functions.
+	 *
+	 * @param input
+	 *         Input to process
+	 * @param pipeline
+	 *         List of functions
+	 * @return Result of the function composition
+	 */
+	Mono<SKContext> runAsync(String input, SKFunction<?>... pipeline);
 
-    /**
-     * Run a pipeline composed of synchronous and asynchronous functions.
-     *
-     * @param variables variables to initialise the context with
-     * @param pipeline List of functions
-     * @return Result of the function composition
-     */
-    Mono<SKContext> runAsync(ContextVariables variables, SKFunction<?>... pipeline);
+	/**
+	 * Run a pipeline composed of synchronous and asynchronous functions.
+	 *
+	 * @param variables
+	 *         variables to initialise the context with
+	 * @param pipeline
+	 *         List of functions
+	 * @return Result of the function composition
+	 */
+	Mono<SKContext> runAsync(ContextVariables variables, SKFunction<?>... pipeline);
 
-    /**
-     * Import a set of skills
-     *
-     * @param skillName
-     * @param skills
-     * @return
-     * @throws SkillsNotFoundException
-     */
-    ReadOnlyFunctionCollection importSkill(
-            String skillName, Map<String, SemanticFunctionConfig> skills)
-            throws SkillsNotFoundException;
+	/**
+	 * Import a set of skills
+	 *
+	 * @param skillName
+	 * @param skills
+	 * @return
+	 * @throws SkillsNotFoundException
+	 */
+	ReadOnlyFunctionCollection importSkill(
+		String skillName, Map<String, SemanticFunctionConfig> skills)
+		throws SkillsNotFoundException;
 
-    /**
-     * Get function collection with the skill name
-     *
-     * @param skillName
-     * @return
-     * @throws SkillsNotFoundException
-     */
-    ReadOnlyFunctionCollection getSkill(String skillName) throws SkillsNotFoundException;
+	/**
+	 * Get function collection with the skill name
+	 *
+	 * @param skillName
+	 * @return
+	 * @throws SkillsNotFoundException
+	 */
+	ReadOnlyFunctionCollection getSkill(String skillName) throws SkillsNotFoundException;
 
-    /**
-     * Imports the native functions annotated on the given object as a skill.
-     *
-     * @param skillName
-     * @return
-     */
-    ReadOnlyFunctionCollection importSkillFromDirectory(
-            String skillName, String parentDirectory, String skillDirectoryName);
+	/**
+	 * Imports the native functions annotated on the given object as a skill.
+	 *
+	 * @param skillName
+	 * @return
+	 */
+	ReadOnlyFunctionCollection importSkillFromDirectory(
+		String skillName, String parentDirectory, String skillDirectoryName);
 
-    /** Imports the native functions annotated on the given object as a skill. */
-    void importSkillsFromDirectory(String parentDirectory, String... skillNames);
+	/** Imports the native functions annotated on the given object as a skill. */
+	void importSkillsFromDirectory(String parentDirectory, String... skillNames);
 
-    /**
-     * Imports the native functions annotated on the given object as a skill. Assumes that the
-     * directory that contains the skill is the same as skillName
-     *
-     * @param skillName
-     * @return
-     */
-    ReadOnlyFunctionCollection importSkillFromDirectory(String skillName, String parentDirectory);
+	/**
+	 * Imports the native functions annotated on the given object as a skill.
+	 * Assumes that the
+	 * directory that contains the skill is the same as skillName
+	 *
+	 * @param skillName
+	 * @return
+	 */
+	ReadOnlyFunctionCollection importSkillFromDirectory(String skillName, String parentDirectory);
 
-    /**
-     * Imports the native functions annotated on the given object as a skill.
-     *
-     * @param nativeSkill
-     * @param skillName
-     * @return
-     */
-    ReadOnlyFunctionCollection importSkill(Object nativeSkill, @Nullable String skillName);
+	/**
+	 * Imports the native functions annotated on the given object as a skill.
+	 *
+	 * @param nativeSkill
+	 * @param skillName
+	 * @return
+	 */
+	ReadOnlyFunctionCollection importSkill(Object nativeSkill, @Nullable String skillName);
 
-    /**
-     * @return Reference to the read-only skill collection containing all the imported functions
-     */
-    ReadOnlySkillCollection getSkills();
+	/**
+	 * @return Reference to the read-only skill collection containing all the
+	 *         imported functions
+	 */
+	ReadOnlySkillCollection getSkills();
 
-    CompletionSKFunction.Builder getSemanticFunctionBuilder();
+	CompletionSKFunction.Builder getSemanticFunctionBuilder();
 
-    /** Obtains the service with the given name and type */
-    <T> T getService(@Nullable String name, Class<T> clazz) throws KernelException;
+	/** Obtains the service with the given name and type */
+	<T> T getService(@Nullable String name, Class<T> clazz) throws KernelException;
 
-    /** Registers a semantic functon on this kernel */
-    <RequestConfiguration, FunctionType extends SKFunction<RequestConfiguration>>
-            FunctionType registerSemanticFunction(FunctionType semanticFunctionDefinition);
+	/** Registers a semantic functon on this kernel */
+	<RequestConfiguration, FunctionType extends SKFunction<RequestConfiguration>> FunctionType registerSemanticFunction(
+		FunctionType semanticFunctionDefinition);
 
-    // <T extends ReadOnlySKContext<T>> T createNewContext();
+	// <T extends ReadOnlySKContext<T>> T createNewContext();
 
-    class Builder {
-        @Nullable private KernelConfig kernelConfig = null;
-        @Nullable private PromptTemplateEngine promptTemplateEngine = null;
-        @Nullable private SemanticTextMemory memoryStore = null;
+	class Builder {
+		@Nullable
+		private KernelConfig kernelConfig = null;
+		@Nullable
+		private PromptTemplateEngine promptTemplateEngine = null;
+		@Nullable
+		private SemanticTextMemory memoryStore = null;
 
-        public Builder setKernelConfig(KernelConfig kernelConfig) {
-            this.kernelConfig = kernelConfig;
-            return this;
-        }
+		public Builder setKernelConfig(KernelConfig kernelConfig) {
+			this.kernelConfig = kernelConfig;
+			return this;
+		}
 
-        public Builder setPromptTemplateEngine(PromptTemplateEngine promptTemplateEngine) {
-            this.promptTemplateEngine = promptTemplateEngine;
-            return this;
-        }
+		public Builder setPromptTemplateEngine(PromptTemplateEngine promptTemplateEngine) {
+			this.promptTemplateEngine = promptTemplateEngine;
+			return this;
+		}
 
-        public Builder withMemoryStore(SemanticTextMemory memoryStore) {
-            this.memoryStore = memoryStore;
-            return this;
-        }
+		public Builder withMemoryStore(SemanticTextMemory memoryStore) {
+			this.memoryStore = memoryStore;
+			return this;
+		}
 
-        public Kernel build() {
-            if (kernelConfig == null) {
-                throw new IllegalStateException("Must provide a kernel configuration");
-            }
+		public Kernel build() {
+			if (kernelConfig == null) {
+				throw new IllegalStateException("Must provide a kernel configuration");
+			}
 
-            return BuildersSingleton.INST
-                    .getKernelBuilder()
-                    .build(kernelConfig, promptTemplateEngine, memoryStore);
-        }
-    }
+			return BuildersSingleton.INST
+				.getKernelBuilder()
+				.build(kernelConfig, promptTemplateEngine, memoryStore);
+		}
+	}
 
-    interface InternalBuilder {
-        Kernel build(
-                KernelConfig kernelConfig,
-                @Nullable PromptTemplateEngine promptTemplateEngine,
-                @Nullable SemanticTextMemory memoryStore);
-    }
+	interface InternalBuilder {
+		Kernel build(
+			KernelConfig kernelConfig,
+			@Nullable PromptTemplateEngine promptTemplateEngine,
+			@Nullable SemanticTextMemory memoryStore);
+	}
 }

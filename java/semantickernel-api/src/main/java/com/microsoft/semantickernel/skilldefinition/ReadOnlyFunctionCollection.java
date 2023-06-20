@@ -10,29 +10,33 @@ import javax.annotation.Nullable;
 
 public interface ReadOnlyFunctionCollection {
 
-    String getSkillName();
+	String getSkillName();
 
-    SKFunction<?> getFunction(String functionName);
+	SKFunction<?> getFunction(String functionName);
 
-    /**
-     * Get function with the given SKFunction type argument.
-     *
-     * @param functionName the name of the function to retrieve
-     * @param clazz The class of the SKFunction parameter type
-     * @param <T> SKFunction parameter type
-     * @return The given function
-     * @throws RuntimeException if the given entry is not of the expected type
-     */
-    <T extends SKFunction> T getFunction(String functionName, @Nullable Class<T> clazz);
+	/**
+	 * Get function with the given SKFunction type argument.
+	 *
+	 * @param functionName
+	 *         the name of the function to retrieve
+	 * @param clazz
+	 *         The class of the SKFunction parameter type
+	 * @param <T>
+	 *         SKFunction parameter type
+	 * @return The given function
+	 * @throws RuntimeException
+	 *          if the given entry is not of the expected type
+	 */
+	<T extends SKFunction> T getFunction(String functionName, @Nullable Class<T> clazz);
 
-    /**
-     * @return A clone of this collection
-     */
-    @CheckReturnValue
-    ReadOnlyFunctionCollection copy();
+	/**
+	 * @return A clone of this collection
+	 */
+	@CheckReturnValue
+	ReadOnlyFunctionCollection copy();
 
-    /**
-     * @return An unmodifiable list of all functions
-     */
-    List<SKFunction<?>> getAll();
+	/**
+	 * @return An unmodifiable list of all functions
+	 */
+	List<SKFunction<?>> getAll();
 }

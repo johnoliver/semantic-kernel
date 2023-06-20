@@ -18,212 +18,197 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 public abstract class AbstractSkFunction<RequestConfiguration>
-        implements SKFunction<RequestConfiguration>, RegistrableSkFunction {
+	implements SKFunction<RequestConfiguration>, RegistrableSkFunction {
 
-    private final DelegateTypes delegateType;
-    private final List<ParameterView> parameters;
-    private final String skillName;
-    private final String functionName;
-    private final String description;
-    @Nullable private KernelSkillsSupplier skillsSupplier;
+	private final DelegateTypes delegateType;
+	private final List<ParameterView> parameters;
+	private final String skillName;
+	private final String functionName;
+	private final String description;
+	@Nullable
+	private KernelSkillsSupplier skillsSupplier;
 
-    public AbstractSkFunction(
-            DelegateTypes delegateType,
-            List<ParameterView> parameters,
-            String skillName,
-            String functionName,
-            String description,
-            @Nullable KernelSkillsSupplier skillsSupplier) {
+	public AbstractSkFunction(
+		DelegateTypes delegateType,
+		List<ParameterView> parameters,
+		String skillName,
+		String functionName,
+		String description,
+		@Nullable KernelSkillsSupplier skillsSupplier) {
 
-        this.delegateType = delegateType;
-        this.parameters = new ArrayList<>(parameters);
-        this.skillName = skillName;
-        this.functionName = functionName;
-        this.description = description;
-        this.skillsSupplier = skillsSupplier;
-    }
+		this.delegateType = delegateType;
+		this.parameters = new ArrayList<>(parameters);
+		this.skillName = skillName;
+		this.functionName = functionName;
+		this.description = description;
+		this.skillsSupplier = skillsSupplier;
+	}
 
-    protected void assertSkillSupplierRegistered() {
-        if (skillsSupplier == null) {
-            throw new FunctionNotRegisteredException(getName());
-        }
-    }
+	protected void assertSkillSupplierRegistered() {
+		if (skillsSupplier == null) {
+			throw new FunctionNotRegisteredException(getName());
+		}
+	}
 
-    protected void setSkillsSupplier(@Nullable KernelSkillsSupplier skillsSupplier) {
-        this.skillsSupplier = skillsSupplier;
-    }
+	protected void setSkillsSupplier(@Nullable KernelSkillsSupplier skillsSupplier) {
+		this.skillsSupplier = skillsSupplier;
+	}
 
-    @Nullable
-    public KernelSkillsSupplier getSkillsSupplier() {
-        return skillsSupplier;
-    }
+	@Nullable
+	public KernelSkillsSupplier getSkillsSupplier() {
+		return skillsSupplier;
+	}
 
-    @Override
-    public Mono<SKContext> invokeAsync(
-            @Nullable String input,
-            @Nullable SKContext context,
-            @Nullable RequestConfiguration settings) {
-        if (context == null) {
-            assertSkillSupplierRegistered();
-            context =
-                    buildContext(
-                            SKBuilders.variables().build(),
-                            NullMemory.getInstance(),
-                            skillsSupplier.get());
-        } else {
-            context = context.copy();
-        }
+	@Override
+	public Mono<SKContext> invokeAsync(
+		@Nullable String input,
+		@Nullable SKContext context,
+		@Nullable RequestConfiguration settings) {
+		if (context == null) {
+			assertSkillSupplierRegistered();
+			context = buildContext(
+				SKBuilders.variables().build(),
+				NullMemory.getInstance(),
+				skillsSupplier.get());
+		} else {
+			context = context.copy();
+		}
 
-        if (input != null) {
-            context = context.update(input);
-        }
+		if (input != null) {
+			context = context.update(input);
+		}
 
-        return this.invokeAsync(context, settings);
-    }
+		return this.invokeAsync(context, settings);
+	}
 
-    @Override
-    public Mono<SKContext> invokeAsync(String input) {
-        return invokeAsync(input, null, null);
-    }
+	@Override
+	public Mono<SKContext> invokeAsync(String input) {
+		return invokeAsync(input, null, null);
+	}
 
-    @Override
-    public Mono<SKContext> invokeAsync(SKContext context, @Nullable RequestConfiguration settings) {
-        // return new FutureTask<SKContext>(() -> function.run(null, settings, context));
+	@Override
+	public Mono<SKContext> invokeAsync(SKContext context, @Nullable RequestConfiguration settings) {
+		// return new FutureTask<SKContext>(() -> function.run(null, settings,
+		// context));
 
-        if (context == null) {
-            context = buildContext(SKBuilders.variables().build(), NullMemory.getInstance(), null);
-        } else {
-            context = context.copy();
-        }
+		if (context == null) {
+			context = buildContext(SKBuilders.variables().build(), NullMemory.getInstance(), null);
+		} else {
+			context = context.copy();
+		}
 
-        return this.invokeAsyncInternal(context, settings);
-    }
+		return this.invokeAsyncInternal(context, settings);
+	}
 
-    protected abstract Mono<SKContext> invokeAsyncInternal(
-            SKContext context, @Nullable RequestConfiguration settings);
+	protected abstract Mono<SKContext> invokeAsyncInternal(
+		SKContext context, @Nullable RequestConfiguration settings);
 
-    @Override
-    public String getSkillName() {
-        return skillName;
-    }
+	@Override
+	public String getSkillName() {
+		return skillName;
+	}
 
-    @Override
-    public String getName() {
-        return functionName;
-    }
+	@Override
+	public String getName() {
+		return functionName;
+	}
 
-    public DelegateTypes getDelegateType() {
-        return delegateType;
-    }
+	public DelegateTypes getDelegateType() {
+		return delegateType;
+	}
 
-    public List<ParameterView> getParameters() {
-        return Collections.unmodifiableList(parameters);
-    }
+	public List<ParameterView> getParameters() {
+		return Collections.unmodifiableList(parameters);
+	}
 
-    public enum DelegateTypes {
-        Unknown(0),
-        Void(1),
-        OutString(2),
-        OutTaskString(3),
-        InSKContext(4),
-        InSKContextOutString(5),
-        InSKContextOutTaskString(6),
-        ContextSwitchInSKContextOutTaskSKContext(7),
-        InString(8),
-        InStringOutString(9),
-        InStringOutTaskString(10),
-        InStringAndContext(11),
-        InStringAndContextOutString(12),
-        InStringAndContextOutTaskString(13),
-        ContextSwitchInStringAndContextOutTaskContext(14),
-        InStringOutTask(15),
-        InContextOutTask(16),
-        InStringAndContextOutTask(17),
-        OutTask(18);
+	public enum DelegateTypes {
+		Unknown(0), Void(1), OutString(2), OutTaskString(3), InSKContext(4), InSKContextOutString(
+			5), InSKContextOutTaskString(6), ContextSwitchInSKContextOutTaskSKContext(
+				7), InString(8), InStringOutString(9), InStringOutTaskString(10), InStringAndContext(
+					11), InStringAndContextOutString(12), InStringAndContextOutTaskString(
+						13), ContextSwitchInStringAndContextOutTaskContext(14), InStringOutTask(
+							15), InContextOutTask(16), InStringAndContextOutTask(17), OutTask(18);
 
-        final int num;
+		final int num;
 
-        DelegateTypes(int num) {
-            this.num = num;
-        }
-    }
+		DelegateTypes(int num) {
+			this.num = num;
+		}
+	}
 
-    /**
-     * The function to create a fully qualified name for
-     *
-     * @return A fully qualified name for a function
-     */
-    @Override
-    public String toFullyQualifiedName() {
-        return skillName + "." + functionName;
-    }
+	/**
+	 * The function to create a fully qualified name for
+	 *
+	 * @return A fully qualified name for a function
+	 */
+	@Override
+	public String toFullyQualifiedName() {
+		return skillName + "." + functionName;
+	}
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+	@Override
+	public String getDescription() {
+		return description;
+	}
 
-    @Override
-    public String toEmbeddingString() {
-        String inputs =
-                parameters.stream()
-                        .map(p -> "    - " + p.getName() + ": " + p.getDescription())
-                        .collect(Collectors.joining("\n"));
+	@Override
+	public String toEmbeddingString() {
+		String inputs = parameters.stream()
+			.map(p -> "    - " + p.getName() + ": " + p.getDescription())
+			.collect(Collectors.joining("\n"));
 
-        return getName() + ":\n  description: " + getDescription() + "\n  inputs:\n" + inputs;
-    }
+		return getName() + ":\n  description: " + getDescription() + "\n  inputs:\n" + inputs;
+	}
 
-    @Override
-    public String toManualString() {
-        String inputs =
-                parameters.stream()
-                        .map(
-                                parameter -> {
-                                    String defaultValueString;
-                                    if (parameter.getDefaultValue() == null
-                                            || parameter.getDefaultValue().isEmpty()) {
-                                        defaultValueString = "";
-                                    } else {
-                                        defaultValueString =
-                                                " (default value: "
-                                                        + parameter.getDefaultValue()
-                                                        + ")";
-                                    }
+	@Override
+	public String toManualString() {
+		String inputs = parameters.stream()
+			.map(
+				parameter -> {
+					String defaultValueString;
+					if (parameter.getDefaultValue() == null
+						|| parameter.getDefaultValue().isEmpty()) {
+						defaultValueString = "";
+					} else {
+						defaultValueString = " (default value: "
+							+ parameter.getDefaultValue()
+							+ ")";
+					}
 
-                                    return "  - "
-                                            + parameter.getName()
-                                            + ": "
-                                            + parameter.getDescription()
-                                            + defaultValueString;
-                                })
-                        .collect(Collectors.joining("\n"));
+					return "  - "
+						+ parameter.getName()
+						+ ": "
+						+ parameter.getDescription()
+						+ defaultValueString;
+				})
+			.collect(Collectors.joining("\n"));
 
-        return toFullyQualifiedName()
-                + ":\n"
-                + "  description: "
-                + getDescription()
-                + "\n"
-                + "  inputs:\n"
-                + inputs;
-    }
+		return toFullyQualifiedName()
+			+ ":\n"
+			+ "  description: "
+			+ getDescription()
+			+ "\n"
+			+ "  inputs:\n"
+			+ inputs;
+	}
 
-    @Override
-    public SKContext buildContext() {
-        assertSkillSupplierRegistered();
-        return buildContext(SKBuilders.variables().build(), null, getSkillsSupplier().get());
-    }
+	@Override
+	public SKContext buildContext() {
+		assertSkillSupplierRegistered();
+		return buildContext(SKBuilders.variables().build(), null, getSkillsSupplier().get());
+	}
 
-    @Override
-    public Mono<SKContext> invokeWithCustomInputAsync(
-            ContextVariables input,
-            SemanticTextMemory semanticMemory,
-            ReadOnlySkillCollection skills) {
-        SKContext tmpContext = buildContext(input, semanticMemory, skills);
-        return invokeAsync(tmpContext, null);
-    }
+	@Override
+	public Mono<SKContext> invokeWithCustomInputAsync(
+		ContextVariables input,
+		SemanticTextMemory semanticMemory,
+		ReadOnlySkillCollection skills) {
+		SKContext tmpContext = buildContext(input, semanticMemory, skills);
+		return invokeAsync(tmpContext, null);
+	}
 
-    @Override
-    public Mono<SKContext> invokeAsync() {
-        return invokeAsync(null, null, null);
-    }
+	@Override
+	public Mono<SKContext> invokeAsync() {
+		return invokeAsync(null, null, null);
+	}
 }
