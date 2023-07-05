@@ -46,7 +46,6 @@ public class DefaultCompletionSKFunction
     @Nullable private DefaultTextCompletionSupplier aiService;
 
     public DefaultCompletionSKFunction(
-            DelegateTypes delegateTypes,
             List<ParameterView> parameters,
             String skillName,
             String functionName,
@@ -54,13 +53,7 @@ public class DefaultCompletionSKFunction
             CompletionRequestSettings requestSettings,
             SemanticFunctionConfig functionConfig,
             @Nullable KernelSkillsSupplier kernelSkillsSupplier) {
-        super(
-                delegateTypes,
-                parameters,
-                skillName,
-                functionName,
-                description,
-                kernelSkillsSupplier);
+        super(parameters, skillName, functionName, description, kernelSkillsSupplier);
         // TODO
         // Verify.NotNull(delegateFunction, "The function delegate is empty");
         // Verify.ValidSkillName(skillName);
@@ -306,7 +299,6 @@ public class DefaultCompletionSKFunction
         PromptTemplate promptTemplate = functionConfig.getTemplate();
 
         return new DefaultCompletionSKFunction(
-                DelegateTypes.ContextSwitchInSKContextOutTaskSKContext,
                 promptTemplate.getParameters(),
                 skillName,
                 functionName,

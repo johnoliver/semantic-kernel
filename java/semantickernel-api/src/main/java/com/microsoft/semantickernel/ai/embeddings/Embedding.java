@@ -6,11 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Represents a strongly typed vector of numeric data.
- *
- * @param <EmbeddingType>
- */
+/** Represents a strongly typed vector of numeric data. */
 public class Embedding<EmbeddingType extends Number> {
 
     public List<EmbeddingType> getVector() {
@@ -41,10 +37,10 @@ public class Embedding<EmbeddingType extends Number> {
     }
 
     /**
-     * Initializes a new instance of the <see cref="Embedding{TEmbedding}"/> class that contains
-     * numeric elements copied from the specified collection
+     * Initializes a new instance of the Embedding class that contains numeric elements copied from
+     * the specified collection
      *
-     * @param vector
+     * @param vector The collection whose elements are copied to the new Embedding
      */
     public Embedding(List<EmbeddingType> vector) {
         //        Verify.NotNull(vector, nameof(vector));

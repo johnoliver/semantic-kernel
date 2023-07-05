@@ -34,6 +34,15 @@ public class AIProviderSettings {
     }
 
     /**
+     * Returns an instance of OpenAISettings with key and organizationId from the System properties
+     *
+     * @return OpenAISettings
+     */
+    public static OpenAISettings getOpenAISettingsFromSystemProperties() {
+        return new OpenAISettings().fromSystemProperties();
+    }
+
+    /**
      * Returns an instance of OpenAISettings with key and organizationId from the properties file
      *
      * @param path Path to the properties file
@@ -55,6 +64,16 @@ public class AIProviderSettings {
     public static AzureOpenAISettings getAzureOpenAISettingsFromFile(String path)
             throws IOException {
         return new AzureOpenAISettings().fromFile(path);
+    }
+
+    /**
+     * Returns an instance of AzureOpenAISettings with key, endpoint and deploymentName from System
+     * properties
+     *
+     * @return AzureOpenAISettings
+     */
+    public static AzureOpenAISettings getAzureOpenAISettingsFromSystemProperties() {
+        return new AzureOpenAISettings().fromSystemProperties();
     }
 
     /**

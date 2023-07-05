@@ -78,4 +78,28 @@ public class AzureOpenAISettings extends ClientSettings<AzureOpenAISettings> {
                         path, Property.AZURE_OPEN_AI_DEPLOYMENT_NAME.label(), clientSettingsId);
         return this;
     }
+
+    @Override
+    public boolean isValid() {
+        return key != null && endpoint != null;
+    }
+
+    @Override
+    public AzureOpenAISettings fromSystemProperties() {
+        return fromSystemProperties(DEFAULT_CLIENT_ID);
+    }
+
+    @Override
+    public AzureOpenAISettings fromSystemProperties(String clientSettingsId) {
+        this.key =
+                getSettingsValueFromSystemProperties(
+                        Property.AZURE_OPEN_AI_KEY.label(), clientSettingsId);
+        this.endpoint =
+                getSettingsValueFromSystemProperties(
+                        Property.AZURE_OPEN_AI_ENDPOINT.label(), clientSettingsId);
+        this.deploymentName =
+                getSettingsValueFromSystemProperties(
+                        Property.AZURE_OPEN_AI_DEPLOYMENT_NAME.label(), clientSettingsId);
+        return this;
+    }
 }

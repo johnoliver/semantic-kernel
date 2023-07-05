@@ -13,6 +13,22 @@ public abstract class ClientSettings<T extends ClientSettings<T>> {
 
     public abstract T fromFile(String path, String clientSettingsId) throws IOException;
 
+    public abstract boolean isValid();
+
+    /**
+     * Returns an instance of the settings defined by the system properties
+     *
+     * @return T
+     */
+    public abstract T fromSystemProperties();
+
+    /**
+     * Returns an instance of the settings defined by the system properties
+     *
+     * @return T
+     */
+    public abstract T fromSystemProperties(String clientSettingsId);
+
     private static String getPropertyNameForClientId(String clientSettingsId, String propertyName) {
         return "client." + clientSettingsId + "." + propertyName;
     }
@@ -33,5 +49,11 @@ public abstract class ClientSettings<T extends ClientSettings<T>> {
         } catch (IOException e) {
             throw new IOException(settingsFile + " not configured properly");
         }
+    }
+
+    protected String getSettingsValueFromSystemProperties(
+            String property, String clientSettingsId) {
+        Properties props = System.getProperties();
+        return props.getProperty(getPropertyNameForClientId(clientSettingsId, property));
     }
 }

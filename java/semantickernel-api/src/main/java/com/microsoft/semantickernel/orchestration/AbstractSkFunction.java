@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+/** Abstract implementation of the SKFunction interface. */
 public abstract class AbstractSkFunction<RequestConfiguration>
         implements SKFunction<RequestConfiguration>, RegistrableSkFunction {
 
-    private final DelegateTypes delegateType;
     private final List<ParameterView> parameters;
     private final String skillName;
     private final String functionName;
@@ -28,14 +28,12 @@ public abstract class AbstractSkFunction<RequestConfiguration>
     @Nullable private KernelSkillsSupplier skillsSupplier;
 
     public AbstractSkFunction(
-            DelegateTypes delegateType,
             List<ParameterView> parameters,
             String skillName,
             String functionName,
             String description,
             @Nullable KernelSkillsSupplier skillsSupplier) {
 
-        this.delegateType = delegateType;
         this.parameters = new ArrayList<>(parameters);
         this.skillName = skillName;
         this.functionName = functionName;
@@ -116,40 +114,8 @@ public abstract class AbstractSkFunction<RequestConfiguration>
         return functionName;
     }
 
-    public DelegateTypes getDelegateType() {
-        return delegateType;
-    }
-
     public List<ParameterView> getParameters() {
         return Collections.unmodifiableList(parameters);
-    }
-
-    public enum DelegateTypes {
-        Unknown(0),
-        Void(1),
-        OutString(2),
-        OutTaskString(3),
-        InSKContext(4),
-        InSKContextOutString(5),
-        InSKContextOutTaskString(6),
-        ContextSwitchInSKContextOutTaskSKContext(7),
-        InString(8),
-        InStringOutString(9),
-        InStringOutTaskString(10),
-        InStringAndContext(11),
-        InStringAndContextOutString(12),
-        InStringAndContextOutTaskString(13),
-        ContextSwitchInStringAndContextOutTaskContext(14),
-        InStringOutTask(15),
-        InContextOutTask(16),
-        InStringAndContextOutTask(17),
-        OutTask(18);
-
-        final int num;
-
-        DelegateTypes(int num) {
-            this.num = num;
-        }
     }
 
     /**

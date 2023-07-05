@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.microsoft.semantickernel</groupId>
     <artifactId>semantickernel-parent</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.1.6-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>https://www.github.com/microsoft/semantic-kernel</url>
 
@@ -242,6 +240,7 @@
                     <configuration>
                         <!-- TODO: Tighten this up when we go GA -->
                         <failOnError>false</failOnError>
+                        <nohelp>true</nohelp>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -366,10 +365,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -514,13 +509,6 @@
 
     <profiles>
         <profile>
-            <id>compile-jdk8</id>
-            <properties>
-                <maven.compiler.source>1.8</maven.compiler.source>
-                <maven.compiler.target>1.8</maven.compiler.target>
-            </properties>
-        </profile>
-        <profile>
             <id>compile-jdk17</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -628,5 +616,89 @@
                 </plugins>
             </build>
         </profile>
+
+
+        <profile>
+            <id>release</id>
+            <properties>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <javadoc>true</javadoc>
+                            <sources>true</sources>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </reporting>
+
+            <repositories>
+                <repository>
+                    <id>${releaseRepoId}</id>
+                    <url>${releaseRepoUrl}</url>
+                    <name>${releaseRepoName}</name>
+                </repository>
+            </repositories>
+            <distributionManagement>
+                <repository>
+                    <id>${releaseRepoId}</id>
+                    <url>${releaseRepoUrl}</url>
+                    <name>${releaseRepoName}</name>
+                </repository>
+            </distributionManagement>
+
+        </profile>
+        <profile>
+            <id>compile-jdk8</id>
+            <properties>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+            </properties>
+        </profile>
     </profiles>
+
+    <scm>
+        <url>https://github.com/microsoft/semantic-kernel</url>
+        <connection>scm:git:https://github.com/microsoft/semantic-kernel.git</connection>
+        <developerConnection>scm:git:https://github.com/microsoft/semantic-kernel.git</developerConnection>
+        <tag>semantickernel-parent-0.1.2-beta</tag>
+    </scm>
 </project>

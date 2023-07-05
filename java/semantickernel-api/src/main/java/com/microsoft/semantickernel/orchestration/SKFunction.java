@@ -36,6 +36,11 @@ public interface SKFunction<RequestConfiguration> {
     @CheckReturnValue
     Mono<SKContext> invokeAsync(String input, SKContext context, RequestConfiguration settings);
 
+    /**
+     * Invokes the function
+     *
+     * @return an updated context with the result of the request
+     */
     Mono<SKContext> invokeAsync();
 
     /**
@@ -47,6 +52,11 @@ public interface SKFunction<RequestConfiguration> {
     @CheckReturnValue
     Mono<SKContext> invokeAsync(String input);
 
+    /**
+     * The type of the configuration argument that will be provided when the function is invoked
+     *
+     * @return The type
+     */
     @Nullable
     Class<RequestConfiguration> getType();
 
