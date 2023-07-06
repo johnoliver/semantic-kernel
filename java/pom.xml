@@ -5,7 +5,7 @@
 
     <groupId>com.microsoft.semantickernel</groupId>
     <artifactId>semantickernel-parent</artifactId>
-    <version>0.1.6-SNAPSHOT</version>
+    <version>0.1.6</version>
     <packaging>pom</packaging>
     <url>https://www.github.com/microsoft/semantic-kernel</url>
 
@@ -699,6 +699,6 @@
         <url>https://github.com/microsoft/semantic-kernel</url>
         <connection>scm:git:https://github.com/microsoft/semantic-kernel.git</connection>
         <developerConnection>scm:git:https://github.com/microsoft/semantic-kernel.git</developerConnection>
-        <tag>semantickernel-parent-0.1.2-beta</tag>
+        <tag>semantickernel-parent-0.1.6</tag>
     </scm>
 </project>
