@@ -101,9 +101,9 @@ public class TextEmbeddingsTest extends AbstractKernelTest {
                         .with(kernel.getSkills())
                         .build();
 
-        context.getSemanticMemory()
-                .saveInformationAsync("aboutMe", "My name is Andrea", "fact1", null, null)
-                .block();
+                context.getSemanticMemory()
+                        .saveInformationAsync("aboutMe", "My name is Andrea", "fact1", null, null)
+                        .block();
 
         context.getSemanticMemory()
                 .saveInformationAsync(

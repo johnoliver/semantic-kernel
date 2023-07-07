@@ -7,12 +7,16 @@ import com.microsoft.semantickernel.memory.SemanticTextMemory;
 import com.microsoft.semantickernel.orchestration.ContextVariables;
 import com.microsoft.semantickernel.orchestration.SKContext;
 import com.microsoft.semantickernel.orchestration.SKFunction;
+import com.microsoft.semantickernel.services.AIService;
+import com.microsoft.semantickernel.services.AIServiceCollection;
+import com.microsoft.semantickernel.services.AIServiceProvider;
 import com.microsoft.semantickernel.templateengine.PromptTemplateEngine;
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
-
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /** Interface for the semantic kernel. */
 public interface Kernel extends SkillExecutor {
@@ -66,7 +70,8 @@ public interface Kernel extends SkillExecutor {
     CompletionSKFunction.Builder getSemanticFunctionBuilder();
 
     /** Obtains the service with the given name and type */
-    <T> T getService(@Nullable String name, Class<T> clazz) throws KernelException;
+    <T extends AIService> T getService(@Nullable String name, Class<T> clazz)
+            throws KernelException;
 
     /** Registers a semantic functon on this kernel */
     <RequestConfiguration, FunctionType extends SKFunction<RequestConfiguration>>
@@ -80,6 +85,7 @@ public interface Kernel extends SkillExecutor {
         @Nullable private KernelConfig kernelConfig = null;
         @Nullable private PromptTemplateEngine promptTemplateEngine = null;
         @Nullable private MemoryStore memoryStore = null;
+        @Nullable private AIServiceCollection aiServices = new AIServiceCollection();
         @Nullable private SemanticTextMemory memory = null;
 
         public Builder setKernelConfig(KernelConfig kernelConfig) {
@@ -97,6 +103,65 @@ public interface Kernel extends SkillExecutor {
             return this;
         }
 
+        /**
+         * Adds an instance to the services collection
+         *
+         * @param instance The instance.
+         * @param clazz The class of the instance.
+         * @return The builder.
+         */
+        public <T extends AIService> Builder withDefaultAIService(T instance, Class<T> clazz) {
+            this.aiServices.setService(instance, clazz);
+            return this;
+        }
+
+        /**
+         * Adds an instance to the services collection
+         *
+         * @param serviceId The service ID
+         * @param instance The instance.
+         * @param setAsDefault Optional: set as the default AI service for type T
+         * @param clazz The class of the instance.
+         */
+        public <T extends AIService> Builder withAIService(
+                @Nullable String serviceId, T instance, boolean setAsDefault, Class<T> clazz) {
+            this.aiServices.setService(serviceId, instance, setAsDefault, clazz);
+            return this;
+        }
+
+        /**
+         * Adds a factory method to the services collection
+         *
+         * @param factory The factory method that creates the AI service instances of type T.
+         * @param clazz The class of the instance.
+         */
+        public <T extends AIService> Builder withDefaultAIService(
+                Supplier<T> factory, Class<T> clazz) {
+            this.aiServices.setService(factory, clazz);
+            return this;
+        }
+
+        /**
+         * Adds a factory method to the services collection
+         *
+         * @param serviceId The service ID
+         * @param factory The factory method that creates the AI service instances of type T.
+         * @param setAsDefault Optional: set as the default AI service for type T
+         * @param clazz The class of the instance.
+         */
+        public <T extends AIService> Builder withAIService(
+                @Nullable String serviceId,
+                Function<KernelConfig, T> factory,
+                boolean setAsDefault,
+                Class<T> clazz) {
+            this.aiServices.setService(
+                    serviceId,
+                    (Supplier<T>) () -> factory.apply(this.kernelConfig),
+                    setAsDefault,
+                    clazz);
+            return this;
+        }
+
         public Builder withMemory(SemanticTextMemory memory) {
             this.memory = memory;
             return this;
@@ -109,7 +174,12 @@ public interface Kernel extends SkillExecutor {
 
             return BuildersSingleton.INST
                     .getKernelBuilder()
-                    .build(kernelConfig, promptTemplateEngine, memory, memoryStore);
+                    .build(
+                            kernelConfig,
+                            promptTemplateEngine,
+                            memory,
+                            memoryStore,
+                            aiServices.build());
         }
     }
 
@@ -118,6 +188,7 @@ public interface Kernel extends SkillExecutor {
                 KernelConfig kernelConfig,
                 @Nullable PromptTemplateEngine promptTemplateEngine,
                 @Nullable SemanticTextMemory memory,
-                @Nullable MemoryStore memoryStore);
+                @Nullable MemoryStore memoryStore,
+                @Nullable AIServiceProvider aiServiceProvider);
     }
 }

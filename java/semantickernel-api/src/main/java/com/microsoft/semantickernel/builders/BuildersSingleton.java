@@ -12,7 +12,6 @@ import com.microsoft.semantickernel.semanticfunctions.PromptTemplate;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
 import com.microsoft.semantickernel.templateengine.PromptTemplateEngine;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/** Enum singleton that service loads builder implementations */
+/**
+ * Enum singleton that service loads builder implementations
+ */
 @SuppressWarnings("ImmutableEnumChecker")
 public enum BuildersSingleton {
     INST;
@@ -78,21 +79,21 @@ public enum BuildersSingleton {
             LOGGER.error("Failed to discover Semantic Kernel Builders", e);
             LOGGER.error(
                     "This is likely due to:\n\n"
-                        + "- The Semantic Kernel implementation (typically provided by"
-                        + " semantickernel-core) is not present on the classpath at runtime, ensure"
-                        + " that this dependency is available at runtime. In maven this would be"
-                        + " achieved by adding:\n"
-                        + "\n"
-                        + "        <dependency>\n"
-                        + "            <groupId>com.microsoft.semantickernel</groupId>\n"
-                        + "            <artifactId>semantickernel-core</artifactId>\n"
-                        + "            <version>${skversion}</version>\n"
-                        + "            <scope>runtime</scope>\n"
-                        + "        </dependency>\n\n"
-                        + "- The META-INF/services files that define the service loading have been"
-                        + " filtered out and are not present within the running application\n\n"
-                        + "- The class names have been changed (for instance shaded) preventing"
-                        + " discovering the classes");
+                            + "- The Semantic Kernel implementation (typically provided by"
+                            + " semantickernel-core) is not present on the classpath at runtime, ensure"
+                            + " that this dependency is available at runtime. In maven this would be"
+                            + " achieved by adding:\n"
+                            + "\n"
+                            + "        <dependency>\n"
+                            + "            <groupId>com.microsoft.semantickernel</groupId>\n"
+                            + "            <artifactId>semantickernel-core</artifactId>\n"
+                            + "            <version>${skversion}</version>\n"
+                            + "            <scope>runtime</scope>\n"
+                            + "        </dependency>\n\n"
+                            + "- The META-INF/services files that define the service loading have been"
+                            + " filtered out and are not present within the running application\n\n"
+                            + "- The class names have been changed (for instance shaded) preventing"
+                            + " discovering the classes");
 
             throw e;
         }

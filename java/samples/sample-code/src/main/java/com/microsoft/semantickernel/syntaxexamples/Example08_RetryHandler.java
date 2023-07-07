@@ -89,7 +89,6 @@ public class Example08_RetryHandler {
                         new PromptTemplateConfig.CompletionConfig(
                                 0.2, 0.5, 0, 0, 2000));
 
-
         kernel.registerSemanticFunction(summarizeFunc);
 
         SKContext context = summarizeFunc.invokeAsync(text).block();
