@@ -11,7 +11,6 @@ import com.microsoft.semantickernel.skilldefinition.FunctionView;
 import com.microsoft.semantickernel.skilldefinition.KernelSkillsSupplier;
 import com.microsoft.semantickernel.skilldefinition.ParameterView;
 import com.microsoft.semantickernel.textcompletion.CompletionRequestSettings;
-import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
 
 import reactor.core.publisher.Mono;
 
@@ -62,7 +61,7 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
     }
 
     public Plan(
-            CompletionSKFunction function,
+            SKFunction<?> function,
             ContextVariables state,
             List<String> functionOutputs,
             KernelSkillsSupplier kernelSkillsSupplier) {
@@ -98,18 +97,17 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
     }
 
     public Plan(
-            CompletionSKFunction function,
+            SKFunction<?> function,
             List<String> functionOutputs,
             KernelSkillsSupplier kernelSkillsSupplier) {
         this(function, SKBuilders.variables().build(), functionOutputs, kernelSkillsSupplier);
     }
 
-    public Plan(CompletionSKFunction function, KernelSkillsSupplier kernelSkillsSupplier) {
+    public Plan(SKFunction<?> function, KernelSkillsSupplier kernelSkillsSupplier) {
         this(function, SKBuilders.variables().build(), new ArrayList<>(), kernelSkillsSupplier);
     }
 
-    public Plan(
-            String goal, KernelSkillsSupplier kernelSkillsSupplier, CompletionSKFunction... steps) {
+    public Plan(String goal, KernelSkillsSupplier kernelSkillsSupplier, SKFunction... steps) {
         this(goal, kernelSkillsSupplier);
         this.addSteps(steps);
     }
@@ -160,7 +158,7 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
      *
      * @param steps The steps to add to the current plan.
      */
-    public void addSteps(CompletionSKFunction... steps) {
+    public void addSteps(SKFunction<?>... steps) {
         List<Plan> plans =
                 Arrays.stream(steps)
                         .map(step -> new Plan(step, getSkillsSupplier()))

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.builders.SKBuilders;
 import com.microsoft.semantickernel.orchestration.SKContext;
+import com.microsoft.semantickernel.orchestration.SKFunction;
 import com.microsoft.semantickernel.planner.PlanningException;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
 import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
@@ -127,7 +128,7 @@ public class ActionPlanner {
                     "The plan deserialized to a null object");
         }
 
-        CompletionSKFunction function = getPlanFunction(planData);
+        SKFunction function = getPlanFunction(planData);
 
         if (function == null) {
             // No function was found - return a plan with no steps.
@@ -137,19 +138,19 @@ public class ActionPlanner {
         }
     }
 
-    public CompletionSKFunction getPlanFunction(ActionPlanResponse planData) {
+    public SKFunction getPlanFunction(ActionPlanResponse planData) {
 
         if (planData.plan.function.contains(".")) {
             String[] parts = planData.plan.function.split("\\.", -1);
-            CompletionSKFunction skill =
-                    context.getSkills().getFunction(parts[0], parts[1], CompletionSKFunction.class);
+            SKFunction function =
+                    context.getSkills().getFunction(parts[0], parts[1], SKFunction.class);
 
-            if (skill == null) {
+            if (function == null) {
                 throw new PlanningException(
                         PlanningException.ErrorCodes.InvalidPlan,
-                        "Unknown skill " + planData.plan.function);
+                        "Unknown function " + planData.plan.function);
             }
-            return skill;
+            return function;
 
         } else if (!planData.plan.function.isEmpty()) {
             CompletionSKFunction function =
