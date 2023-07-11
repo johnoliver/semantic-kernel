@@ -523,7 +523,7 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
     }
 
     private String toPlanString(String indent) {
-        String goalHeader = indent + "Goal: " + getDescription() + "\n\n" + indent + "}Steps:\n";
+        String goalHeader = indent + "Goal: " + getDescription() + "\n\n" + indent + "Steps:\n";
 
         String stepItems =
                 String.join(
@@ -543,8 +543,22 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
             String parameters =
                     String.join(
                             " ",
-                            step.getParameters().stream()
-                                    .map(param -> param.getName() + " " + param.getDefaultValue())
+                            step.getParametersView().stream()
+                                    .map(
+                                            param -> {
+                                                String value = param.getDefaultValue();
+                                                if (step.getParameters().get(param.getName())
+                                                        != null) {
+                                                    value =
+                                                            step.getParameters()
+                                                                    .get(param.getName());
+                                                }
+                                                return "\t"
+                                                        + param.getName()
+                                                        + ": \""
+                                                        + value
+                                                        + "\"";
+                                            })
                                     .collect(Collectors.toList()));
 
             if (!Verify.isNullOrEmpty(parameters)) {
@@ -560,10 +574,15 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
                     + indent
                     + "- "
                     + String.join(".", skillName, stepName)
+                    + "\t\t\t"
                     + parameters
                     + outputs;
         }
 
         return step.toPlanString(indent + indent);
+    }
+
+    private ContextVariables getParameters() {
+        return parameters;
     }
 }

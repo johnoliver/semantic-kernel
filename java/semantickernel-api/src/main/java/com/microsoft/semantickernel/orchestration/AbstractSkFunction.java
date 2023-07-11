@@ -120,7 +120,7 @@ public abstract class AbstractSkFunction<RequestConfiguration>
         return delegateType;
     }
 
-    public List<ParameterView> getParameters() {
+    public List<ParameterView> getParametersView() {
         return Collections.unmodifiableList(parameters);
     }
 
