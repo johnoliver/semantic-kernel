@@ -107,6 +107,15 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
         this(function, SKBuilders.variables().build(), new ArrayList<>(), kernelSkillsSupplier);
     }
 
+    public Plan(
+            String goal,
+            ContextVariables parameters,
+            KernelSkillsSupplier kernelSkillsSupplier,
+            SKFunction... steps) {
+        this(goal, parameters, kernelSkillsSupplier);
+        this.addSteps(steps);
+    }
+
     public Plan(String goal, KernelSkillsSupplier kernelSkillsSupplier, SKFunction... steps) {
         this(goal, kernelSkillsSupplier);
         this.addSteps(steps);
@@ -318,6 +327,18 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
         if (input != null) {
             this.state = state.writableClone().update(input);
         }
+
+        if (context == null) {
+            context =
+                    SKBuilders.context()
+                            .with(state)
+                            .with(getSkillsSupplier() == null ? null : getSkillsSupplier().get())
+                            .build();
+        } else {
+            ContextVariables variables = context.getVariables().writableClone().update(state, true);
+            context = context.update(variables);
+        }
+
         return super.invokeAsync(input, context, settings);
     }
 
@@ -537,8 +558,9 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
                                     .map(
                                             param -> {
                                                 String value = param.getDefaultValue();
-                                                if (step.getParameters().get(param.getName())
-                                                        != null) {
+                                                if (step.getParameters() != null
+                                                        && step.getParameters().get(param.getName())
+                                                                != null) {
                                                     value =
                                                             step.getParameters()
                                                                     .get(param.getName());
@@ -572,6 +594,7 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
         return step.toPlanString(indent + indent);
     }
 
+    @Nullable
     private ContextVariables getParameters() {
         return parameters;
     }
