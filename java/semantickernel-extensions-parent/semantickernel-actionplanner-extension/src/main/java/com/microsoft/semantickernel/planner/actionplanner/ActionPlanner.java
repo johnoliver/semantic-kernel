@@ -42,7 +42,7 @@ public class ActionPlanner {
 
     // Extracts the json portion of a plan between the braces, stripping off any non-json content
     private static final Pattern CLEAN_PLAN =
-            Pattern.compile("[^{]*(\\{.*})[^}]*", Pattern.MULTILINE | Pattern.DOTALL);
+            Pattern.compile("[^{]*(\\{.*\\})[^}]*", Pattern.MULTILINE | Pattern.DOTALL);
     private static final String StopSequence = "#END-OF-PLAN";
     private static final String SkillName = "this";
 
