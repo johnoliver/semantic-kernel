@@ -9,6 +9,11 @@ import com.microsoft.semantickernel.skilldefinition.ReadOnlySkillCollection;
 import javax.annotation.Nullable;
 
 public class DefaultSKContext extends AbstractSKContext {
+
+    protected DefaultSKContext(SKContext toClone, String errorDescription, Exception exception) {
+        super(toClone, errorDescription, exception);
+    }
+
     public DefaultSKContext(ContextVariables variables) {
         super(variables);
     }
@@ -38,6 +43,11 @@ public class DefaultSKContext extends AbstractSKContext {
         private ContextVariables variables;
         private ReadOnlySkillCollection skills;
         private SemanticTextMemory memory = NullMemory.getInstance();
+
+        @Override
+        public SKContext failed(SKContext toClone, String errorDescription, Exception exception) {
+            return new DefaultSKContext(toClone, errorDescription, exception);
+        }
 
         @Override
         public SKContext build() {

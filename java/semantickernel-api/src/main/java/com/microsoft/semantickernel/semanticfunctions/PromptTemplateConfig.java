@@ -22,6 +22,14 @@ public class PromptTemplateConfig {
         return completionConfig;
     }
 
+    public int getSchema() {
+        return schema;
+    }
+
+    public String getType() {
+        return type;
+    }
+
     /** Builder for CompletionConfig */
     public static class CompletionConfigBuilder {
 
@@ -277,6 +285,10 @@ public class PromptTemplateConfig {
          */
         public String getUser() {
             return user;
+        }
+
+        public List<String> getStopSequences() {
+            return Collections.unmodifiableList(stopSequences);
         }
     }
 

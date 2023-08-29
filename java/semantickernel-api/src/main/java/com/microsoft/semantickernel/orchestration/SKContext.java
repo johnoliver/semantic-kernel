@@ -99,6 +99,16 @@ public interface SKContext extends Buildable {
 
     interface Builder extends SemanticKernelBuilder<SKContext> {
 
+        /**
+         * Clones the given context and sets its result to the given error
+         *
+         * @param toClone context to clone
+         * @param errorDescription description of the error
+         * @param exception exception to set
+         * @return Failed context
+         */
+        SKContext failed(SKContext toClone, String errorDescription, Exception exception);
+
         Builder setVariables(ContextVariables variables);
 
         /**
