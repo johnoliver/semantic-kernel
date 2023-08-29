@@ -2,6 +2,7 @@
 package com.microsoft.semantickernel;
 
 import com.microsoft.semantickernel.textcompletion.CompletionSKFunction;
+import com.microsoft.semantickernel.textcompletion.CompletionType;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ public class AiServiceRegistryTest {
     private static void runFunctionWithAiService(boolean setAsDefault) {
         KernelConfig config = SKBuilders.kernelConfig().build();
         TextCompletion service = Mockito.mock(TextCompletion.class);
+        Mockito.when(service.defaultCompletionType()).thenReturn(CompletionType.STREAMING);
         Mockito.when(service.completeStreamAsync(Mockito.any(), Mockito.any()))
                 .thenReturn(Flux.just("foo"));
 

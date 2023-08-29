@@ -11,7 +11,9 @@ import com.microsoft.semantickernel.connectors.ai.openai.azuresdk.ClientBase;
 import com.microsoft.semantickernel.exceptions.NotSupportedException;
 import com.microsoft.semantickernel.exceptions.NotSupportedException.ErrorCodes;
 import com.microsoft.semantickernel.textcompletion.CompletionRequestSettings;
+import com.microsoft.semantickernel.textcompletion.CompletionType;
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
+import com.microsoft.semantickernel.textcompletion.TextCompletion.Builder;
 import jakarta.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +31,8 @@ import reactor.core.publisher.Mono;
 /// </summary>
 public class OpenAITextCompletion extends ClientBase implements TextCompletion {
 
+    private final CompletionType defaultCompletionType;
+
     /// <summary>
     /// Create an instance of the OpenAI text completion connector
     /// </summary>
@@ -41,6 +45,14 @@ public class OpenAITextCompletion extends ClientBase implements TextCompletion {
     @Inject
     public OpenAITextCompletion(OpenAIAsyncClient client, String modelId) {
         super(client, modelId);
+        defaultCompletionType = CompletionType.STREAMING;
+    }
+
+    public OpenAITextCompletion(
+            OpenAIAsyncClient client, String modelId, CompletionType defaultCompletionType) {
+        super(client, modelId);
+
+        this.defaultCompletionType = defaultCompletionType;
     }
 
     @Override
@@ -55,6 +67,11 @@ public class OpenAITextCompletion extends ClientBase implements TextCompletion {
         CompletionsOptions completionsOptions = getCompletionsOptions(text, requestSettings);
 
         return generateMessageStream(completionsOptions);
+    }
+
+    @Override
+    public CompletionType defaultCompletionType() {
+        return CompletionType.STREAMING;
     }
 
     private Flux<String> generateMessageStream(CompletionsOptions completionsOptions) {
@@ -115,6 +132,7 @@ public class OpenAITextCompletion extends ClientBase implements TextCompletion {
 
         @Nullable private OpenAIAsyncClient client;
         @Nullable private String modelId;
+        private CompletionType defaultCompletionType = CompletionType.STREAMING;
 
         public Builder withOpenAIClient(OpenAIAsyncClient client) {
             this.client = client;
@@ -127,6 +145,12 @@ public class OpenAITextCompletion extends ClientBase implements TextCompletion {
         }
 
         @Override
+        public Builder setDefaultCompletionType(CompletionType completionType) {
+            this.defaultCompletionType = completionType;
+            return this;
+        }
+
+        @Override
         public TextCompletion build() {
             if (client == null) {
                 throw new NotSupportedException(ErrorCodes.NOT_SUPPORTED, "OpenAI client not set");
@@ -134,7 +158,7 @@ public class OpenAITextCompletion extends ClientBase implements TextCompletion {
             if (modelId == null) {
                 throw new NotSupportedException(ErrorCodes.NOT_SUPPORTED, "Model ID not set");
             }
-            return new OpenAITextCompletion(client, modelId);
+            return new OpenAITextCompletion(client, modelId, defaultCompletionType);
         }
     }
 }

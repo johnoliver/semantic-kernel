@@ -16,6 +16,7 @@ import com.microsoft.semantickernel.connectors.ai.openai.azuresdk.ClientBase;
 import com.microsoft.semantickernel.exceptions.NotSupportedException;
 import com.microsoft.semantickernel.exceptions.NotSupportedException.ErrorCodes;
 import com.microsoft.semantickernel.textcompletion.CompletionRequestSettings;
+import com.microsoft.semantickernel.textcompletion.CompletionType;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,11 @@ public class OpenAIChatCompletion extends ClientBase implements ChatCompletion<O
             @Nonnull String text, @Nonnull CompletionRequestSettings requestSettings) {
         ChatRequestSettings chatRequestSettings = new ChatRequestSettings(requestSettings);
         return generateMessageStream(createNewChat(text), chatRequestSettings);
+    }
+
+    @Override
+    public CompletionType defaultCompletionType() {
+        return CompletionType.STREAMING;
     }
 
     public static class Builder implements ChatCompletion.Builder {

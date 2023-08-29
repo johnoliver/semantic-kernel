@@ -189,18 +189,10 @@ public class DefaultCompletionSKFunction
                     PromptTemplate func = functionConfig.getTemplate();
 
                     return func.renderAsync(context)
-                            .flatMapMany(
-                                    prompt -> {
-                                        LOGGER.debug("RENDERED PROMPT: \n" + prompt);
-                                        return client.completeStreamAsync(prompt, requestSettings);
-                                    })
-                            .filter(completion -> !completion.isEmpty())
-                            .take(1)
-                            .single()
-                            .map(
-                                    completion -> {
-                                        return context.update(completion);
-                                    })
+                            .flatMap(
+                                    prompt ->
+                                            performCompletionRequest(
+                                                    client, requestSettings, prompt, context))
                             .doOnError(
                                     ex -> {
                                         LOGGER.warn(
@@ -239,6 +231,30 @@ public class DefaultCompletionSKFunction
 
         this.setSkillsSupplier(kernel::getSkills);
         this.aiService = () -> kernel.getService(null, TextCompletion.class);
+    }
+
+    private static Mono<SKContext> performCompletionRequest(
+            TextCompletion client,
+            CompletionRequestSettings requestSettings,
+            String prompt,
+            SKContext context) {
+
+        LOGGER.debug("RENDERED PROMPT: \n{}", prompt);
+
+        switch (client.defaultCompletionType()) {
+            case NON_STREAMING:
+                return client.completeAsync(prompt, requestSettings)
+                        .single()
+                        .map(completion -> context.update(completion.get(0)));
+
+            case STREAMING:
+            default:
+                return client.completeStreamAsync(prompt, requestSettings)
+                        .filter(completion -> !completion.isEmpty())
+                        .take(1)
+                        .single()
+                        .map(context::update);
+        }
     }
 
     @Override

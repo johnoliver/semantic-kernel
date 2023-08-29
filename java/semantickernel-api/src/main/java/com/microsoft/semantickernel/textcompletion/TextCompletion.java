@@ -38,10 +38,26 @@ public interface TextCompletion extends AIService, Buildable {
         return BuildersSingleton.INST.getInstance(Builder.class);
     }
 
+    /**
+     * Returns the default completion type for this service. This will be the type of request used
+     * (streaming or non-streaming) when calls to this service are made. Defaults to {@link
+     * CompletionType#STREAMING}.
+     *
+     * @return The default completion type for this service.
+     */
+    CompletionType defaultCompletionType();
+
     interface Builder extends SemanticKernelBuilder<TextCompletion> {
 
         Builder withOpenAIClient(OpenAIAsyncClient client);
 
         Builder setModelId(String modelId);
+
+        /**
+         * Sets the default completion type for this service. This will be the type of request used
+         * (streaming or non-streaming) when calls to this service are made. Defaults to {@link
+         * CompletionType#STREAMING}.
+         */
+        Builder setDefaultCompletionType(CompletionType completionType);
     }
 }
