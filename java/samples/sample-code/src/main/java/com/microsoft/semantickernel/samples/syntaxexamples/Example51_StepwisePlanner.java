@@ -35,8 +35,8 @@ public class Example51_StepwisePlanner {
 
       String question = input.toLowerCase(Locale.ROOT);
 
-      if (question.contains("joe biden") && question.contains("age")) {
-        return Mono.just("Joe Biden is 80 years old.");
+      if (question.contains("what year")) {
+        return Mono.just("The first world cup was in 1930.");
       } else if (question.contains("who is")) {
         return Mono.just("The current president of the United States is Joe Biden.");
       }
@@ -52,8 +52,8 @@ public class Example51_StepwisePlanner {
     public Mono<String> Calculator(
         @SKFunctionParameters(description = "A valid mathematical expression that could be executed by a calculator capable of more advanced math functions like sin/cosine/floor.", name = "input")
         String input) {
-      if ("80/2".equals(input)) {
-        return Mono.just("40");
+      if ("1930/2".equals(input)) {
+        return Mono.just("965");
       } else {
         return Mono.error(new RuntimeException("Unknown calculation"));
       }
@@ -63,7 +63,7 @@ public class Example51_StepwisePlanner {
   public static void main(String[] args) throws ConfigurationException {
 
     String[] questions = new String[]{
-        "Who is the current president of the United States? What is his current age divided by 2",
+        "What year was the first world cup? What is this year divided by 2",
     };
 
     for (String question : questions) {
