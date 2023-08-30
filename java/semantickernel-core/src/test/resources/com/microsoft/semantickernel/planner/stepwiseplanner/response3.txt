@@ -1,0 +1,2 @@
+[THOUGHT] Now that we know the current president of the United States is Joe Biden, we need to find out his age. Once we have his age, we can divide it by 2 to get the answer to the second part of the question.
+[ACTION] {{"action": "WebSearch.search","action_variables": {"query":"joe biden age"}}}

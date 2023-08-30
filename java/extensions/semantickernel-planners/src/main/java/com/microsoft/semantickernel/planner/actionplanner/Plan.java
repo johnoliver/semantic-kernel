@@ -295,13 +295,7 @@ public class Plan extends AbstractSkFunction<CompletionRequestSettings> {
 
         updatedContext.setVariable(DefaultResultKey, finalResultValue);
 
-                                        return Mono.just(
-                                                SKBuilders.context()
-                                                        .clone(context)
-                                                        .withVariables(updatedContext)
-                                                        .build());
-                                    });
-                });
+        return Mono.just(SKBuilders.context().clone(context).withVariables(updatedContext).build());
     }
 
     public Mono<SKContext> invokeAsync(
