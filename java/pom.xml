@@ -78,6 +78,7 @@
         <module>semantickernel-core</module>
         <module>connectors/semantickernel-connectors-memory-jdbc</module>
         <module>connectors/semantickernel-connectors-memory-postgresql</module>
+        <module>connectors/semantickernel-connectors-websearch</module>
     </modules>
 
     <dependencyManagement>

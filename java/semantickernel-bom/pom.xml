@@ -58,6 +58,11 @@
                 <artifactId>semantickernel-connectors-ai-openai</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.microsoft.semantic-kernel</groupId>
+                <artifactId>semantickernel-connectors-websearch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.microsoft.semantic-kernel</groupId>
