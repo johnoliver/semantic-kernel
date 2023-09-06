@@ -65,6 +65,10 @@ public class StepwisePlannerConfig {
         excludedSkills.add(restrictedSkillName);
     }
 
+    public void addExcludedFunctions(String restrictedFunctionName) {
+        excludedFunctions.add(restrictedFunctionName);
+    }
+
     public int getMaxTokens() {
         return maxTokens;
     }
