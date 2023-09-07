@@ -53,7 +53,7 @@ public class OpenAIChatCompletion extends ClientBase implements ChatCompletion<O
         return CompletionType.STREAMING;
     }
 
-    public static class Builder implements ChatCompletion.Builder {
+    public static class Builder implements ChatCompletion.Builder<OpenAIChatHistory> {
 
         public Builder() {}
 

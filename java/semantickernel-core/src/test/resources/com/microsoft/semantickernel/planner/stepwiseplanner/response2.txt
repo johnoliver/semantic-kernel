@@ -1,11 +1,2 @@
-[THOUGHT]
-To answer this question, we need to find out who the current president of the United States is and their age. Once we have their age, we can divide it by 2 to get the answer to the second part of the question.
-
-[ACTION]
-We can't use any of the provided functions to directly answer this question, so we'll need to perform a web search to find out who the current president is. We can then manually find their age and divide it by 2.
-
-$JSON_BLOB:
-{
-  "action": "WebSearch.search",
-  "action_variables": {"query": "who is the current president of the united states"}
-}
+[THOUGHT] To answer this question, we need to find out the year of the first world cup and then divide it by 2. We can use a web search to find the year of the first world cup and then perform the necessary calculation.
+[ACTION] {{"action": "WebSearch.search","action_variables": {"query":"first world cup year","count":"1"}}}

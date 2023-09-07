@@ -15,7 +15,6 @@ import com.microsoft.semantickernel.skilldefinition.annotations.SKFunctionParame
 import com.microsoft.semantickernel.textcompletion.TextCompletion;
 import com.microsoft.semantickernel.util.EmbeddedResourceLoader;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,16 +29,11 @@ public class StepwisePlannerTest {
     public void runChatCompletion() {
         Kernel kernel = getKernel();
         SKContext result =
-                runWithQuestion(
-                                kernel,
-                                "Who is the current president of the United States? What is his"
-                                        + " current age divided by 2")
-                        .block();
+                runWithQuestion(kernel, "What year is the first world cup divided by 2").block();
 
         Assertions.assertEquals(
-                "The current president of the United States is Joe Biden. His age is 80 years old."
-                    + " Dividing his age by 2 gives us 40. Therefore, the answer to the second part"
-                    + " of the question is 40.",
+                "The year of the first world cup is 1930, and when divided by 2, the result is"
+                        + " 965.",
                 result.getResult());
     }
 
@@ -61,16 +55,11 @@ public class StepwisePlannerTest {
                                 defaultValue = "0",
                                 type = Integer.class)
                         Integer offset) {
-            if (input.toLowerCase(Locale.ROOT).contains("joe biden")) {
-                return Mono.just("Joe Biden is 80 years old.");
-            }
-
-            return Mono.just("The current president of the United States is Joe Biden.");
+            return Mono.just("1930");
         }
     }
 
     public static class AdvancedCalculator {
-
         @DefineSKFunction(
                 description = "Useful for getting the result of a non-trivial math expression.",
                 name = "Calculator")

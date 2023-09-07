@@ -35,10 +35,8 @@ public class Example51_StepwisePlanner {
 
       String question = input.toLowerCase(Locale.ROOT);
 
-      if (question.contains("what year")) {
-        return Mono.just("The first world cup was in 1930.");
-      } else if (question.contains("who is")) {
-        return Mono.just("The current president of the United States is Joe Biden.");
+      if (question.contains("year")) {
+        return Mono.just("1930");
       }
 
       throw new RuntimeException("Unable to find answer to question: " + input);
@@ -63,7 +61,7 @@ public class Example51_StepwisePlanner {
   public static void main(String[] args) throws ConfigurationException {
 
     String[] questions = new String[]{
-        "What year was the first world cup? What is this year divided by 2",
+        "What year is the first world cup divided by 2",
     };
 
     for (String question : questions) {
@@ -91,7 +89,7 @@ public class Example51_StepwisePlanner {
     var webSearchEngineSkill = new WebSearchEngineSkill();
 
     kernel.importSkill(webSearchEngineSkill, "WebSearch");
-    kernel.importSkill(new AdvancedCalculator(), "advancedCalculator");
+    kernel.importSkill(new AdvancedCalculator(), "AdvancedCalculator");
     kernel.importSkill(new TimeSkill(), "time");
 
     System.out.println("*****************************************************");
