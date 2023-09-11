@@ -290,10 +290,6 @@ public class PromptTemplateConfig {
             return user;
         }
 
-        public List<String> getStopSequences() {
-            return Collections.unmodifiableList(stopSequences);
-        }
-
         public SemanticKernelBuilder<CompletionConfig> builder() {
             return BuildersSingleton.INST.getInstance(CompletionConfigBuilder.class);
         }
