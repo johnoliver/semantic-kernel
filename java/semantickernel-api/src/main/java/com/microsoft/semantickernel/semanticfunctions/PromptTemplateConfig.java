@@ -297,6 +297,10 @@ public class PromptTemplateConfig {
         public SemanticKernelBuilder<CompletionConfig> builder() {
             return BuildersSingleton.INST.getInstance(CompletionConfigBuilder.class);
         }
+
+        public List<String> getStopSequences() {
+            return Collections.unmodifiableList(stopSequences);
+        }
     }
 
     /** Input parameter for semantic functions */
