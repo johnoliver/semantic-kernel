@@ -63,7 +63,7 @@ final class VectorOperations {
         }
 
         float result = 0;
-        for (int i = 0; i < x.size(); ++i) {
+        for (int i = 0; i < x.size(); i++) {
             result += x.get(i) * y.get(i);
         }
 
