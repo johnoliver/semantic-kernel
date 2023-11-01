@@ -312,7 +312,7 @@ public class JDBCConnector implements SQLConnector, Closeable {
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
-    enum BatchOperation {
+    protected enum BatchOperation {
         SELECT,
         DELETE
     }

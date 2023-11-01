@@ -14,7 +14,7 @@ and frameworks.
 
 To run the LLM prompts and semantic functions in this kernel, make sure you have
 an [Open AI API Key](https://openai.com/api/)
-or [Azure Open AI service key](https://learn.microsoft.com/azure/cognitive-services/openai/quickstart?pivots=rest-api).
+or [Azure Open AI service key](https://learn.microsoft.com/azure/cognitive-services/openai/).
 
 ### Requirements
 
@@ -27,7 +27,7 @@ To build the Semantic Kernel, you will need:
 
 1. Clone this repository
 
-        git clone -b experimental-java https://github.com/microsoft/semantic-kernel/
+        git clone -b java-development https://github.com/microsoft/semantic-kernel/
 
 2. Build the Semantic Kernel
 
@@ -55,7 +55,7 @@ will need to set the following environment variable:
 If you are using Azure OpenAI, you will also need to set the following environment variables:
 
 - `AZURE_OPENAI_ENDPOINT` - the Azure OpenAI endpoint found in **Keys * Endpoint** section of the Azure OpenAI service.
-- `AZURE_OPENAI_API_KEY` - the Azure OpoenAI API key found in **Keys * Endpoint** section of the Azure OpenAI service.
+- `AZURE_OPENAI_API_KEY` - the Azure OpenAI API key found in **Keys * Endpoint** section of the Azure OpenAI service.
 - `AZURE_OPENAI_DEPLOYMENT_NAME` - the custom name you chose for your deployment when you deployed a model. It can be
   found under **Resource Management > Deployments** in the Azure Portal.
 
@@ -86,14 +86,14 @@ Also ensure that:
 - All new code is covered by unit tests
 - All new code is covered by integration tests
 
-Once your proposal is ready, submit a pull request to the `main` branch. The pull request will be reviewed by the
+Once your proposal is ready, submit a pull request to the `java-development` branch. The pull request will be reviewed by the
 project maintainers.
 
 Make sure your pull request has an objective title and a clear description explaining the problem and solution.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](../LICENSE).
 
 ## Code of Conduct
 
