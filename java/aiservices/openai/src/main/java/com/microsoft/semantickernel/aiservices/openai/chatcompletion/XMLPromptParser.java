@@ -56,7 +56,6 @@ class XMLPromptParser {
     }
 
     private static List<ChatRequestMessage> getChatRequestMessages(String prompt) {
-
         // TODO: XML parsing should be done as a chain of XMLEvent handlers.
         // If one handler does not recognize the element, it should pass it to the next handler.
         // In this way, we can avoid parsing the whole prompt twice and easily extend the parsing logic.
@@ -76,7 +75,7 @@ class XMLPromptParser {
                 }
             }
         } catch (IOException | XMLStreamException | IllegalArgumentException e) {
-            throw new SKException("Failed to parse messages");
+            LOGGER.error("Error parsing prompt", e);
         }
         return messages;
     }
@@ -112,8 +111,7 @@ class XMLPromptParser {
                         String type = getAttributeValue(event, "type").toLowerCase(Locale.ROOT);
                         String description = getAttributeValue(event, "description");
                         parameters.put(name,
-                            String.format("{\"type\": \"%s\", \"description\": \"%s\"}",
-                                "string",
+                            String.format("{\"type\": \"%s\", \"description\": \"%s\"}", "string",
                                 description));
 
                         String isRequired = getAttributeValue(event, "isRequired");
@@ -163,7 +161,6 @@ class XMLPromptParser {
                             }
                             // close the object
                             sb.append("}");
-                            //System.out.println(sb.toString());
                             ObjectMapper objectMapper = new ObjectMapper();
                             JsonNode jsonNode = objectMapper.readTree(sb.toString());
                             BinaryData binaryData = BinaryData.fromObject(jsonNode);
@@ -213,4 +210,5 @@ class XMLPromptParser {
             return null;
         }
     }
+
 }
