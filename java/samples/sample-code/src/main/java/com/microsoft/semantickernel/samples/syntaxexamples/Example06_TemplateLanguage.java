@@ -85,10 +85,8 @@ public class Example06_TemplateLanguage {
         // This allows to see the prompt before it's sent to OpenAI
         System.out.println("--- Rendered Prompt");
 
-        var promptTemplateFactory = new KernelPromptTemplateFactory();
-
-        var promptTemplate = promptTemplateFactory.tryCreate(
-            new PromptTemplateConfig(functionDefinition));
+        var promptTemplate = new KernelPromptTemplateFactory()
+            .tryCreate(new PromptTemplateConfig(functionDefinition));
 
         var renderedPrompt = promptTemplate.renderAsync(kernel, null).block();
         System.out.println(renderedPrompt);
