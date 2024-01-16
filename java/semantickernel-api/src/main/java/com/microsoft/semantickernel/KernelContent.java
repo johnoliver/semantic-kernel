@@ -4,14 +4,18 @@ import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariab
 import java.util.Map;
 import javax.annotation.Nullable;
 
-public class KernelContent {
+public abstract class KernelContent<T> {
 
     public KernelContent(
-        Object innerContent,
+        T innerContent,
         @Nullable
         String modelId,
         @Nullable
         Map<String, ContextVariable<?>> metadata
-    ) {}
+    ) {
+    }
+
+
+    public abstract T getContent();
 
 }

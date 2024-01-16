@@ -3,10 +3,8 @@ package com.microsoft.semantickernel.aiservices.openai.chatcompletion;
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.models.ChatChoice;
 import com.azure.ai.openai.models.ChatCompletions;
-import com.azure.ai.openai.models.ChatCompletionsFunctionToolCall;
 import com.azure.ai.openai.models.ChatCompletionsFunctionToolDefinition;
 import com.azure.ai.openai.models.ChatCompletionsOptions;
-import com.azure.ai.openai.models.ChatCompletionsToolCall;
 import com.azure.ai.openai.models.ChatRequestAssistantMessage;
 import com.azure.ai.openai.models.ChatRequestMessage;
 import com.azure.ai.openai.models.ChatRequestSystemMessage;
@@ -14,14 +12,12 @@ import com.azure.ai.openai.models.ChatRequestToolMessage;
 import com.azure.ai.openai.models.ChatRequestUserMessage;
 import com.azure.ai.openai.models.ChatResponseMessage;
 import com.azure.ai.openai.models.ChatRole;
-import com.azure.ai.openai.models.FunctionCall;
 import com.azure.ai.openai.models.FunctionDefinition;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.chatcompletion.AuthorRole;
 import com.microsoft.semantickernel.chatcompletion.ChatCompletionService;
 import com.microsoft.semantickernel.chatcompletion.ChatHistory;
 import com.microsoft.semantickernel.chatcompletion.ChatMessageContent;
-import com.microsoft.semantickernel.chatcompletion.StreamingChatMessageContent;
 import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariable;
 import java.util.ArrayList;
@@ -33,7 +29,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class OpenAIChatCompletion implements ChatCompletionService {
@@ -65,171 +60,14 @@ public class OpenAIChatCompletion implements ChatCompletionService {
     }
 
     @Override
-    public Flux<StreamingChatMessageContent> getStreamingChatMessageContentsAsync(
-        ChatHistory chatHistory,
-        PromptExecutionSettings promptExecutionSettings, Kernel kernel) {
-
-        return internalStreamingChatMessageContentsAsync(
-            getChatRequestMessages(chatHistory),
-            Collections.emptyList(),
-            promptExecutionSettings);
-    }
-
-    @Override
     public Mono<List<ChatMessageContent>> getChatMessageContentsAsync(String prompt,
-        PromptExecutionSettings promptExecutionSettings, Kernel kernel) {
+        PromptExecutionSettings promptExecutionSettings,
+        Kernel kernel) {
         ParsedPrompt parsedPrompt = XMLPromptParser.parse(prompt);
         return internalChatMessageContentsAsync(
             parsedPrompt.getChatRequestMessages(),
             parsedPrompt.getFunctions(),
             promptExecutionSettings);
-    }
-
-    @Override
-    public Flux<StreamingChatMessageContent> getStreamingChatMessageContentsAsync(
-        String prompt,
-        PromptExecutionSettings promptExecutionSettings,
-        Kernel kernel) {
-
-        ParsedPrompt parsedPrompt = XMLPromptParser.parse(prompt);
-
-        return internalStreamingChatMessageContentsAsync(
-            parsedPrompt.getChatRequestMessages(),
-            parsedPrompt.getFunctions(),
-            promptExecutionSettings);
-    }
-
-    private interface ContentBuffer<T> {
-
-        void append(T content);
-
-        StreamingChatMessageContent toStreamingChatMessageContent();
-    }
-
-    private static class AssistantContentBuffer implements ContentBuffer<String> {
-
-        private final StringBuilder sb = new StringBuilder();
-
-        @Override
-        public void append(String content) {
-            sb.append(content);
-        }
-
-        @Override
-        public StreamingChatMessageContent toStreamingChatMessageContent() {
-            return new StreamingChatMessageContent(AuthorRole.ASSISTANT, sb.toString());
-        }
-    }
-
-    private static class ToolContentBuffer implements ContentBuffer<FunctionCall> {
-
-        private String name = null;
-        private List<String> arguments = new ArrayList<>();
-
-        @Override
-        public void append(FunctionCall functionCall) {
-            String fnName = functionCall.getName();
-            String fnArguments = functionCall.getArguments();
-            if (this.name == null && fnName != null && !fnName.isEmpty()) {
-                this.name = fnName;
-            } else if (fnArguments != null && !fnArguments.isEmpty()) {
-                this.arguments.add(fnArguments);
-            }
-        }
-
-        @Override
-        public StreamingChatMessageContent toStreamingChatMessageContent() {
-
-            StringBuilder sb = new StringBuilder("{\"type\":\"function\", \"function\": ");
-            sb.append(String.format("{\"name\":\"%s\", \"parameters\": ", name));
-            boolean first = true;
-            // when concatentated, args should be valid json
-            for (String argument : arguments) {
-                sb.append(argument);
-            }
-            // close off function, and type
-            sb.append("}}");
-            assert isBalanced(sb.toString());
-            return new StreamingChatMessageContent(AuthorRole.TOOL, sb.toString());
-        }
-
-        private boolean isBalanced(String str) {
-            int openParens = 0;
-            int closeParens = 0;
-            boolean inString = false;
-            for (int i = 0; i < str.length(); i++) {
-                char c = str.charAt(i);
-                if (!inString && c == '(') {
-                    openParens++;
-                } else if (!inString && c == ')') {
-                    closeParens++;
-                } else if (c == '"') {
-                    inString = !inString;
-                }
-            }
-            return openParens == closeParens;
-        }
-    }
-
-    private static class ChatResponseCollector {
-
-        private final Map<AuthorRole, ContentBuffer<?>> roleToContent = new HashMap<>();
-
-        private ContentBuffer<?> collectorFor(AuthorRole role) {
-            return roleToContent.computeIfAbsent(role, k -> {
-                if (k == AuthorRole.TOOL) {
-                    return new ToolContentBuffer();
-                }
-                return new AssistantContentBuffer();
-            });
-        }
-
-        @SuppressWarnings("unchecked")
-        private <T> void append(AuthorRole role, T content) {
-            ContentBuffer<T> contentBuffer = (ContentBuffer<T>) collectorFor(role);
-            contentBuffer.append(content);
-        }
-
-        private StreamingChatMessageContent toStreamingChatMessageContent() {
-            assert roleToContent.size() == 1;
-            ContentBuffer<?> contentBuffer = roleToContent.values().iterator().next();
-            return contentBuffer.toStreamingChatMessageContent();
-        }
-    }
-
-    private Flux<StreamingChatMessageContent> internalStreamingChatMessageContentsAsync(
-        List<ChatRequestMessage> chatRequestMessages,
-        List<FunctionDefinition> functions,
-        PromptExecutionSettings promptExecutionSettings) {
-        ChatCompletionsOptions options = getCompletionsOptions(this, chatRequestMessages, functions,
-            promptExecutionSettings);
-        return client
-            .getChatCompletionsStream(getModelId(), options)
-            .filter(chatCompletion -> chatCompletion != null)
-            .map(ChatCompletions::getChoices)
-            .filter(choices -> choices != null && !choices.isEmpty())
-            .reduceWith(ChatResponseCollector::new, (accumulator, choices) -> {
-                choices.stream()
-                    .map(choice -> choice.getDelta())
-                    .filter(chatResponseMessage -> chatResponseMessage != null)
-                    .forEach(chatResponseMessage -> {
-                        if (chatResponseMessage.getContent() != null) {
-                            accumulator.append(AuthorRole.ASSISTANT,
-                                chatResponseMessage.getContent());
-                        } else if (chatResponseMessage.getToolCalls() != null) {
-                            List<ChatCompletionsToolCall> toolCalls = chatResponseMessage.getToolCalls();
-                            toolCalls.forEach(toolCall -> {
-                                if (toolCall instanceof ChatCompletionsFunctionToolCall) {
-                                    FunctionCall functionCall = ((ChatCompletionsFunctionToolCall) toolCall).getFunction();
-                                    accumulator.append(AuthorRole.TOOL, functionCall);
-                                }
-                            });
-                        }
-                    });
-                return accumulator;
-            })
-            .map(ChatResponseCollector::toStreamingChatMessageContent)
-            .flux();
     }
 
     private Mono<List<ChatMessageContent>> internalChatMessageContentsAsync(
@@ -354,6 +192,7 @@ public class OpenAIChatCompletion implements ChatCompletionService {
     }
 
     public static class Builder extends ChatCompletionService.Builder {
+
         @Override
         public OpenAIChatCompletion build() {
             return new OpenAIChatCompletion(client, modelId);

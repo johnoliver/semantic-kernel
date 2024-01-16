@@ -12,7 +12,7 @@ import com.microsoft.semantickernel.orchestration.DefaultKernelFunction;
 import com.microsoft.semantickernel.orchestration.KernelFunction;
 import com.microsoft.semantickernel.orchestration.KernelFunctionMetadata;
 import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
-import com.microsoft.semantickernel.orchestration.StreamingContent;
+import com.microsoft.semantickernel.orchestration.TextRequestContent;
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariable;
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariableType;
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariableTypes;
@@ -46,8 +46,8 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         this.template = template;
     }
 
-    @Override
-    public <T> Flux<StreamingContent<T>> invokeStreamingAsync(
+
+    private <T> Flux<TextRequestContent<T>> invokeInternalAsync(
         Kernel kernel,
         @Nullable KernelArguments arguments,
         ContextVariableType<T> variableType) {
@@ -66,7 +66,7 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
                         "Failed to initialise aiService, could not find any TextAIService implementations");
                 }
 
-                Flux<StreamingContent<T>> result;
+                Flux<TextRequestContent<T>> result;
 
                 PromptExecutionSettings executionSettings;
                 if (arguments != null) {
@@ -77,26 +77,30 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
 
                 if (client instanceof ChatCompletionService) {
                     result = ((ChatCompletionService) client)
-                        .getStreamingChatMessageContentsAsync(
+                        .getChatMessageContentsAsync(
                             prompt,
                             executionSettings,
                             kernel)
-                        .concatMap(streamingChatMessageContent -> {
-                            if (streamingChatMessageContent.getRole() == AuthorRole.ASSISTANT) {
+                        .flatMapMany(Flux::fromIterable)
+                        .concatMap(chatMessageContent -> {
+                            if (chatMessageContent.getAuthorRole()
+                                == AuthorRole.ASSISTANT) {
                                 T value = variableType
                                     .getConverter()
                                     .fromPromptString(
-                                        streamingChatMessageContent.getContent());
-                                return Flux.just(new StreamingContent<>(value));
-                            } else if (streamingChatMessageContent.getRole() == AuthorRole.TOOL) {
+                                        chatMessageContent.getContent());
+                                return Flux.just(new TextRequestContent<>(value));
+
+                            } else if (chatMessageContent.getAuthorRole()
+                                == AuthorRole.TOOL) {
                                 Mono<ContextVariable<String>> toolResult = invokeTool(kernel,
-                                    streamingChatMessageContent.getContent());
+                                    chatMessageContent.getContent());
                                 return toolResult.flatMapMany(contextVariable -> {
                                     T value = variableType
                                         .getConverter()
                                         .fromPromptString(
                                             contextVariable.getValue());
-                                    return Flux.just(new StreamingContent<>(value));
+                                    return Flux.just(new TextRequestContent<>(value));
                                 });
                             }
                             return Flux.empty();
@@ -105,14 +109,15 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
 
                 } else if (client instanceof TextGenerationService) {
                     result = ((TextGenerationService) client)
-                        .getStreamingTextContentsAsync(
+                        .getTextContentsAsync(
                             prompt,
                             executionSettings,
                             kernel)
-                        .concatMap(streamingTextContent -> {
+                        .flatMapMany(Flux::fromIterable)
+                        .concatMap(textContent -> {
                             T value = variableType.getConverter().fromPromptString(
-                                streamingTextContent.innerContent.getValue());
-                            return Flux.just(new StreamingContent<>(value));
+                                textContent.getContent());
+                            return Flux.just(new TextRequestContent<>(value));
                         });
                 } else {
                     return Flux.error(new IllegalStateException("Unknown service type"));
@@ -151,17 +156,20 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
                 });
     }
 
+
     @Override
-    public <T> Mono<ContextVariable<T>> invokeAsync(Kernel kernel,
-        @Nullable KernelArguments arguments, ContextVariableType<T> variableType) {
-        return invokeStreamingAsync(kernel, arguments, variableType)
-            .collectList()
-            .map(streamingContents -> {
-                StringBuilder result = streamingContents
+    public <T> Mono<ContextVariable<T>> invokeAsync(
+        Kernel kernel,
+        @Nullable KernelArguments arguments,
+        ContextVariableType<T> variableType) {
+        return invokeInternalAsync(kernel, arguments, variableType).
+            collectList()
+            .map(contents -> {
+                StringBuilder result = contents
                     .stream()
                     .reduce(
                         new StringBuilder(),
-                        (sb, streamingContent) -> sb.append(streamingContent.innerContent),
+                        (sb, textRequestContent) -> sb.append(textRequestContent.innerContent),
                         StringBuilder::append);
                 T x = variableType.getConverter().fromPromptString(result.toString());
                 return new ContextVariable<>(variableType, x);

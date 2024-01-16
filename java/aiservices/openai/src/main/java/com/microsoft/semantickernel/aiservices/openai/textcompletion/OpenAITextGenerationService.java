@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -53,7 +54,14 @@ public class OpenAITextGenerationService implements TextGenerationService {
     @Override
     public Mono<List<TextContent>> getTextContentsAsync(String prompt,
         @Nullable PromptExecutionSettings executionSettings, @Nullable Kernel kernel) {
-        return null;
+        return this
+            .internalCompleteTextAsync(prompt, executionSettings)
+            .map(it -> {
+                return it.stream().map(
+                        TextContent::new
+                    )
+                    .collect(Collectors.toList());
+            });
     }
 
     @Override
