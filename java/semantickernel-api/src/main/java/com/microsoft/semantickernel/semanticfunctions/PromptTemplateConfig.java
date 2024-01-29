@@ -177,9 +177,6 @@ public class PromptTemplateConfig {
     }
 
     public void addInputVariable(InputVariable inputVariable) {
-        if (inputVariables == null) {
-            inputVariables = new ArrayList<>();
-        }
         inputVariables.add(inputVariable);
     }
 
