@@ -6,7 +6,7 @@ import com.microsoft.semantickernel.orchestration.KernelFunction;
 import com.microsoft.semantickernel.orchestration.contextvariables.CaseInsensitiveMap;
 import com.microsoft.semantickernel.plugin.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.plugin.annotations.KernelFunctionParameter;
-import com.microsoft.semantickernel.semanticfunctions.KernelFunctionFromPrompt.Builder;
+import com.microsoft.semantickernel.semanticfunctions.KernelFunctionFromPrompt;
 import com.microsoft.semantickernel.semanticfunctions.KernelPromptTemplateFactory;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplate;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
@@ -46,13 +46,13 @@ public class KernelPluginFactory {
     /// Public methods decorated with <see cref="KernelFunctionAttribute"/> will be included in the plugin.
     /// Attributed methods must all have different names; overloads are not supported.
     /// </remarks>
-    public static KernelPlugin createFromObject(Object target, @Nullable String pluginName) {
+    public static KernelPlugin createFromObject(Object target, String pluginName) {
         List<KernelFunction> methods = Arrays.stream(target.getClass().getMethods())
             .filter(method -> method.isAnnotationPresent(DefineKernelFunction.class))
             .map(method -> {
                 DefineKernelFunction annotation = method.getAnnotation(DefineKernelFunction.class);
                 Class<?> returnType = getReturnType(annotation, method);
-                KernelReturnParameterMetadata kernelReturnParameterMetadata = new KernelReturnParameterMetadata(
+                KernelReturnParameterMetadata<?> kernelReturnParameterMetadata = new KernelReturnParameterMetadata<>(
                     annotation.returnDescription(),
                     returnType);
 
@@ -109,7 +109,8 @@ public class KernelPluginFactory {
     /// <exception cref="ArgumentException"><paramref name="pluginName"/> is an invalid plugin name.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="functions"/> contains a null function.</exception>
     /// <exception cref="ArgumentException"><paramref name="functions"/> contains two functions with the same name.</exception>
-    public static KernelPlugin createFromFunctions(String pluginName,
+    public static KernelPlugin createFromFunctions(
+        String pluginName,
         @Nullable List<KernelFunction> functions) {
         return createFromFunctions(pluginName, null, functions);
     }
@@ -132,15 +133,16 @@ public class KernelPluginFactory {
     }
 
 
-    private static List<KernelParameterMetadata> getParameters(Method method) {
+    private static List<KernelParameterMetadata<?>> getParameters(Method method) {
         return Arrays.stream(method.getParameters())
             .filter(parameter -> parameter.isAnnotationPresent(KernelFunctionParameter.class))
             .map(parameter -> {
                 KernelFunctionParameter annotation = parameter.getAnnotation(
                     KernelFunctionParameter.class);
 
-                return new KernelParameterMetadata(annotation.name(), annotation.description(),
-                    null, annotation.defaultValue(), annotation.required());
+                return new KernelParameterMetadata<>(
+                    annotation.name(), annotation.description(),
+                    annotation.type(), annotation.defaultValue(), annotation.required());
             }).collect(Collectors.toList());
     }
 
@@ -215,10 +217,12 @@ public class KernelPluginFactory {
             promptTemplate = new KernelPromptTemplateFactory().tryCreate(config);
         }
 
-        return new Builder().withName(config.getName()).withDescription(config.getDescription())
+        return new KernelFunctionFromPrompt.Builder()
+            .withName(config.getName())
+            .withDescription(config.getDescription())
             .withExecutionSettings(config.getExecutionSettings())
-            .withInputParameters(config.getInputVariables()
-            ).withPromptTemplate(promptTemplate)
+            .withInputParameters(config.getInputVariables())
+            .withPromptTemplate(promptTemplate)
             .withTemplate(template)
             .withTemplateFormat(config.getTemplateFormat())
             .withOutputVariable(config.getOutputVariable())
@@ -272,7 +276,7 @@ public class KernelPluginFactory {
     }
 
     private static PromptTemplateConfig getPromptTemplateConfig(String pluginDirectory,
-        String pluginName, String functionName, @Nullable Class clazz) {
+        String pluginName, String functionName, @Nullable Class<?> clazz) {
         String configFileName =
             pluginDirectory + File.separator + pluginName + File.separator + functionName
                 + File.separator + CONFIG_FILE;

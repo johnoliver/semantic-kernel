@@ -113,7 +113,7 @@ public class ContextVariableTypeConverter<T> {
         return fromObject.apply(s);
     }
 
-    public String toPromptString(T t) {
+    public String toPromptString(@Nullable T t) {
         if (t == null) {
             return "";
         }

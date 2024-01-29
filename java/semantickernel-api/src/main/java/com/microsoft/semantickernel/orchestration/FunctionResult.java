@@ -1,6 +1,7 @@
 package com.microsoft.semantickernel.orchestration;
 
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariable;
+import javax.annotation.Nullable;
 
 public class FunctionResult<T> {
 
@@ -16,7 +17,7 @@ public class FunctionResult<T> {
         this(of, FunctionResultMetadata.empty());
     }
 
-
+    @Nullable
     public T getResult() {
         return result.getValue();
     }

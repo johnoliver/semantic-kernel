@@ -22,7 +22,6 @@ import com.microsoft.semantickernel.plugin.KernelParameterMetadata;
 import com.microsoft.semantickernel.plugin.KernelReturnParameterMetadata;
 import com.microsoft.semantickernel.plugin.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.plugin.annotations.KernelFunctionParameter;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -50,7 +49,7 @@ public class KernelFunctionFromMethod extends DefaultKernelFunction {
         ImplementationFunc implementationFunc,
         String functionName,
         String description,
-        List<KernelParameterMetadata> parameters,
+        List<KernelParameterMetadata<?>> parameters,
         KernelReturnParameterMetadata<?> returnParameter) {
         super(
             new KernelFunctionMetadata(
@@ -102,7 +101,7 @@ public class KernelFunctionFromMethod extends DefaultKernelFunction {
         Object target,
         String functionName,
         String description,
-        List<KernelParameterMetadata> parameters,
+        List<KernelParameterMetadata<?>> parameters,
         KernelReturnParameterMetadata<?> returnParameter) {
 
         MethodDetails methodDetails = getMethodDetails(functionName, method, target);
@@ -147,7 +146,10 @@ public class KernelFunctionFromMethod extends DefaultKernelFunction {
             description,
             getFunction(method, target),
             getParameters(method),
-            new KernelReturnParameterMetadata<>(returnDescription, method.getReturnType())
+            new KernelReturnParameterMetadata<>(
+                returnDescription,
+                method.getReturnType()
+            )
         );
     }
 
@@ -265,15 +267,16 @@ public class KernelFunctionFromMethod extends DefaultKernelFunction {
             KernelFunctionParameter annotation =
                 parameter.getAnnotation(KernelFunctionParameter.class);
             if (annotation != null) {
-                    // Convert from the defaultValue, which is a String to the argument type
-                    // Expectation here is that the fromPromptString method will be able to handle a null or empty string
-                    Class<?> type = annotation.type();
-                    ContextVariableType<?> cvType = ContextVariableTypes.getDefaultVariableTypeForClass(type);
-                    if (cvType != null) {
-                        String defaultValue = annotation.defaultValue();
-                        Object value = cvType.getConverter().fromPromptString(defaultValue);
-                        arg = ContextVariable.of(value);
-                    }
+                // Convert from the defaultValue, which is a String to the argument type
+                // Expectation here is that the fromPromptString method will be able to handle a null or empty string
+                Class<?> type = annotation.type();
+                ContextVariableType<?> cvType = ContextVariableTypes.getDefaultVariableTypeForClass(
+                    type);
+                if (cvType != null) {
+                    String defaultValue = annotation.defaultValue();
+                    Object value = cvType.getConverter().fromPromptString(defaultValue);
+                    arg = ContextVariable.of(value);
+                }
 
                 if (arg != null && NO_DEFAULT_VALUE.equals(arg.getValue())) {
                     if (!annotation.required()) {
@@ -489,7 +492,7 @@ public class KernelFunctionFromMethod extends DefaultKernelFunction {
         return params;
     }
 
-    private static List<KernelParameterMetadata> getParameters(Method method) {
+    private static List<KernelParameterMetadata<?>> getParameters(Method method) {
         return
             Arrays.stream(method
                     .getParameters())
@@ -497,7 +500,7 @@ public class KernelFunctionFromMethod extends DefaultKernelFunction {
                 .collect(Collectors.toList());
     }
 
-    private static KernelParameterMetadata toKernelParameterMetadata(Parameter parameter) {
+    private static KernelParameterMetadata<?> toKernelParameterMetadata(Parameter parameter) {
         KernelFunctionParameter annotation = parameter.getAnnotation(
             KernelFunctionParameter.class);
 
@@ -505,18 +508,20 @@ public class KernelFunctionFromMethod extends DefaultKernelFunction {
         String description = null;
         String defaultValue = null;
         boolean isRequired = true;
+        Class<?> type = parameter.getType();
 
         if (annotation != null) {
             name = annotation.name();
             description = annotation.description();
             defaultValue = annotation.defaultValue();
             isRequired = annotation.required();
+            type = annotation.type();
         }
 
-        return new KernelParameterMetadata(
+        return new KernelParameterMetadata<>(
             name,
             description,
-            null,
+            type,
             defaultValue, isRequired
         );
     }

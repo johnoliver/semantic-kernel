@@ -300,6 +300,7 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
     /*
      * The jsonNode should represent: {"name":"search-search", "parameters": {"query":"Banksy"}}}
      */
+    @SuppressWarnings("StringSplitter")
     private Mono<FunctionResult<String>> invokeFunction(Kernel kernel, JsonNode jsonNode) {
         String name = jsonNode.get("name").asText();
         String[] parts = name.split("-");
@@ -307,22 +308,25 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         String fnName = parts.length > 1 ? parts[1] : "";
         JsonNode parameters = jsonNode.get("parameters");
         if (parameters != null) {
-            KernelFunction kernelFunction = kernel.getPlugins().getFunction(pluginName, fnName);
-            if (kernelFunction == null) {
-                return Mono.empty();
+            try {
+                KernelFunction kernelFunction = kernel.getPlugins().getFunction(pluginName, fnName);
+
+                ContextVariableType<String> variableType = ContextVariableTypes.getDefaultVariableTypeForClass(
+                    String.class);
+                Map<String, ContextVariable<?>> variables = new HashMap<>();
+                parameters.fields().forEachRemaining(entry -> {
+                    String paramName = entry.getKey();
+                    String paramValue = entry.getValue().asText();
+                    ContextVariable<String> contextVariable = new ContextVariable<>(variableType,
+                        paramValue);
+                    variables.put(paramName, contextVariable);
+                });
+                KernelArguments arguments = KernelArguments.builder().withVariables(variables)
+                    .build();
+                return kernelFunction.invokeAsync(kernel, arguments, variableType);
+            } catch (Exception e) {
+                return Mono.error(e);
             }
-            ContextVariableType<String> variableType = ContextVariableTypes.getDefaultVariableTypeForClass(
-                String.class);
-            Map<String, ContextVariable<?>> variables = new HashMap<>();
-            parameters.fields().forEachRemaining(entry -> {
-                String paramName = entry.getKey();
-                String paramValue = entry.getValue().asText();
-                ContextVariable<String> contextVariable = new ContextVariable<>(variableType,
-                    paramValue);
-                variables.put(paramName, contextVariable);
-            });
-            KernelArguments arguments = KernelArguments.builder().withVariables(variables).build();
-            return kernelFunction.invokeAsync(kernel, arguments, variableType);
         }
         return Mono.empty();
     }
@@ -367,38 +371,51 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
 
     public static final class Builder implements FromPromptBuilder {
 
+        @Nullable
         private PromptTemplate promptTemplate;
+        @Nullable
         private String name;
+        @Nullable
         private Map<String, PromptExecutionSettings> executionSettings;
+        @Nullable
         private String description;
+        @Nullable
         private List<InputVariable> inputVariables;
+        @Nullable
         private String template;
         private String templateFormat = PromptTemplateConfig.SEMANTIC_KERNEL_TEMPLATE_FORMAT;
+        @Nullable
         private OutputVariable outputVariable;
+        @Nullable
         private PromptTemplateFactory promptTemplateFactory;
 
 
         @Override
-        public FromPromptBuilder withName(String name) {
+        public FromPromptBuilder withName(
+            @Nullable String name) {
             this.name = name;
             return this;
         }
 
         @Override
-        public FromPromptBuilder withInputParameters(List<InputVariable> inputVariables) {
-            this.inputVariables = new ArrayList<>(inputVariables);
+        public FromPromptBuilder withInputParameters(@Nullable List<InputVariable> inputVariables) {
+            if (inputVariables != null) {
+                this.inputVariables = new ArrayList<>(inputVariables);
+            } else {
+                this.inputVariables = null;
+            }
             return this;
         }
 
         @Override
-        public FromPromptBuilder withPromptTemplate(PromptTemplate promptTemplate) {
+        public FromPromptBuilder withPromptTemplate(@Nullable PromptTemplate promptTemplate) {
             this.promptTemplate = promptTemplate;
             return this;
         }
 
         @Override
         public FromPromptBuilder withExecutionSettings(
-            Map<String, PromptExecutionSettings> executionSettings) {
+            @Nullable Map<String, PromptExecutionSettings> executionSettings) {
             if (this.executionSettings == null) {
                 this.executionSettings = new HashMap<>();
             }
@@ -411,7 +428,11 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
 
         @Override
         public FromPromptBuilder withDefaultExecutionSettings(
-            PromptExecutionSettings executionSettings) {
+            @Nullable PromptExecutionSettings executionSettings) {
+            if (executionSettings == null) {
+                return this;
+            }
+
             if (this.executionSettings == null) {
                 this.executionSettings = new HashMap<>();
             }
@@ -426,13 +447,13 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         }
 
         @Override
-        public FromPromptBuilder withDescription(String description) {
+        public FromPromptBuilder withDescription(@Nullable String description) {
             this.description = description;
             return this;
         }
 
         @Override
-        public FromPromptBuilder withTemplate(String template) {
+        public FromPromptBuilder withTemplate(@Nullable String template) {
             this.template = template;
             return this;
         }
@@ -445,13 +466,14 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         }
 
         @Override
-        public FromPromptBuilder withOutputVariable(OutputVariable outputVariable) {
+        public FromPromptBuilder withOutputVariable(@Nullable OutputVariable outputVariable) {
             this.outputVariable = outputVariable;
             return this;
         }
 
         @Override
         public FromPromptBuilder withPromptTemplateFactory(
+            @Nullable
             PromptTemplateFactory promptTemplateFactory) {
             this.promptTemplateFactory = promptTemplateFactory;
             return this;

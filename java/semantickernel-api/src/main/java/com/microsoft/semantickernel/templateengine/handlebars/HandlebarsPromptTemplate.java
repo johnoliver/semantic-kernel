@@ -182,7 +182,7 @@ public class HandlebarsPromptTemplate implements PromptTemplate {
                 String.format(
                     "<function pluginName=\"%s\" name=\"%s\" description=\"%s\">",
                     pluginName, functionName, description));
-            List<KernelParameterMetadata> parameters = function.getMetadata().getParameters();
+            List<KernelParameterMetadata<?>> parameters = function.getMetadata().getParameters();
             parameters.forEach(p -> {
                 sb.append(String.format(
                     "<parameter name=\"%s\" description=\"%s\" defaultValue=\"%s\" isRequired=\"%s\" type=\"%s\"/>",

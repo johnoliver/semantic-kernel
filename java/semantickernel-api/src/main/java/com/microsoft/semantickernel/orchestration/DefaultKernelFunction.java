@@ -43,11 +43,6 @@ public abstract class DefaultKernelFunction implements KernelFunction {
     }
 
     @Override
-    public String toFullyQualifiedName() {
-        return null;
-    }
-
-    @Override
     public String getDescription() {
         return null;
     }

@@ -30,7 +30,7 @@ public class KernelFunctionFactory {
         Method method,
         @Nullable String functionName,
         @Nullable String description,
-        List<KernelParameterMetadata> parameters,
+        List<KernelParameterMetadata<?>> parameters,
         KernelReturnParameterMetadata<?> returnParameter) {
         return createFromMethod(
             method,
@@ -58,7 +58,7 @@ public class KernelFunctionFactory {
         @Nullable Object target,
         @Nullable String functionName,
         @Nullable String description,
-        @Nullable List<KernelParameterMetadata> parameters,
+        @Nullable List<KernelParameterMetadata<?>> parameters,
         @Nullable KernelReturnParameterMetadata<?> returnParameter) {
         return KernelFunctionFromMethod.create(method, target, functionName, description,
             parameters, returnParameter);

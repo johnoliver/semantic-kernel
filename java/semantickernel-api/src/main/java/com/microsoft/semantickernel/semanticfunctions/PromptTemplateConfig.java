@@ -23,18 +23,19 @@ public class PromptTemplateConfig {
 
     public static final int CURRENT_SCHEMA = 1;
     public static final String DEFAULT_CONFIG_NAME = "default";
+    @Nullable
     private String name;
-
+    @Nullable
     private String template;
-
+    @Nullable
     private String templateFormat;
-
+    @Nullable
     private String description;
-
+    @Nullable
     private List<InputVariable> inputVariables;
-
+    @Nullable
     private OutputVariable outputVariable;
-
+    @Nullable
     private Map<String, PromptExecutionSettings> executionSettings;
 
     public static final String SEMANTIC_KERNEL_TEMPLATE_FORMAT = "semantic-kernel";
@@ -56,8 +57,10 @@ public class PromptTemplateConfig {
     public PromptTemplateConfig(
         @JsonProperty("schema")
         int schema,
+        @Nullable
         @JsonProperty("name")
         String name,
+        @Nullable
         @JsonProperty("template")
         String template,
         @Nullable
@@ -65,12 +68,16 @@ public class PromptTemplateConfig {
             value = "template_format",
             defaultValue = SEMANTIC_KERNEL_TEMPLATE_FORMAT)
         String templateFormat,
+        @Nullable
         @JsonProperty("description")
         String description,
+        @Nullable
         @JsonProperty("input_variables")
         List<InputVariable> inputVariables,
+        @Nullable
         @JsonProperty("output_variable")
         OutputVariable outputVariable,
+        @Nullable
         @JsonProperty("execution_settings")
         Map<String, PromptExecutionSettings> executionSettings) {
         this.name = name;
@@ -104,8 +111,20 @@ public class PromptTemplateConfig {
      * @param outputVariable    Output variable
      * @param executionSettings Execution settings
      */
-    public PromptTemplateConfig(String name, String template, String templateFormat,
-        String description, List<InputVariable> inputVariables, OutputVariable outputVariable,
+    public PromptTemplateConfig(
+        @Nullable
+        String name,
+        @Nullable
+        String template,
+        @Nullable
+        String templateFormat,
+        @Nullable
+        String description,
+        @Nullable
+        List<InputVariable> inputVariables,
+        @Nullable
+        OutputVariable outputVariable,
+        @Nullable
         Map<String, PromptExecutionSettings> executionSettings) {
         this(
             CURRENT_SCHEMA,
@@ -131,16 +150,16 @@ public class PromptTemplateConfig {
         );
     }
 
-    public List<KernelParameterMetadata> getKernelParametersMetadata() {
+    public List<KernelParameterMetadata<?>> getKernelParametersMetadata() {
         if (inputVariables == null) {
             return Collections.emptyList();
         }
         return inputVariables
             .stream()
-            .map(inputVariable -> new KernelParameterMetadata(
+            .map(inputVariable -> new KernelParameterMetadata<>(
                 inputVariable.getName(),
                 inputVariable.getDescription(),
-                null,
+                inputVariable.getTypeClass(),
                 inputVariable.getDefaultValue(), inputVariable.isRequired()
             ))
             .collect(Collectors.toList());
@@ -158,9 +177,13 @@ public class PromptTemplateConfig {
     }
 
     public void addInputVariable(InputVariable inputVariable) {
+        if (inputVariables == null) {
+            inputVariables = new ArrayList<>();
+        }
         inputVariables.add(inputVariable);
     }
 
+    @Nullable
     public String getName() {
         return name;
     }
@@ -170,6 +193,7 @@ public class PromptTemplateConfig {
         return this;
     }
 
+    @Nullable
     public String getTemplate() {
         return template;
     }
@@ -178,6 +202,7 @@ public class PromptTemplateConfig {
         this.template = template;
     }
 
+    @Nullable
     public String getTemplateFormat() {
         return templateFormat;
     }
@@ -186,6 +211,7 @@ public class PromptTemplateConfig {
         this.templateFormat = templateFormat;
     }
 
+    @Nullable
     public String getDescription() {
         return description;
     }
@@ -194,6 +220,7 @@ public class PromptTemplateConfig {
         this.description = description;
     }
 
+    @Nullable
     public List<InputVariable> getInputVariables() {
         return Collections.unmodifiableList(inputVariables);
     }
@@ -202,6 +229,7 @@ public class PromptTemplateConfig {
         this.inputVariables = new ArrayList<>(inputVariables);
     }
 
+    @Nullable
     public OutputVariable getOutputVariable() {
         return outputVariable;
     }
@@ -210,8 +238,12 @@ public class PromptTemplateConfig {
         this.outputVariable = outputVariable;
     }
 
+    @Nullable
     public Map<String, PromptExecutionSettings> getExecutionSettings() {
-        return Collections.unmodifiableMap(executionSettings);
+        if (executionSettings != null) {
+            return Collections.unmodifiableMap(executionSettings);
+        }
+        return null;
     }
 
 

@@ -5,6 +5,7 @@ import com.microsoft.semantickernel.orchestration.contextvariables.CaseInsensiti
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public class KernelPlugin implements Iterable<KernelFunction> {
 
@@ -27,6 +28,7 @@ public class KernelPlugin implements Iterable<KernelFunction> {
         return Collections.unmodifiableMap(functions);
     }
 
+    @Nullable
     public KernelFunction get(String functionName) {
         return functions.get(functionName);
     }

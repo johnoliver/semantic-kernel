@@ -1,23 +1,40 @@
 // Copyright (c) Microsoft. All rights reserved.
 package com.microsoft.semantickernel.orchestration.contextvariables;
 
+import javax.annotation.Nullable;
+
 public class ContextVariable<T> {
 
     private final ContextVariableType<T> type;
+
+    @Nullable
     private final T value;
 
-    public ContextVariable(ContextVariableType<T> type, T value) {
+    public ContextVariable(ContextVariableType<T> type,
+        @Nullable T value) {
         this.type = type;
         this.value = value;
     }
 
+    public static <T> ContextVariable<T> of(Class<T> type, @Nullable T t) {
+        if (t == null) {
+            return new ContextVariable<>(
+                ContextVariableTypes.getDefaultVariableTypeForClass(type),
+                null);
+        }
+
+        return of(t);
+    }
+
+    @Nullable
     public T getValue() {
         return value;
     }
 
+    @Nullable
     public <U> U getValue(Class<U> clazz) {
-        if (clazz.isAssignableFrom(value.getClass())) {
-            return (U) value;
+        if (value == null || clazz.isAssignableFrom(value.getClass())) {
+            return clazz.cast(value);
         } else {
             throw new RuntimeException("Cannot cast " + value.getClass() + " to " + clazz);
         }
