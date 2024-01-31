@@ -12,7 +12,8 @@ public class FunctionInvokedEvent<T> implements KernelHookEvent {
     private final KernelArguments arguments;
     private final FunctionResult<T> result;
 
-    public FunctionInvokedEvent(KernelFunction function,
+    public FunctionInvokedEvent(
+        KernelFunction function,
         @Nullable KernelArguments arguments,
         FunctionResult<T> result) {
         this.function = function;

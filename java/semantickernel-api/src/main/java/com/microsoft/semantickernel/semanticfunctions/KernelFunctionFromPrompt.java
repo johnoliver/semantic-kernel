@@ -8,6 +8,11 @@ import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.TextAIService;
 import com.microsoft.semantickernel.chatcompletion.AuthorRole;
 import com.microsoft.semantickernel.chatcompletion.ChatCompletionService;
+import com.microsoft.semantickernel.hooks.FunctionInvokedEvent;
+import com.microsoft.semantickernel.hooks.FunctionInvokingEvent;
+import com.microsoft.semantickernel.hooks.KernelHooks;
+import com.microsoft.semantickernel.hooks.PromptRenderedEvent;
+import com.microsoft.semantickernel.hooks.PromptRenderingEvent;
 import com.microsoft.semantickernel.exceptions.SKException;
 import com.microsoft.semantickernel.hooks.FunctionInvokedEvent;
 import com.microsoft.semantickernel.hooks.FunctionInvokingEvent;
@@ -419,7 +424,6 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         private PromptTemplate promptTemplate;
         @Nullable
         private String name;
-        @Nullable
         private Map<String, PromptExecutionSettings> executionSettings;
         @Nullable
         private String description;
