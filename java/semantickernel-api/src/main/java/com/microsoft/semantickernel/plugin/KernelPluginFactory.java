@@ -75,10 +75,9 @@ public class KernelPluginFactory {
             returnType = method.getReturnType();
 
             if (Publisher.class.isAssignableFrom(returnType)) {
-                LOGGER.warn(
-                    "For method: " + method.getDeclaringClass().getName() + "." + method.getName()
-                        + ", this is an async method, if a return type is required, please specify it in the annotation. Defaulting to Void return type");
-                returnType = Void.class;
+                throw new SKException(
+                    "Method: " + method.getDeclaringClass().getName() + "." + method.getName()
+                        + ", this is an async method, It is required to add an annotation to specify the return type");
             }
         } else {
             try {
@@ -141,8 +140,11 @@ public class KernelPluginFactory {
                     KernelFunctionParameter.class);
 
                 return new KernelParameterMetadata<>(
-                    annotation.name(), annotation.description(),
-                    annotation.type(), annotation.defaultValue(), annotation.required());
+                    annotation.name(),
+                    annotation.description(),
+                    annotation.type(),
+                    annotation.defaultValue(),
+                    annotation.required());
             }).collect(Collectors.toList());
     }
 
@@ -178,8 +180,8 @@ public class KernelPluginFactory {
                     // configuration, unable to parse {configPath}");
                 }
 
-                KernelFunction plugin = getKernelFunction(pluginDirectoryName,
-                    promptTemplateFactory, configPath, promptPath);
+                KernelFunction plugin = getKernelFunction(promptTemplateFactory, configPath,
+                    promptPath);
 
                 plugins.put(dir.getName(), plugin);
             } catch (IOException e) {
@@ -194,8 +196,10 @@ public class KernelPluginFactory {
         );
     }
 
-    private static KernelFunction getKernelFunction(String pluginDirectoryName,
-        PromptTemplateFactory promptTemplateFactory, File configPath, File promptPath)
+    private static KernelFunction getKernelFunction(
+        PromptTemplateFactory promptTemplateFactory,
+        File configPath,
+        File promptPath)
         throws IOException {
         PromptTemplateConfig config = new ObjectMapper().readValue(configPath,
             PromptTemplateConfig.class);
@@ -204,11 +208,13 @@ public class KernelPluginFactory {
         String template = new String(Files.readAllBytes(promptPath.toPath()),
             Charset.defaultCharset());
 
-        return getKernelFunction(pluginDirectoryName, promptTemplateFactory, config, template);
+        return getKernelFunction(promptTemplateFactory, config, template);
     }
 
-    private static KernelFunction getKernelFunction(String pluginDirectoryName,
-        PromptTemplateFactory promptTemplateFactory, PromptTemplateConfig config, String template) {
+    private static KernelFunction getKernelFunction(
+        PromptTemplateFactory promptTemplateFactory,
+        PromptTemplateConfig config,
+        String template) {
         PromptTemplate promptTemplate;
 
         if (promptTemplateFactory != null) {
@@ -230,9 +236,13 @@ public class KernelPluginFactory {
             .build();
     }
 
-    public static KernelPlugin importPluginFromResourcesDirectory(String parentDirectory,
-        String pluginDirectoryName, String functionName,
-        PromptTemplateFactory promptTemplateFactory, @Nullable Class<?> clazz) {
+    @Nullable
+    public static KernelPlugin importPluginFromResourcesDirectory(
+        String parentDirectory,
+        String pluginDirectoryName,
+        String functionName,
+        PromptTemplateFactory promptTemplateFactory,
+        Class<?> clazz) {
 
         String template = getTemplatePrompt(parentDirectory, pluginDirectoryName, functionName,
             clazz);
@@ -240,7 +250,12 @@ public class KernelPluginFactory {
         PromptTemplateConfig promptTemplateConfig = getPromptTemplateConfig(parentDirectory,
             pluginDirectoryName, functionName, clazz);
 
-        KernelFunction function = getKernelFunction(pluginDirectoryName, promptTemplateFactory,
+        if (promptTemplateConfig == null) {
+            LOGGER.warn("Unable to load prompt template config for " + functionName + " in "
+                + pluginDirectoryName);
+            return null;
+        }
+        KernelFunction function = getKernelFunction(promptTemplateFactory,
             promptTemplateConfig, template);
 
         HashMap<String, KernelFunction> plugins = new HashMap<>();
@@ -254,8 +269,11 @@ public class KernelPluginFactory {
         );
     }
 
-    private static String getTemplatePrompt(String pluginDirectory, String pluginName,
-        String functionName, @Nullable Class clazz) {
+    private static String getTemplatePrompt(
+        String pluginDirectory,
+        String pluginName,
+        String functionName,
+        Class<?> clazz) {
         String promptFileName =
             pluginDirectory + File.separator + pluginName + File.separator + functionName
                 + File.separator + PROMPT_FILE;
@@ -269,14 +287,17 @@ public class KernelPluginFactory {
         }
     }
 
-    private static String getFileContents(String file, @Nullable Class clazz)
+    private static String getFileContents(String file, Class<?> clazz)
         throws FileNotFoundException {
         return EmbeddedResourceLoader.readFile(file, clazz, ResourceLocation.CLASSPATH_ROOT,
             ResourceLocation.CLASSPATH, ResourceLocation.FILESYSTEM);
     }
 
-    private static PromptTemplateConfig getPromptTemplateConfig(String pluginDirectory,
-        String pluginName, String functionName, @Nullable Class<?> clazz) {
+    @Nullable
+    private static PromptTemplateConfig getPromptTemplateConfig(
+        String pluginDirectory,
+        String pluginName, String functionName,
+        Class<?> clazz) {
         String configFileName =
             pluginDirectory + File.separator + pluginName + File.separator + functionName
                 + File.separator + CONFIG_FILE;

@@ -36,6 +36,8 @@ public interface KernelFunction extends Buildable {
     /**
      * @return A description of the function
      */
+
+    @Nullable
     String getDescription();
 
     /**
@@ -73,13 +75,13 @@ public interface KernelFunction extends Buildable {
     <T> Mono<FunctionResult<T>> invokeAsync(
         Kernel kernel,
         @Nullable KernelArguments arguments,
-        ContextVariableType<T> variableType);
+        @Nullable ContextVariableType<T> variableType);
 
     <T> Mono<FunctionResult<T>> invokeAsync(
         Kernel kernel,
         @Nullable KernelArguments arguments,
         KernelHooks kernelHooks,
-        ContextVariableType<T> variableType);
+        @Nullable ContextVariableType<T> variableType);
 
     @Nullable
     Map<String, PromptExecutionSettings> getExecutionSettings();
@@ -108,7 +110,7 @@ public interface KernelFunction extends Buildable {
 
         KernelFunction build();
 
-        FromPromptBuilder withTemplateFormat(@Nullable String templateFormat);
+        FromPromptBuilder withTemplateFormat(String templateFormat);
 
         FromPromptBuilder withOutputVariable(@Nullable OutputVariable outputVariable);
 

@@ -8,9 +8,11 @@ public class FunctionResult<T> {
     private final ContextVariable<T> result;
     private final FunctionResultMetadata metadata;
 
-    public FunctionResult(ContextVariable<T> result, FunctionResultMetadata metadata) {
+    public FunctionResult(
+        ContextVariable<T> result,
+        @Nullable FunctionResultMetadata metadata) {
         this.result = result;
-        this.metadata = metadata;
+        this.metadata = metadata == null ? FunctionResultMetadata.empty() : metadata;
     }
 
     public FunctionResult(ContextVariable<T> of) {

@@ -8,6 +8,7 @@ import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.TextAIService;
 import com.microsoft.semantickernel.chatcompletion.AuthorRole;
 import com.microsoft.semantickernel.chatcompletion.ChatCompletionService;
+import com.microsoft.semantickernel.exceptions.SKException;
 import com.microsoft.semantickernel.hooks.FunctionInvokedEvent;
 import com.microsoft.semantickernel.hooks.FunctionInvokingEvent;
 import com.microsoft.semantickernel.hooks.KernelHooks;
@@ -21,6 +22,7 @@ import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariable;
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariableType;
 import com.microsoft.semantickernel.orchestration.contextvariables.ContextVariableTypes;
+import com.microsoft.semantickernel.orchestration.contextvariables.DefaultKernelArguments;
 import com.microsoft.semantickernel.orchestration.contextvariables.KernelArguments;
 import com.microsoft.semantickernel.services.AIServiceSelection;
 import com.microsoft.semantickernel.textcompletion.TextGenerationService;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +50,7 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         Map<String, PromptExecutionSettings> executionSettings) {
         super(
             new KernelFunctionMetadata(
-                promptConfig.getName(),
+                getName(promptConfig),
                 promptConfig.getDescription(),
                 promptConfig.getKernelParametersMetadata(),
                 promptConfig.getKernelReturnParameterMetadata()
@@ -55,6 +58,14 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
             executionSettings != null ? executionSettings : promptConfig.getExecutionSettings()
         );
         this.template = template;
+    }
+
+    private static String getName(PromptTemplateConfig promptConfig) {
+        if (promptConfig.getName() == null) {
+            return UUID.randomUUID().toString();
+        } else {
+            return promptConfig.getName();
+        }
     }
 
     public static KernelFunction create(
@@ -91,9 +102,16 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
 
     private <T> Flux<FunctionResult<T>> invokeInternalAsync(
         Kernel kernel,
-        @Nullable KernelArguments arguments,
+        @Nullable KernelArguments argumentsIn,
         KernelHooks kernelHooks,
         ContextVariableType<T> variableType) {
+
+        KernelArguments arguments;
+        if (argumentsIn == null) {
+            arguments = new DefaultKernelArguments();
+        } else {
+            arguments = argumentsIn;
+        }
 
         PromptRenderingEvent preRenderingHookResult = kernelHooks
             .executeHooks(new PromptRenderingEvent(this, arguments));
@@ -120,6 +138,11 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
                         this,
                         args
                     );
+
+                if (aiServiceSelection == null) {
+                    throw new IllegalStateException(
+                        "Failed to initialise aiService, could not find any TextAIService implementations");
+                }
 
                 AIService client = aiServiceSelection.getService();
                 if (client == null) {
@@ -162,8 +185,13 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
                                 );
                             } else if (chatMessageContent.getAuthorRole()
                                 == AuthorRole.TOOL) {
+                                String content = chatMessageContent.getContent();
+                                if (content == null || content.isEmpty()) {
+                                    return Flux.error(new IllegalStateException(
+                                        "Tool message content is empty"));
+                                }
                                 Mono<FunctionResult<String>> toolResult = invokeTool(kernel,
-                                    chatMessageContent.getContent());
+                                    content);
                                 return toolResult.flux();
                             }
                             return Flux.empty();
@@ -238,8 +266,8 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
                     if (ex instanceof HttpResponseException
                         && ((HttpResponseException) ex).getResponse().getStatusCode()
                         == 400
-                        && ex.getMessage()
-                        .contains("parameters are not available" + " on")) {
+                        && ex.getMessage() != null
+                        && ex.getMessage().contains("parameters are not available" + " on")) {
                         LOGGER.warn(
                             "This error indicates that you have attempted"
                                 + " to use a chat completion model in a"
@@ -258,7 +286,13 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         Kernel kernel,
         @Nullable KernelArguments arguments,
         @Nullable KernelHooks kernelHooks,
+        @Nullable
         ContextVariableType<T> variableType) {
+        if (variableType == null) {
+            return Mono.error(new SKException(
+                "Cannot invoke a prompt function without a variable return type. Ensure that there is"
+                    + " a valid type converter for the return type of the prompt function."));
+        }
         if (kernelHooks == null) {
             kernelHooks = kernel.getHookService();
         }
@@ -270,7 +304,9 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
     @Override
     public <T> Mono<FunctionResult<T>> invokeAsync(
         Kernel kernel,
-        @Nullable KernelArguments arguments,
+        @Nullable
+        KernelArguments arguments,
+        @Nullable
         ContextVariableType<T> variableType) {
         return invokeAsync(kernel, arguments, null, variableType);
     }
@@ -355,6 +391,14 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         @Nullable String templateFormat,
         @Nullable PromptTemplateFactory promptTemplateFactory) {
 
+        if (templateFormat == null) {
+            templateFormat = PromptTemplateConfig.SEMANTIC_KERNEL_TEMPLATE_FORMAT;
+        }
+
+        if (functionName == null) {
+            functionName = UUID.randomUUID().toString();
+        }
+
         return new KernelFunctionFromPrompt.Builder()
             .withName(functionName)
             .withDescription(description)
@@ -391,8 +435,7 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
 
 
         @Override
-        public FromPromptBuilder withName(
-            @Nullable String name) {
+        public FromPromptBuilder withName(@Nullable String name) {
             this.name = name;
             return this;
         }
@@ -481,6 +524,11 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
 
         @Override
         public KernelFunction build() {
+
+            if (template == null) {
+                throw new IllegalStateException("Template must be provided");
+            }
+
             PromptTemplateConfig config = new PromptTemplateConfig(
                 name,
                 template,
@@ -505,6 +553,11 @@ public class KernelFunctionFromPrompt extends DefaultKernelFunction {
         }
 
         public KernelFunction build(PromptTemplateConfig functionModel) {
+
+            if (promptTemplate == null) {
+                throw new IllegalStateException("Template must be provided");
+            }
+
             return new KernelFunctionFromPrompt(
                 promptTemplate,
                 functionModel,

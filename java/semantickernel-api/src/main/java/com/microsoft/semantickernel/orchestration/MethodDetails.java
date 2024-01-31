@@ -6,10 +6,12 @@ import com.microsoft.semantickernel.semanticfunctions.KernelFunctionFromMethod.I
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 
 public class MethodDetails {
 
     private final String name;
+    @Nullable
     private final String description;
     private final ImplementationFunc function;
     private final List<KernelParameterMetadata<?>> parameters;
@@ -17,6 +19,7 @@ public class MethodDetails {
 
     public MethodDetails(
         String name,
+        @Nullable
         String description,
         ImplementationFunc function,
         List<KernelParameterMetadata<?>> parameters,
@@ -32,6 +35,7 @@ public class MethodDetails {
         return name;
     }
 
+    @Nullable
     public String getDescription() {
         return description;
     }

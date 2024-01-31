@@ -47,5 +47,6 @@ public abstract class KernelContent<T extends KernelContent<T>> {
         return metadata;
     }
 
+    @Nullable
     public abstract String getContent();
 }

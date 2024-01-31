@@ -25,17 +25,13 @@ public class PromptTemplateConfig {
     public static final String DEFAULT_CONFIG_NAME = "default";
     @Nullable
     private String name;
-    @Nullable
     private String template;
-    @Nullable
     private String templateFormat;
     @Nullable
     private String description;
-    @Nullable
     private List<InputVariable> inputVariables;
     @Nullable
     private OutputVariable outputVariable;
-    @Nullable
     private Map<String, PromptExecutionSettings> executionSettings;
 
     public static final String SEMANTIC_KERNEL_TEMPLATE_FORMAT = "semantic-kernel";
@@ -60,7 +56,6 @@ public class PromptTemplateConfig {
         @Nullable
         @JsonProperty("name")
         String name,
-        @Nullable
         @JsonProperty("template")
         String template,
         @Nullable
@@ -114,7 +109,6 @@ public class PromptTemplateConfig {
     public PromptTemplateConfig(
         @Nullable
         String name,
-        @Nullable
         String template,
         @Nullable
         String templateFormat,
@@ -190,7 +184,6 @@ public class PromptTemplateConfig {
         return this;
     }
 
-    @Nullable
     public String getTemplate() {
         return template;
     }
@@ -199,7 +192,6 @@ public class PromptTemplateConfig {
         this.template = template;
     }
 
-    @Nullable
     public String getTemplateFormat() {
         return templateFormat;
     }
@@ -217,7 +209,6 @@ public class PromptTemplateConfig {
         this.description = description;
     }
 
-    @Nullable
     public List<InputVariable> getInputVariables() {
         return Collections.unmodifiableList(inputVariables);
     }

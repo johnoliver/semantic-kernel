@@ -10,11 +10,15 @@ import javax.annotation.Nullable;
 public class KernelPlugin implements Iterable<KernelFunction> {
 
     private final String name;
+    @Nullable
     private final String description;
 
     private final CaseInsensitiveMap<KernelFunction> functions;
 
-    public KernelPlugin(String name, String description,
+    public KernelPlugin(
+        String name,
+        @Nullable
+        String description,
         Map<String, KernelFunction> plugins) {
         this.name = name;
         this.description = description;
@@ -22,6 +26,10 @@ public class KernelPlugin implements Iterable<KernelFunction> {
         if (plugins != null) {
             this.functions.putAll(plugins);
         }
+    }
+
+    public void addFunction(KernelFunction function) {
+        functions.put(function.getName(), function);
     }
 
     public Map<String, KernelFunction> getFunctions() {
@@ -42,6 +50,7 @@ public class KernelPlugin implements Iterable<KernelFunction> {
         return name;
     }
 
+    @Nullable
     public String getDescription() {
         return description;
     }
