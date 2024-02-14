@@ -31,10 +31,9 @@ public class ChatHistory implements Iterable<ChatMessageContent> {
         this.chatMessageContents = new ArrayList<>();
         this.chatMessageContents.add(
             new ChatMessageContent(
-                AuthorRole.ASSISTANT, 
-                instructions == null || instructions.isEmpty() ? DEFAULT_CHAT_SYSTEM_PROMPT : instructions
-            )
-        );
+                AuthorRole.ASSISTANT,
+                instructions == null || instructions.isEmpty() ? DEFAULT_CHAT_SYSTEM_PROMPT
+                    : instructions));
     }
 
     public ChatHistory(List<ChatMessageContent> chatMessageContents) {
@@ -86,7 +85,6 @@ public class ChatHistory implements Iterable<ChatMessageContent> {
         chatMessageContents.add(
             new ChatMessageContent(authorRole, content, null, null, encoding, metadata));
     }
-
 
     public void addMessage(AuthorRole authorRole, String content) {
         chatMessageContents.add(

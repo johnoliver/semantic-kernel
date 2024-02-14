@@ -66,7 +66,6 @@ public class ContextVariableTypes {
         DEFAULT_TYPES = new ContextVariableTypes(types);
     }
 
-
     private final Map<Class<?>, ContextVariableType<?>> variableTypes;
 
     public ContextVariableTypes(List<ContextVariableTypeConverter<?>> converters) {
@@ -112,7 +111,6 @@ public class ContextVariableTypes {
         }
     }
 
-
     @SuppressWarnings("unchecked")
     public <T> ContextVariableType<T> getVariableTypeForClass(Class<T> aClass) {
         try {
@@ -130,7 +128,6 @@ public class ContextVariableTypes {
             return DEFAULT_TYPES.getVariableTypeForSuperClassInternal(aClass);
         }
     }
-
 
     @SuppressWarnings("unchecked")
     private <T> ContextVariableType<T> getVariableTypeForClassInternal(Class<T> aClass) {

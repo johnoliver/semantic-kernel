@@ -49,7 +49,7 @@ public class Kernel implements Buildable {
         this.globalKernelHooks = new KernelHooks(globalKernelHooks);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T> FunctionInvocation<T> invokeAsync(
         String pluginName,
         String functionName) {
@@ -76,7 +76,7 @@ public class Kernel implements Buildable {
 
     @SuppressWarnings("unchecked")
     public <T> KernelFunction<T> getFunction(String pluginName, String functionName) {
-        return (KernelFunction<T>)plugins.getFunction(pluginName, functionName);
+        return (KernelFunction<T>) plugins.getFunction(pluginName, functionName);
     }
 
     public List<KernelFunction<?>> getFunctions() {
@@ -86,7 +86,6 @@ public class Kernel implements Buildable {
     public AIServiceSelector getServiceSelector() {
         return serviceSelector;
     }
-
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
     public KernelHooks getGlobalKernelHooks() {
@@ -98,8 +97,7 @@ public class Kernel implements Buildable {
             .trySelectAIService(
                 clazz,
                 null,
-                null
-            );
+                null);
 
         if (selector == null) {
             throw new ServiceNotFoundException("Unable to find service of type " + clazz.getName());
@@ -111,7 +109,6 @@ public class Kernel implements Buildable {
     public static Kernel.Builder builder() {
         return new Kernel.Builder();
     }
-
 
     public static class Builder implements SemanticKernelBuilder<Kernel> {
 

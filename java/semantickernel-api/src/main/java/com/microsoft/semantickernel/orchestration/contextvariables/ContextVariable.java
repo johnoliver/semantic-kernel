@@ -24,22 +24,19 @@ public class ContextVariable<T> {
     }
 
     public static <T, U> ContextVariable<T> convert(
-        @Nullable
-        U it,
+        @Nullable U it,
         ContextVariableType<T> requestedResultType) {
         return convert(
             it,
             requestedResultType.getClazz(),
-            new ContextVariableTypes(Collections.singletonList(requestedResultType.getConverter()))
-        );
+            new ContextVariableTypes(
+                Collections.singletonList(requestedResultType.getConverter())));
     }
 
     public static <T, U> ContextVariable<T> convert(
-        @Nullable
-        U it,
+        @Nullable U it,
         Class<T> requestedResultType,
-        @Nullable
-        ContextVariableTypes contextVariableTypes) {
+        @Nullable ContextVariableTypes contextVariableTypes) {
         if (contextVariableTypes == null) {
             contextVariableTypes = new ContextVariableTypes();
         }
@@ -59,10 +56,8 @@ public class ContextVariable<T> {
                 return new ContextVariable<>(
                     new ContextVariableType<>(
                         new NoopConverter<>(requestedResultType),
-                        requestedResultType
-                    ),
-                    requestedResultType.cast(it)
-                );
+                        requestedResultType),
+                    requestedResultType.cast(it));
             }
         }
 
@@ -78,7 +73,8 @@ public class ContextVariable<T> {
         ContextVariableType<U> typeOfActualReturnedType = null;
 
         try {
-            // First try to convert from type ? to T using the converter of ? and see if it can convert it to T.
+            // First try to convert from type ? to T using the converter of ? and see if it can
+            // convert it to T.
             typeOfActualReturnedType = contextVariableTypes
                 .getVariableTypeForClass((Class<U>) it.getClass());
         } catch (Exception e) {

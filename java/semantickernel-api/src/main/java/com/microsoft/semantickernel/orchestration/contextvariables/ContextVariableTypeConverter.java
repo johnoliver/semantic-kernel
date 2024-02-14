@@ -81,7 +81,6 @@ public class ContextVariableTypeConverter<T> {
         this.toObjects = new ArrayList<>(toObjects);
     }
 
-
     @Nullable
     @SuppressWarnings("unchecked")
     public <U> U toObject(@Nullable Object t, Class<U> clazz) {

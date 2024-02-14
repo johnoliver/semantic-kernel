@@ -40,7 +40,8 @@ public class DefaultPromptTemplate implements PromptTemplate {
     /// <summary>
     /// Given a prompt template string, extract all the blocks (text, variables, function calls)
     /// </summary>
-    /// <returns>A list of all the blocks, ie the template tokenized in text, variables and function calls</returns>
+    /// <returns>A list of all the blocks, ie the template tokenized in text, variables and function
+    /// calls</returns>
     private List<Block> extractBlocks() {
         String templateText = promptTemplate.getTemplate();
 
@@ -59,9 +60,9 @@ public class DefaultPromptTemplate implements PromptTemplate {
         return blocks;
     }
 
-
     /// <summary>
-    /// Augments <paramref name="config"/>'s <see cref="PromptTemplateConfig.InputVariables"/> with any variables
+    /// Augments <paramref name="config"/>'s <see cref="PromptTemplateConfig.InputVariables"/> with
+    /// any variables
     /// not already contained there but that are referenced in the prompt template.
     /// </summary>
     @SuppressWarnings("NullAway")
@@ -75,8 +76,7 @@ public class DefaultPromptTemplate implements PromptTemplate {
                 .getInputVariables()
                 .stream()
                 .map(InputVariable::getName)
-                .collect(Collectors.toList())
-        );
+                .collect(Collectors.toList()));
 
         blocks.forEach(block -> {
             String name = null;
@@ -108,8 +108,7 @@ public class DefaultPromptTemplate implements PromptTemplate {
             .concatMap(block -> {
                 if (block instanceof TextRendering) {
                     return Mono.just(
-                        ((TextRendering) block).render(arguments)
-                    );
+                        ((TextRendering) block).render(arguments));
                 } else if (block instanceof CodeRendering) {
                     return ((CodeRendering) block).renderCodeAsync(kernel, arguments, context);
                 } else {

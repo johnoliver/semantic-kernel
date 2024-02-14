@@ -7,7 +7,9 @@ import javax.annotation.Nullable;
 
 /**
  * The result of an AI service selection.
- * @param <T> The type of AI service.
+ * 
+ * @param <T>
+ *            The type of AI service.
  */
 public class AIServiceSelection<T extends AIService> {
 
@@ -18,9 +20,11 @@ public class AIServiceSelection<T extends AIService> {
     /**
      * Creates a new AI service selection.
      *
-     * @param service  The selected AI service.
-     * @param settings The settings associated with the selected service. This may be null even if a
-     *                 service is selected..
+     * @param service
+     *            The selected AI service.
+     * @param settings
+     *            The settings associated with the selected service. This may be null even if a
+     *            service is selected..
      */
     public AIServiceSelection(T service, @Nullable PromptExecutionSettings settings) {
         this.service = service;
@@ -40,7 +44,7 @@ public class AIServiceSelection<T extends AIService> {
      * Gets the settings associated with the selected service.
      *
      * @return The settings associated with the selected service. This may be null even if a service
-     * is selected.
+     *         is selected.
      */
     @Nullable
     public PromptExecutionSettings getSettings() {

@@ -19,17 +19,13 @@ public class KernelFunctionMetadata<T> {
     /// <summary>The function's parameters.</summary>
     private final List<KernelParameterMetadata<?>> parameters;
 
-
     /// <summary>The function's return parameter.</summary>
     private final KernelReturnParameterMetadata<T> returnParameter;
 
-
     public KernelFunctionMetadata(
         String name,
-        @Nullable
-        String description,
-        @Nullable
-        List<KernelParameterMetadata<?>> parameters,
+        @Nullable String description,
+        @Nullable List<KernelParameterMetadata<?>> parameters,
         KernelReturnParameterMetadata<T> returnParameter) {
         this.name = name;
         this.description = description;

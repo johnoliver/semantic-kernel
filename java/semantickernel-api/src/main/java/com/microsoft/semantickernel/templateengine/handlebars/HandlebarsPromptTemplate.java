@@ -40,14 +40,13 @@ public class HandlebarsPromptTemplate implements PromptTemplate {
         this.promptTemplate = new PromptTemplateConfig(promptTemplate);
     }
 
-
     @Override
     public Mono<String> renderAsync(
         Kernel kernel,
         @Nullable KernelFunctionArguments arguments,
         @Nullable InvocationContext context) {
-        HandleBarsPromptTemplateHandler handler =
-            new HandleBarsPromptTemplateHandler(kernel, promptTemplate.getTemplate());
+        HandleBarsPromptTemplateHandler handler = new HandleBarsPromptTemplateHandler(kernel,
+            promptTemplate.getTemplate());
 
         if (arguments == null) {
             arguments = new KernelFunctionArguments();
@@ -165,8 +164,7 @@ public class HandlebarsPromptTemplate implements PromptTemplate {
         private final String template;
         private final Handlebars handlebars;
 
-
-        @SuppressFBWarnings("CT_CONSTRUCTOR_THROW")// Think this is a false positive
+        @SuppressFBWarnings("CT_CONSTRUCTOR_THROW") // Think this is a false positive
         public HandleBarsPromptTemplateHandler(Kernel kernel, String template) {
             this.template = template;
             this.handlebars = new Handlebars();
@@ -221,7 +219,7 @@ public class HandlebarsPromptTemplate implements PromptTemplate {
             }
             if (context instanceof List) {
                 StringBuilder sb = new StringBuilder();
-                Iterator<?> iterator = ((List<?>)context).iterator();
+                Iterator<?> iterator = ((List<?>) context).iterator();
                 while (iterator.hasNext()) {
                     Object element = iterator.next();
                     if (element instanceof KernelPlugin) {
@@ -261,7 +259,6 @@ public class HandlebarsPromptTemplate implements PromptTemplate {
             }
             return "";
         }
-
 
         public Mono<String> render(KernelFunctionArguments variables) {
             try {

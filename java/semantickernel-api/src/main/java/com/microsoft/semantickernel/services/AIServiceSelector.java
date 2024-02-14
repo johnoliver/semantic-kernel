@@ -20,8 +20,9 @@ public interface AIServiceSelector {
      * {@link com.microsoft.semantickernel.Kernel} based on the associated {@link KernelFunction}
      * and {@link KernelFunctionArguments}.
      *
-     * @param serviceType The type of service to select.  This must be the same type with which the
-     *                    service was registered in the {@link AIServiceSelection}
+     * @param serviceType
+     *            The type of service to select. This must be the same type with which the
+     *            service was registered in the {@link AIServiceSelection}
      * @param function
      * @param arguments
      * @return
@@ -29,10 +30,7 @@ public interface AIServiceSelector {
     @Nullable
     <T extends AIService> AIServiceSelection<T> trySelectAIService(
         Class<T> serviceType,
-        @Nullable
-        KernelFunction<?> function,
+        @Nullable KernelFunction<?> function,
 
-        @Nullable
-        KernelFunctionArguments arguments
-    );
+        @Nullable KernelFunctionArguments arguments);
 }

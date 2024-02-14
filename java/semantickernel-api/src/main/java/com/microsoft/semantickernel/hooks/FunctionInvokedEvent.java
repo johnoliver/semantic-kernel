@@ -20,7 +20,8 @@ public class FunctionInvokedEvent<T> implements KernelHookEvent {
         @Nullable KernelFunctionArguments arguments,
         FunctionResult<T> result) {
         this.function = function;
-        this.arguments = arguments != null ? new KernelFunctionArguments(arguments) : new KernelFunctionArguments();
+        this.arguments = arguments != null ? new KernelFunctionArguments(arguments)
+            : new KernelFunctionArguments();
         this.result = result;
     }
 

@@ -17,23 +17,18 @@ public class StreamingChatMessageContent<T> extends StreamingKernelContent<T> {
     public StreamingChatMessageContent(
         AuthorRole role,
         String content,
-        @Nullable
-        String modelId) {
+        @Nullable String modelId) {
         this(role, content, null, 0, modelId, null, null);
     }
 
     public StreamingChatMessageContent(
         AuthorRole role,
         String content,
-        @Nullable
-        T innerContent,
+        @Nullable T innerContent,
         int choiceIndex,
-        @Nullable
-        String modelId,
-        @Nullable
-        Charset encoding,
-        @Nullable
-        Map<String, ContextVariable<?>> metadata) {
+        @Nullable String modelId,
+        @Nullable Charset encoding,
+        @Nullable Map<String, ContextVariable<?>> metadata) {
         super(innerContent, choiceIndex, modelId, metadata);
         this.role = role;
         this.content = content;
@@ -62,4 +57,3 @@ public class StreamingChatMessageContent<T> extends StreamingKernelContent<T> {
         return this;
     }
 }
-

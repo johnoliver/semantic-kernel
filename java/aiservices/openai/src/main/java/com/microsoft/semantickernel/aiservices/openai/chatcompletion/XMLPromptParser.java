@@ -36,8 +36,7 @@ class XMLPromptParser {
     public static ParsedPrompt parse(String rawPrompt) {
         List<String> prompts = Arrays.asList(
             rawPrompt,
-            "<prompt>" + rawPrompt + "</prompt>"
-        );
+            "<prompt>" + rawPrompt + "</prompt>");
 
         for (String prompt : prompts) {
             try {
@@ -48,7 +47,7 @@ class XMLPromptParser {
                     return new ParsedPrompt(parsedMessages, parsedFunctions);
                 }
             } catch (SKException e) {
-                //ignore
+                // ignore
             }
         }
 
@@ -60,7 +59,8 @@ class XMLPromptParser {
 
         // TODO: XML parsing should be done as a chain of XMLEvent handlers.
         // If one handler does not recognize the element, it should pass it to the next handler.
-        // In this way, we can avoid parsing the whole prompt twice and easily extend the parsing logic.
+        // In this way, we can avoid parsing the whole prompt twice and easily extend the parsing
+        // logic.
         List<ChatRequestMessage> messages = new ArrayList<>();
         try (InputStream is = new ByteArrayInputStream(prompt.getBytes(StandardCharsets.UTF_8))) {
             XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -84,8 +84,9 @@ class XMLPromptParser {
 
     private static List<FunctionDefinition> getFunctionDefinitions(String prompt) {
         // TODO: XML parsing should be done as a chain of XMLEvent handlers. See previous remark.
-        // <function pluginName=\"%s\" name=\"%s\"  description=\"%s\">
-        //      <parameter name=\"%s\" description=\"%s\" defaultValue=\"%s\" isRequired=\"%s\" type=\"%s\"/>...
+        // <function pluginName=\"%s\" name=\"%s\" description=\"%s\">
+        // <parameter name=\"%s\" description=\"%s\" defaultValue=\"%s\" isRequired=\"%s\"
+        // type=\"%s\"/>...
         // </function>
         List<FunctionDefinition> functionDefinitions = new ArrayList<>();
         try (InputStream is = new ByteArrayInputStream(prompt.getBytes(StandardCharsets.UTF_8))) {
@@ -127,23 +128,23 @@ class XMLPromptParser {
                     if (elementName.equals("function")) {
                         // Example JSON Schema:
                         // {
-                        //    "type": "function",
-                        //    "function": {
-                        //        "name": "get_current_weather",
-                        //        "description": "Get the current weather in a given location",
-                        //        "parameters": {
-                        //            "type": "object",
-                        //            "properties": {
-                        //                "location": {
-                        //                    "type": "string",
-                        //                    "description": "The city and state, e.g. San Francisco, CA",
-                        //                },
-                        //               "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
-                        //            },
-                        //            "required": ["location"],
-                        //        },
-                        //    },
-                        //}
+                        // "type": "function",
+                        // "function": {
+                        // "name": "get_current_weather",
+                        // "description": "Get the current weather in a given location",
+                        // "parameters": {
+                        // "type": "object",
+                        // "properties": {
+                        // "location": {
+                        // "type": "string",
+                        // "description": "The city and state, e.g. San Francisco, CA",
+                        // },
+                        // "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
+                        // },
+                        // "required": ["location"],
+                        // },
+                        // },
+                        // }
                         if (functionDefinition == null) {
                             throw new SKException("Failed to parse function definition");
                         }
@@ -166,7 +167,7 @@ class XMLPromptParser {
                             }
                             // close the object
                             sb.append("}");
-                            //System.out.println(sb.toString());
+                            // System.out.println(sb.toString());
                             ObjectMapper objectMapper = new ObjectMapper();
                             JsonNode jsonNode = objectMapper.readTree(sb.toString());
                             BinaryData binaryData = BinaryData.fromObject(jsonNode);

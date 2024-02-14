@@ -11,7 +11,8 @@ public interface KernelHook<T extends KernelHookEvent> extends Predicate<KernelH
 
     /**
      * The priority of the hook. The default priority is 50. The priority is used to determine the
-     * order in which hooks that accept the same event type are executed, lower priorities are executed first. No ordering is
+     * order in which hooks that accept the same event type are executed, lower priorities are
+     * executed first. No ordering is
      * guaranteed for hooks with the same priority.
      *
      * @return the priority of the hook

@@ -33,17 +33,21 @@ public class OpenAITextGenerationService implements TextGenerationService {
     /// <summary>
     /// Creates a new <see cref="OpenAITextGenerationService"/> client instance supporting AAD auth
     /// </summary>
-    /// <param name="deploymentName">Azure OpenAI deployment name, see https://learn.microsoft.com/azure/cognitive-services/openai/how-to/create-resource</param>
-    /// <param name="endpoint">Azure OpenAI deployment URL, see https://learn.microsoft.com/azure/cognitive-services/openai/quickstart</param>
-    /// <param name="credential">Token credentials, e.g. DefaultAzureCredential, ManagedIdentityCredential, EnvironmentCredential, etc.</param>
-    /// <param name="modelId">Azure OpenAI model id, see https://learn.microsoft.com/azure/cognitive-services/openai/how-to/create-resource</param>
+    /// <param name="deploymentName">Azure OpenAI deployment name, see
+    /// https://learn.microsoft.com/azure/cognitive-services/openai/how-to/create-resource</param>
+    /// <param name="endpoint">Azure OpenAI deployment URL, see
+    /// https://learn.microsoft.com/azure/cognitive-services/openai/quickstart</param>
+    /// <param name="credential">Token credentials, e.g. DefaultAzureCredential,
+    /// ManagedIdentityCredential, EnvironmentCredential, etc.</param>
+    /// <param name="modelId">Azure OpenAI model id, see
+    /// https://learn.microsoft.com/azure/cognitive-services/openai/how-to/create-resource</param>
     /// <param name="httpClient">Custom <see cref="HttpClient"/> for HTTP requests.</param>
-    /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no logging will be performed.</param>
+    /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no
+    /// logging will be performed.</param>
     public OpenAITextGenerationService(
         OpenAIAsyncClient client,
         String modelId,
-        @Nullable
-        String serviceId) {
+        @Nullable String serviceId) {
         this.serviceId = serviceId;
         this.client = client;
         attributes = new HashMap<>();
@@ -86,8 +90,7 @@ public class OpenAITextGenerationService implements TextGenerationService {
 
     protected Mono<List<TextContent>> internalCompleteTextAsync(
         String text,
-        @Nullable
-        PromptExecutionSettings requestSettings) {
+        @Nullable PromptExecutionSettings requestSettings) {
 
         CompletionsOptions completionsOptions = getCompletionsOptions(text, requestSettings);
 
@@ -135,8 +138,7 @@ public class OpenAITextGenerationService implements TextGenerationService {
 
     private CompletionsOptions getCompletionsOptions(
         String text,
-        @Nullable
-        PromptExecutionSettings requestSettings) {
+        @Nullable PromptExecutionSettings requestSettings) {
         if (requestSettings == null) {
             return new CompletionsOptions(Collections.singletonList(text))
                 .setMaxTokens(PromptExecutionSettings.DEFAULT_MAX_TOKENS);
@@ -151,18 +153,17 @@ public class OpenAITextGenerationService implements TextGenerationService {
                     MAX_RESULTS_PER_PROMPT));
         }
 
-        CompletionsOptions options =
-            new CompletionsOptions(Collections.singletonList(text))
-                .setMaxTokens(requestSettings.getMaxTokens())
-                .setTemperature(requestSettings.getTemperature())
-                .setTopP(requestSettings.getTopP())
-                .setFrequencyPenalty(requestSettings.getFrequencyPenalty())
-                .setPresencePenalty(requestSettings.getPresencePenalty())
-                .setModel(getModelId())
-                .setN(requestSettings.getResultsPerPrompt())
-                .setUser(requestSettings.getUser())
-                .setBestOf(requestSettings.getBestOf())
-                .setLogitBias(new HashMap<>());
+        CompletionsOptions options = new CompletionsOptions(Collections.singletonList(text))
+            .setMaxTokens(requestSettings.getMaxTokens())
+            .setTemperature(requestSettings.getTemperature())
+            .setTopP(requestSettings.getTopP())
+            .setFrequencyPenalty(requestSettings.getFrequencyPenalty())
+            .setPresencePenalty(requestSettings.getPresencePenalty())
+            .setModel(getModelId())
+            .setN(requestSettings.getResultsPerPrompt())
+            .setUser(requestSettings.getUser())
+            .setBestOf(requestSettings.getBestOf())
+            .setLogitBias(new HashMap<>());
         return options;
     }
 
@@ -186,8 +187,7 @@ public class OpenAITextGenerationService implements TextGenerationService {
             return new OpenAITextGenerationService(
                 this.client,
                 this.modelId,
-                this.serviceId
-            );
+                this.serviceId);
         }
     }
 }

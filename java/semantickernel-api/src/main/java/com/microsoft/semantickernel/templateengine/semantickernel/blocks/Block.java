@@ -14,8 +14,10 @@ public abstract class Block {
     /**
      * Base constructor
      *
-     * @param content Block content
-     * @param type    Block type
+     * @param content
+     *            Block content
+     * @param type
+     *            Block type
      */
     public Block(
         @Nullable String content,

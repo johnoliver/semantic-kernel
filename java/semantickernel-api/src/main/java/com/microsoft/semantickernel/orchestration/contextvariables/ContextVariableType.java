@@ -25,15 +25,15 @@ public class ContextVariableType<T> {
      * Create a context variable of this type from the given object, converting it to type T if
      * necessary.
      *
-     * @param it The object to convert.
+     * @param it
+     *            The object to convert.
      * @return A context variable of this type.
      */
     public ContextVariable<T> of(@Nullable Object it) {
         if (it == null) {
             return new ContextVariable<>(
                 this,
-                clazz.cast(null)
-            );
+                clazz.cast(null));
         }
 
         if (clazz.isAssignableFrom(it.getClass())) {
@@ -43,8 +43,7 @@ public class ContextVariableType<T> {
 
         return new ContextVariable<>(
             this,
-            converter.fromObject(it)
-        );
+            converter.fromObject(it));
     }
 
 }

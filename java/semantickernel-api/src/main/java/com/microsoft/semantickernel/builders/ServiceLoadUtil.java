@@ -18,8 +18,7 @@ public class ServiceLoadUtil {
     private ServiceLoadUtil() {
     }
 
-    public static <T>
-    Supplier<T> findServiceLoader(Class<T> clazz, String alternativeClassName) {
+    public static <T> Supplier<T> findServiceLoader(Class<T> clazz, String alternativeClassName) {
         List<T> services = findAllServiceLoaders(clazz);
 
         T impl = null;
@@ -31,17 +30,17 @@ public class ServiceLoadUtil {
         if (impl == null) {
             try {
                 // Service loader not found, attempt to load the alternative class
-                Object instance =
-                    Class.forName(alternativeClassName).getDeclaredConstructor().newInstance();
+                Object instance = Class.forName(alternativeClassName).getDeclaredConstructor()
+                    .newInstance();
                 if (clazz.isInstance(instance)) {
                     impl = (T) instance;
                 }
             } catch (ClassNotFoundException
-                     | InvocationTargetException
-                     | InstantiationException
-                     | IllegalAccessException
-                     | NoSuchMethodException
-                     | RuntimeException e) {
+                | InvocationTargetException
+                | InstantiationException
+                | IllegalAccessException
+                | NoSuchMethodException
+                | RuntimeException e) {
                 LOGGER.error("Unable to load service " + clazz.getName() + " ", e);
             }
 
@@ -63,8 +62,8 @@ public class ServiceLoadUtil {
                 try {
                     return (T) constructor.newInstance();
                 } catch (InstantiationException
-                         | IllegalAccessException
-                         | InvocationTargetException e) {
+                    | IllegalAccessException
+                    | InvocationTargetException e) {
                     throw new RuntimeException(e);
                 }
             };

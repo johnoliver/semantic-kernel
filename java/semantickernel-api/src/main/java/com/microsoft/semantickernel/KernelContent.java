@@ -13,13 +13,9 @@ public abstract class KernelContent<T extends KernelContent<T>> {
     private FunctionResultMetadata metadata;
 
     public KernelContent(
-        @Nullable
-        Object innerContent,
-        @Nullable
-        String modelId,
-        @Nullable
-        FunctionResultMetadata metadata
-    ) {
+        @Nullable Object innerContent,
+        @Nullable String modelId,
+        @Nullable FunctionResultMetadata metadata) {
         this.innerContent = innerContent;
         this.modelId = modelId;
         if (metadata != null) {

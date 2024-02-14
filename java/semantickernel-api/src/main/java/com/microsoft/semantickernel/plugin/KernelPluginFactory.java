@@ -43,11 +43,14 @@ public class KernelPluginFactory {
     /// <summary>Creates a plugin that wraps the specified target object.</summary>
     /// <param name="target">The instance of the class to be wrapped.</param>
     /// <param name="pluginName">
-    /// Name of the plugin for function collection and prompt templates. If the value is null, a plugin name is derived from the type of the <paramref name="target"/>.
+    /// Name of the plugin for function collection and prompt templates. If the value is null, a
+    /// plugin name is derived from the type of the <paramref name="target"/>.
     /// </param>
-    /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no logging will be performed.</param>
+    /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no
+    /// logging will be performed.</param>
     /// <remarks>
-    /// Public methods decorated with <see cref="KernelFunctionAttribute"/> will be included in the plugin.
+    /// Public methods decorated with <see cref="KernelFunctionAttribute"/> will be included in the
+    /// plugin.
     /// Attributed methods must all have different names; overloads are not supported.
     /// </remarks>
     public static KernelPlugin createFromObject(Object target, String pluginName) {
@@ -84,11 +87,11 @@ public class KernelPluginFactory {
                         + ", this is an async method, It is required to add an annotation to specify the return type");
             }
         } else {
-            String className = annotation.returnType(); 
+            String className = annotation.returnType();
             if (method.getReturnType().getName().equals(className)) {
                 // primarily meant to handle void
                 return method.getReturnType();
-            }   
+            }
             try {
                 returnType = Thread.currentThread().getContextClassLoader()
                     .loadClass(annotation.returnType());
@@ -110,36 +113,44 @@ public class KernelPluginFactory {
         return returnType;
     }
 
-    /// <summary>Initializes the new plugin from the provided name and function collection.</summary>
+    /// <summary>Initializes the new plugin from the provided name and function
+    /// collection.</summary>
     /// <param name="pluginName">The name for the plugin.</param>
     /// <param name="functions">The initial functions to be available as part of the plugin.</param>
     /// <exception cref="ArgumentException"><paramref name="pluginName"/> is null.</exception>
-    /// <exception cref="ArgumentException"><paramref name="pluginName"/> is an invalid plugin name.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="functions"/> contains a null function.</exception>
-    /// <exception cref="ArgumentException"><paramref name="functions"/> contains two functions with the same name.</exception>
+    /// <exception cref="ArgumentException"><paramref name="pluginName"/> is an invalid plugin
+    /// name.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="functions"/> contains a null
+    /// function.</exception>
+    /// <exception cref="ArgumentException"><paramref name="functions"/> contains two functions with
+    /// the same name.</exception>
     public static KernelPlugin createFromFunctions(
         String pluginName,
         @Nullable List<KernelFunction<?>> functions) {
         return createFromFunctions(pluginName, null, functions);
     }
 
-    /// <summary>Initializes the new plugin from the provided name, description, and function collection.</summary>
+    /// <summary>Initializes the new plugin from the provided name, description, and function
+    /// collection.</summary>
     /// <param name="pluginName">The name for the plugin.</param>
     /// <param name="description">A description of the plugin.</param>
     /// <param name="functions">The initial functions to be available as part of the plugin.</param>
     /// <exception cref="ArgumentException"><paramref name="pluginName"/> is null.</exception>
-    /// <exception cref="ArgumentException"><paramref name="pluginName"/> is an invalid plugin name.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="functions"/> contains a null function.</exception>
-    /// <exception cref="ArgumentException"><paramref name="functions"/> contains two functions with the same name.</exception>
+    /// <exception cref="ArgumentException"><paramref name="pluginName"/> is an invalid plugin
+    /// name.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="functions"/> contains a null
+    /// function.</exception>
+    /// <exception cref="ArgumentException"><paramref name="functions"/> contains two functions with
+    /// the same name.</exception>
     public static KernelPlugin createFromFunctions(String pluginName, @Nullable String description,
         @Nullable List<KernelFunction<?>> functions) {
         Map<String, KernelFunction<?>> funcs = new HashMap<>();
         if (functions != null) {
-            funcs = functions.stream().collect(Collectors.toMap(KernelFunction<?>::getName, f -> f));
+            funcs = functions.stream()
+                .collect(Collectors.toMap(KernelFunction<?>::getName, f -> f));
         }
         return new KernelPlugin(pluginName, description, funcs);
     }
-
 
     private static List<KernelParameterMetadata<?>> getParameters(Method method) {
         return Arrays.stream(method.getParameters())
@@ -156,7 +167,6 @@ public class KernelPluginFactory {
                     annotation.required());
             }).collect(Collectors.toList());
     }
-
 
     public static KernelPlugin importPluginFromDirectory(Path parentDirectory,
         String pluginDirectoryName, PromptTemplateFactory promptTemplateFactory) {
@@ -201,8 +211,7 @@ public class KernelPluginFactory {
         return new KernelPlugin(
             pluginDirectoryName,
             null,
-            plugins
-        );
+            plugins);
     }
 
     private static KernelFunction<?> getKernelFunction(
@@ -281,8 +290,7 @@ public class KernelPluginFactory {
         return new KernelPlugin(
             pluginDirectoryName,
             promptTemplateConfig.getDescription(),
-            plugins
-        );
+            plugins);
     }
 
     private static String getTemplatePrompt(
@@ -290,9 +298,9 @@ public class KernelPluginFactory {
         String pluginName,
         String functionName,
         Class<?> clazz) {
-        String promptFileName =
-            pluginDirectory + File.separator + pluginName + File.separator + functionName
-                + File.separator + PROMPT_FILE;
+        String promptFileName = pluginDirectory + File.separator + pluginName + File.separator
+            + functionName
+            + File.separator + PROMPT_FILE;
 
         try {
             return getFileContents(promptFileName, clazz);
@@ -314,9 +322,9 @@ public class KernelPluginFactory {
         String pluginDirectory,
         String pluginName, String functionName,
         Class<?> clazz) {
-        String configFileName =
-            pluginDirectory + File.separator + pluginName + File.separator + functionName
-                + File.separator + CONFIG_FILE;
+        String configFileName = pluginDirectory + File.separator + pluginName + File.separator
+            + functionName
+            + File.separator + CONFIG_FILE;
 
         try {
             String config = getFileContents(configFileName, clazz);

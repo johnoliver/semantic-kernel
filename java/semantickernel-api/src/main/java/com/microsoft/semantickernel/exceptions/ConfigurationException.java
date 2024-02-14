@@ -37,9 +37,10 @@ public class ConfigurationException extends SKCheckedException {
 
         CONFIGURATION_NOT_FOUND("Could not find configuration file"),
 
-        COULD_NOT_READ_CONFIGURATION("Could not parse or load configuration file"),
-        NO_VALID_CONFIGURATIONS_FOUND("Could not find any valid configuration settings"),
-        VALUE_NOT_FOUND("Could not find value for configuration key");
+        COULD_NOT_READ_CONFIGURATION(
+            "Could not parse or load configuration file"), NO_VALID_CONFIGURATIONS_FOUND(
+                "Could not find any valid configuration settings"), VALUE_NOT_FOUND(
+                    "Could not find value for configuration key");
 
         private final String message;
 

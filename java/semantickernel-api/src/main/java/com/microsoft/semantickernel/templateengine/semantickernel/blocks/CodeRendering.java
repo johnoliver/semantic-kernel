@@ -15,8 +15,10 @@ public interface CodeRendering {
     /**
      * Render the block using the given context, potentially using external I/O.
      *
-     * @param kernel    Kernel to use for rendering
-     * @param arguments Optional arguments used to render the block
+     * @param kernel
+     *            Kernel to use for rendering
+     * @param arguments
+     *            Optional arguments used to render the block
      * @return Rendered content
      */
     Mono<String> renderCodeAsync(

@@ -36,16 +36,16 @@ import java.util.List;
 /// </summary>
 public class TemplateTokenizer {
     /*
-        /// <summary>
-        /// Create a new instance of SK tokenizer
-        /// </summary>
-        /// <param name="log"></param>
-        public TemplateTokenizer(ILogger? log = null)
-        {
-            this._log = log ?? NullLogger.Instance;
-            this._codeTokenizer = new CodeTokenizer(this._log);
-        }
-    */
+     * /// <summary>
+     * /// Create a new instance of SK tokenizer
+     * /// </summary>
+     * /// <param name="log"></param>
+     * public TemplateTokenizer(ILogger? log = null)
+     * {
+     * this._log = log ?? NullLogger.Instance;
+     * this._codeTokenizer = new CodeTokenizer(this._log);
+     * }
+     */
     /// <summary>
     /// Extract blocks from the given text
     /// </summary>
@@ -94,8 +94,8 @@ public class TemplateTokenizer {
             // When "{{" is found outside a value
             // Note: "{{ {{x}}" => ["{{ ", "{{x}}"]
             if (!insideTextValue
-                    && currentChar == Symbols.BlockStarter
-                    && nextChar == Symbols.BlockStarter) {
+                && currentChar == Symbols.BlockStarter
+                && nextChar == Symbols.BlockStarter) {
                 // A block starts at the first "{"
                 blockStartPos = currentCharPos;
                 blockStartFound = true;
@@ -131,25 +131,24 @@ public class TemplateTokenizer {
                         String contentWithDelimiters = subStr(text, blockStartPos, cursor + 1);
 
                         // Remove "{{" and "}}" delimiters and trim empty chars
-                        String contentWithoutDelimiters =
-                                contentWithDelimiters
-                                        .substring(2, contentWithDelimiters.length() - 2)
-                                        .trim();
+                        String contentWithoutDelimiters = contentWithDelimiters
+                            .substring(2, contentWithDelimiters.length() - 2)
+                            .trim();
 
                         if (contentWithoutDelimiters.length() == 0) {
                             // If what is left is empty, consider the raw block a Text Block
                             blocks.add(new TextBlock(contentWithDelimiters));
                         } else {
-                            List<Block> codeBlocks =
-                                    this.codeTokenizer.tokenize(contentWithoutDelimiters);
+                            List<Block> codeBlocks = this.codeTokenizer
+                                .tokenize(contentWithoutDelimiters);
 
                             switch (codeBlocks.get(0).getType()) {
                                 case Variable:
                                     if (codeBlocks.size() > 1) {
                                         throw new TemplateException(
-                                                TemplateException.ErrorCodes.SYNTAX_ERROR,
-                                                "Invalid token detected after the variable: "
-                                                        + contentWithoutDelimiters);
+                                            TemplateException.ErrorCodes.SYNTAX_ERROR,
+                                            "Invalid token detected after the variable: "
+                                                + contentWithoutDelimiters);
                                     }
 
                                     blocks.add(codeBlocks.get(0));
@@ -158,9 +157,9 @@ public class TemplateTokenizer {
                                 case Value:
                                     if (codeBlocks.size() > 1) {
                                         throw new TemplateException(
-                                                TemplateException.ErrorCodes.SYNTAX_ERROR,
-                                                "Invalid token detected after the value: "
-                                                        + contentWithoutDelimiters);
+                                            TemplateException.ErrorCodes.SYNTAX_ERROR,
+                                            "Invalid token detected after the value: "
+                                                + contentWithoutDelimiters);
                                     }
 
                                     blocks.add(codeBlocks.get(0));
@@ -175,9 +174,9 @@ public class TemplateTokenizer {
                                 case Undefined:
                                 default:
                                     throw new TemplateException(
-                                            TemplateException.ErrorCodes.UNEXPECTED_BLOCK_TYPE,
-                                            "Code tokenizer returned an incorrect first token type "
-                                                    + codeBlocks.get(0).getType());
+                                        TemplateException.ErrorCodes.UNEXPECTED_BLOCK_TYPE,
+                                        "Code tokenizer returned an incorrect first token type "
+                                            + codeBlocks.get(0).getType());
                             }
                         }
 
@@ -197,9 +196,10 @@ public class TemplateTokenizer {
     }
 
     /*
-    #region private ================================================================================
-
-    private readonly ILogger _log;
+     * #region private
+     * ================================================================================
+     * 
+     * private readonly ILogger _log;
      */
     private final CodeTokenizer codeTokenizer = new CodeTokenizer();
 

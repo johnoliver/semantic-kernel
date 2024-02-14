@@ -16,7 +16,8 @@ public abstract class StreamingKernelContent<T> {
     private final T innerContent;
 
     /// <summary>
-    /// In a scenario of multiple choices per request, this represents zero-based index of the choice in the streaming sequence
+    /// In a scenario of multiple choices per request, this represents zero-based index of the
+    /// choice in the streaming sequence
     /// </summary>
     private final int choiceIndex;
 

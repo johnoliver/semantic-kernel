@@ -14,7 +14,8 @@ public class TemplateException extends SKException {
      * Initializes a new instance of the {@code TemplateException} class with a provided error
      * code.
      *
-     * @param error The error code.
+     * @param error
+     *            The error code.
      */
     public TemplateException(@Nonnull ErrorCodes error) {
         this(error, null, null);
@@ -24,8 +25,10 @@ public class TemplateException extends SKException {
      * Initializes a new instance of the {@code TemplateException} class with a provided error
      * code.
      *
-     * @param errorCode The error code.
-     * @param message   The exception message.
+     * @param errorCode
+     *            The error code.
+     * @param message
+     *            The exception message.
      */
     public TemplateException(@Nonnull ErrorCodes errorCode, @Nullable String message) {
         this(errorCode, message, null);
@@ -35,9 +38,12 @@ public class TemplateException extends SKException {
      * Initializes a new instance of the {@code TemplateException} class with a provided error
      * code.
      *
-     * @param errorCode      The error code.
-     * @param message        The exception message.
-     * @param innerException The exception that is the cause of the current exception.
+     * @param errorCode
+     *            The error code.
+     * @param message
+     *            The exception message.
+     * @param innerException
+     *            The exception that is the cause of the current exception.
      */
     public TemplateException(
         @Nonnull ErrorCodes errorCode,
@@ -54,7 +60,7 @@ public class TemplateException extends SKException {
      * Gets the error code for this exception.
      * </p>
      */
-    //spotless:on
+    // spotless:on
     public ErrorCodes getErrorCode() {
         return errorCode;
     }
@@ -66,7 +72,7 @@ public class TemplateException extends SKException {
      * Error codes for {@code TemplateException}.
      * </p>
      */
-    //spotless:on
+    // spotless:on
     public enum ErrorCodes {
 
         // spotless:off
@@ -75,7 +81,7 @@ public class TemplateException extends SKException {
          * Unknown error.
          * </p>
          */
-        //spotless:on
+        // spotless:on
         UNKNOWN_ERROR("Unknown error"),
 
         // spotless:off
@@ -84,7 +90,7 @@ public class TemplateException extends SKException {
          * Syntax error, the template syntax used is not valid.
          * </p>
          */
-        //spotless:on
+        // spotless:on
         SYNTAX_ERROR("Syntax error, the template syntax used is not valid"),
 
         // spotless:off
@@ -95,13 +101,13 @@ public class TemplateException extends SKException {
          */
         UNEXPECTED_BLOCK_TYPE("The block type produced be the tokenizer was not expected"),
 
-        //spotless:off
+        // spotless:off
         /**
          * <p>
          * The template requires an unknown function.
          * </p>
          */
-        //spotless:on
+        // spotless:on
         FUNCTION_NOT_FOUND("The template requires an unknown function"),
 
         // spotless:off
@@ -110,7 +116,7 @@ public class TemplateException extends SKException {
          * The template execution failed, e.g. a function call threw an exception.
          * </p>
          */
-        //spotless:on
+        // spotless:on
         RUNTIME_ERROR("The template execution failed, e.g. a function call threw an exception");
 
         private final String message;

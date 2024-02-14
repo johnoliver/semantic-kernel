@@ -16,7 +16,6 @@ public final class OpenAIRequestSettings {
     private static final String SEMANTIC_KERNEL_VERSION_PROPERTIES_FILE = "semantic-kernel-version.properties";
     private static final String version;
 
-
     static {
         version = loadVersion();
     }
@@ -37,7 +36,7 @@ public final class OpenAIRequestSettings {
                 }
             }
         } catch (IOException e) {
-            //Ignore
+            // Ignore
             LOGGER.trace("Failed to load Semantic Kernel version from properties file", e);
         }
         return version;

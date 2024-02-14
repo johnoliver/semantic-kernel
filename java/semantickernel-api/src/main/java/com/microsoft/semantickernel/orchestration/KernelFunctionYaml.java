@@ -17,23 +17,24 @@ import javax.annotation.Nullable;
 public class KernelFunctionYaml {
 
     /// <summary>
-    /// Creates a <see cref="KernelFunction"/> instance for a prompt function using the specified markdown text.
+    /// Creates a <see cref="KernelFunction"/> instance for a prompt function using the specified
+    /// markdown text.
     /// </summary>
-    /// <param name="text">YAML representation of the <see cref="PromptTemplateConfig"/> to use to create the prompt function</param>
+    /// <param name="text">YAML representation of the <see cref="PromptTemplateConfig"/> to use to
+    /// create the prompt function</param>
     /// <param name="promptTemplateFactory">>Prompt template factory.</param>
-    /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no logging will be performed.</param>
+    /// <param name="loggerFactory">The <see cref="ILoggerFactory"/> to use for logging. If null, no
+    /// logging will be performed.</param>
     /// <returns>The created <see cref="KernelFunction"/>.</returns>
     public static <T> KernelFunction<T> fromPromptYaml(
         String yaml,
-        @Nullable PromptTemplateFactory promptTemplateFactory
-    ) throws IOException {
+        @Nullable PromptTemplateFactory promptTemplateFactory) throws IOException {
         InputStream targetStream = new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8));
         return fromYaml(targetStream, promptTemplateFactory);
     }
 
     public static <T> KernelFunction<T> fromPromptYaml(
-        String yaml
-    ) throws IOException {
+        String yaml) throws IOException {
         InputStream targetStream = new ByteArrayInputStream(yaml.getBytes(StandardCharsets.UTF_8));
         return fromYaml(targetStream, null);
     }
@@ -47,8 +48,7 @@ public class KernelFunctionYaml {
     @SuppressWarnings("unchecked")
     private static <T> KernelFunction<T> fromYaml(
         InputStream inputStream,
-        @Nullable PromptTemplateFactory promptTemplateFactory
-    ) throws IOException {
+        @Nullable PromptTemplateFactory promptTemplateFactory) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         PromptTemplateConfig functionModel = mapper.readValue(inputStream,
             PromptTemplateConfig.class);
@@ -60,7 +60,7 @@ public class KernelFunctionYaml {
             promptTemplate = promptTemplateFactory.tryCreate(functionModel);
         }
 
-        return (KernelFunction<T>)new KernelFunctionFromPrompt.Builder()
+        return (KernelFunction<T>) new KernelFunctionFromPrompt.Builder()
             .withName(functionModel.getName())
             .withInputParameters(functionModel.getInputVariables())
             .withPromptTemplate(promptTemplate)

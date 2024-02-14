@@ -24,7 +24,8 @@ import reactor.core.publisher.Mono;
 /**
  * Semantic Kernel callable function interface
  *
- * @param <T> The type of the result of the function
+ * @param <T>
+ *            The type of the result of the function
  */
 // TODO: add example of using ContextVariableType to class documentation
 public abstract class KernelFunction<T> implements Buildable {
@@ -32,7 +33,8 @@ public abstract class KernelFunction<T> implements Buildable {
     /// <summary>
     /// Gets the metadata describing the function.
     /// </summary>
-    /// <returns>An instance of <see cref="KernelFunctionMetadata"/> describing the function</returns>
+    /// <returns>An instance of <see cref="KernelFunctionMetadata"/> describing the
+    /// function</returns>
     private final KernelFunctionMetadata<?> metadata;
 
     /// <summary>
@@ -43,8 +45,7 @@ public abstract class KernelFunction<T> implements Buildable {
 
     protected KernelFunction(
         KernelFunctionMetadata<?> metadata,
-        @Nullable
-        Map<String, PromptExecutionSettings> executionSettings) {
+        @Nullable Map<String, PromptExecutionSettings> executionSettings) {
         this.metadata = metadata;
         this.executionSettings = new HashMap<>();
         if (executionSettings != null) {
@@ -86,7 +87,8 @@ public abstract class KernelFunction<T> implements Buildable {
     /**
      * Create a manual-friendly string for a function.
      *
-     * @param includeOutputs Whether to include function outputs in the string.
+     * @param includeOutputs
+     *            Whether to include function outputs in the string.
      * @return A manual-friendly string for a function.
      */
     public String toManualString(boolean includeOutputs) {
@@ -119,12 +121,16 @@ public abstract class KernelFunction<T> implements Buildable {
      * {@link InvocationContext}. Calling {@code KernelFunction.invokeAsync} directly does not add
      * the global hooks.
      *
-     * @param kernel            The Kernel containing services, plugins, and other state for use
-     *                          throughout the operation.
-     * @param arguments         The arguments to pass to the function's invocation
-     * @param variableType      The type of the {@link ContextVariable} returned in the
-     *                          {@link FunctionResult}
-     * @param invocationContext The arguments to pass to the function's invocation
+     * @param kernel
+     *            The Kernel containing services, plugins, and other state for use
+     *            throughout the operation.
+     * @param arguments
+     *            The arguments to pass to the function's invocation
+     * @param variableType
+     *            The type of the {@link ContextVariable} returned in the
+     *            {@link FunctionResult}
+     * @param invocationContext
+     *            The arguments to pass to the function's invocation
      * @return The result of the function's execution.
      * @see FunctionResult#getResultVariable()
      */
@@ -149,12 +155,10 @@ public abstract class KernelFunction<T> implements Buildable {
             @Nullable PromptTemplate promptTemplate);
 
         FromPromptBuilder<T> withExecutionSettings(
-            @Nullable
-            Map<String, PromptExecutionSettings> executionSettings);
+            @Nullable Map<String, PromptExecutionSettings> executionSettings);
 
         FromPromptBuilder<T> withDefaultExecutionSettings(
-            @Nullable
-            PromptExecutionSettings executionSettings);
+            @Nullable PromptExecutionSettings executionSettings);
 
         FromPromptBuilder<T> withDescription(@Nullable String description);
 
@@ -167,7 +171,6 @@ public abstract class KernelFunction<T> implements Buildable {
         FromPromptBuilder<T> withOutputVariable(@Nullable OutputVariable outputVariable);
 
         FromPromptBuilder<T> withOutputVariable(@Nullable String description, String type);
-
 
         FromPromptBuilder<T> withPromptTemplateFactory(
             @Nullable PromptTemplateFactory promptTemplateFactory);

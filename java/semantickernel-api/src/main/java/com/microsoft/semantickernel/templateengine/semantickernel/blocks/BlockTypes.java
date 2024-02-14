@@ -25,8 +25,7 @@ public enum BlockTypes {
     /**
      * Function block type
      */
-    FunctionId(5),
-    NamedArg(6);
+    FunctionId(5), NamedArg(6);
 
     BlockTypes(int i) {
     }

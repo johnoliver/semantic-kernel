@@ -32,7 +32,7 @@ public interface AIService {
      * Gets the model identifier from the {@code attributes} map.
      *
      * @return The model identifier if it was specified in the service's attributes; otherwise,
-     * null.
+     *         null.
      */
     @Nullable
     default String getModelId() {

@@ -18,18 +18,16 @@ public interface ChatCompletionService extends Buildable, TextAIService {
     Mono<List<ChatMessageContent>> getChatMessageContentsAsync(
         ChatHistory chatHistory,
         @Nullable Kernel kernel,
-        @Nullable InvocationContext invocationContext
-    );
+        @Nullable InvocationContext invocationContext);
 
     Mono<List<ChatMessageContent>> getChatMessageContentsAsync(
         String prompt,
         @Nullable Kernel kernel,
-        @Nullable InvocationContext invocationContext
-    );
+        @Nullable InvocationContext invocationContext);
 
     static Builder builder() {
         return ServiceLoadUtil.findServiceLoader(Builder.class,
-                "com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion$Builder")
+            "com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion$Builder")
             .get();
     }
 
@@ -44,11 +42,11 @@ public interface ChatCompletionService extends Buildable, TextAIService {
         @Nullable
         protected String serviceId;
 
-
         /**
          * Sets the model ID to use with the ChatCompletion service.
          *
-         * @param modelId the model ID to use with the ChatCompletion service
+         * @param modelId
+         *            the model ID to use with the ChatCompletion service
          * @return this builder
          */
         public Builder withModelId(String modelId) {
@@ -59,8 +57,9 @@ public interface ChatCompletionService extends Buildable, TextAIService {
         /**
          * Sets the {@link OpenAIClient} to use for communication with the ChatCompletion service.
          *
-         * @param openAIClient the {@link OpenAIClient} to use for communication with the
-         *                     ChatCompletion service
+         * @param openAIClient
+         *            the {@link OpenAIClient} to use for communication with the
+         *            ChatCompletion service
          * @return this builder
          */
         public Builder withOpenAIAsyncClient(OpenAIAsyncClient openAIClient) {

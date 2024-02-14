@@ -50,20 +50,16 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
     private KernelFunctionFromMethod(
         ImplementationFunc<T> implementationFunc,
         String functionName,
-        @Nullable
-        String description,
-        @Nullable
-        List<KernelParameterMetadata<?>> parameters,
+        @Nullable String description,
+        @Nullable List<KernelParameterMetadata<?>> parameters,
         KernelReturnParameterMetadata<?> returnParameter) {
         super(
             new KernelFunctionMetadata<>(
                 functionName,
                 description,
                 parameters,
-                returnParameter
-            ),
-            null
-        );
+                returnParameter),
+            null);
         this.function = implementationFunc;
     }
 
@@ -88,19 +84,14 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
             @Nullable InvocationContext invocationContext);
     }
 
-
     @SuppressWarnings("unchecked")
     public static <T> KernelFunction<T> create(
         Method method,
         Object target,
-        @Nullable
-        String functionName,
-        @Nullable
-        String description,
-        @Nullable
-        List<KernelParameterMetadata<?>> parameters,
-        @Nullable
-        KernelReturnParameterMetadata<?> returnParameter) {
+        @Nullable String functionName,
+        @Nullable String description,
+        @Nullable List<KernelParameterMetadata<?>> parameters,
+        @Nullable KernelReturnParameterMetadata<?> returnParameter) {
 
         MethodDetails methodDetails = getMethodDetails(functionName, method, target);
 
@@ -125,10 +116,8 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
             returnParameter);
     }
 
-
     private static MethodDetails getMethodDetails(
-        @Nullable
-        String functionName,
+        @Nullable String functionName,
         Method method,
         Object target) {
 
@@ -152,11 +141,8 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
             getParameters(method),
             new KernelReturnParameterMetadata<>(
                 returnDescription,
-                method.getReturnType()
-            )
-        );
+                method.getReturnType()));
     }
-
 
     @SuppressWarnings("unchecked")
     private static <T> ImplementationFunc<T> getFunction(Method method, Object instance) {
@@ -177,14 +163,14 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
             FunctionInvokingEvent updatedState = kernelHooks
                 .executeHooks(
                     new FunctionInvokingEvent(function, arguments));
-            KernelFunctionArguments updatedArguments =
-                updatedState != null ? updatedState.getArguments() : arguments;
+            KernelFunctionArguments updatedArguments = updatedState != null
+                ? updatedState.getArguments()
+                : arguments;
 
             try {
-                List<Object> args =
-                    Arrays.stream(method.getParameters())
-                        .map(getParameters(method, updatedArguments, kernel, context))
-                        .collect(Collectors.toList());
+                List<Object> args = Arrays.stream(method.getParameters())
+                    .map(getParameters(method, updatedArguments, kernel, context))
+                    .collect(Collectors.toList());
 
                 Mono<?> mono;
                 if (method.getReturnType().isAssignableFrom(Mono.class)) {
@@ -216,8 +202,7 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
                                     it.getClass().getName()));
                             }
                             return new FunctionResult<>(
-                                new ContextVariable<>(variableType, it)
-                            );
+                                new ContextVariable<>(variableType, it));
                         }
 
                         Class<?> returnParameterType = function
@@ -225,12 +210,14 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
                             .getReturnParameter()
                             .getParameterType();
 
-                        // If the function has a return type that has a ContextVariableType<T>, use it.
+                        // If the function has a return type that has a ContextVariableType<T>, use
+                        // it.
                         ContextVariableType<T> contextVariableType = getContextVariableType(
                             context,
                             returnParameterType);
                         if (contextVariableType == null) {
-                            // If getting the context variable type from the function fails, default to
+                            // If getting the context variable type from the function fails, default
+                            // to
                             // using the NoopConverter.
                             contextVariableType = getDefaultContextVariableType(
                                 returnParameterType);
@@ -276,7 +263,7 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
                 return type;
             } catch (ClassCastException | SKException e) {
                 // SKException is thrown from ContextVariableTypes.getDefaultVariableTypeForClass
-                // if there is no default variable type for the class. 
+                // if there is no default variable type for the class.
                 // Fallthrough. Let the caller handle a null return.
             }
         }
@@ -305,40 +292,38 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
     private static Mono<Object> invokeAsyncFunction(
         Method method, Object instance, List<Object> args) {
         return Mono.defer(
-            () ->
-                Mono.fromCallable(
-                        () -> {
-                            try {
-                                if (method.getReturnType().getName().equals("void")
-                                    || method.getReturnType()
-                                    .equals(Void.class)) {
-                                    method.invoke(instance, args.toArray());
-                                    return null;
-                                } else {
-                                    return method.invoke(instance, args.toArray());
-                                }
-                            } catch (InvocationTargetException e) {
-                                throw new AIException(
-                                    ErrorCodes.INVALID_REQUEST,
-                                    "Function threw an exception: "
-                                        + method.getName(),
-                                    e.getCause());
-                            } catch (IllegalAccessException e) {
-                                throw new AIException(
-                                    ErrorCodes.INVALID_REQUEST,
-                                    "Unable to access function "
-                                        + method.getName(),
-                                    e);
-                            }
-                        })
-                    .subscribeOn(Schedulers.boundedElastic()));
+            () -> Mono.fromCallable(
+                () -> {
+                    try {
+                        if (method.getReturnType().getName().equals("void")
+                            || method.getReturnType()
+                                .equals(Void.class)) {
+                            method.invoke(instance, args.toArray());
+                            return null;
+                        } else {
+                            return method.invoke(instance, args.toArray());
+                        }
+                    } catch (InvocationTargetException e) {
+                        throw new AIException(
+                            ErrorCodes.INVALID_REQUEST,
+                            "Function threw an exception: "
+                                + method.getName(),
+                            e.getCause());
+                    } catch (IllegalAccessException e) {
+                        throw new AIException(
+                            ErrorCodes.INVALID_REQUEST,
+                            "Unable to access function "
+                                + method.getName(),
+                            e);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic()));
     }
 
     @Nullable
     private static Function<Parameter, Object> getParameters(
         Method method,
-        @Nullable
-        KernelFunctionArguments context,
+        @Nullable KernelFunctionArguments context,
         Kernel kernel,
         InvocationContext invocationContext) {
         return parameter -> {
@@ -361,11 +346,12 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
 
         ContextVariable<?> arg = context == null ? null : context.get(variableName);
         if (arg == null) {
-            KernelFunctionParameter annotation =
-                parameter.getAnnotation(KernelFunctionParameter.class);
+            KernelFunctionParameter annotation = parameter
+                .getAnnotation(KernelFunctionParameter.class);
             if (annotation != null) {
                 // Convert from the defaultValue, which is a String to the argument type
-                // Expectation here is that the fromPromptString method will be able to handle a null or empty string
+                // Expectation here is that the fromPromptString method will be able to handle a
+                // null or empty string
                 Class<?> type = annotation.type();
 
                 ContextVariableType<?> cvType = invocationContext
@@ -479,17 +465,23 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
         return (argType == Byte.class || argType == byte.class) && (param == Byte.class
             || param == byte.class) ||
             (argType == Integer.class || argType == int.class) && (param == Integer.class
-                || param == int.class) ||
+                || param == int.class)
+            ||
             (argType == Long.class || argType == long.class) && (param == Long.class
-                || param == long.class) ||
+                || param == long.class)
+            ||
             (argType == Double.class || argType == double.class) && (param == Double.class
-                || param == double.class) ||
+                || param == double.class)
+            ||
             (argType == Float.class || argType == float.class) && (param == Float.class
-                || param == float.class) ||
+                || param == float.class)
+            ||
             (argType == Short.class || argType == short.class) && (param == Short.class
-                || param == short.class) ||
+                || param == short.class)
+            ||
             (argType == Boolean.class || argType == boolean.class) && (param == Boolean.class
-                || param == boolean.class) ||
+                || param == boolean.class)
+            ||
             (argType == Character.class || argType == char.class) && (param == Character.class
                 || param == char.class);
     }
@@ -502,7 +494,6 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
         }
         return annotation.name();
     }
-
 
     private static String formErrorMessage(Method method, Parameter parameter) {
         Matcher matcher = Pattern.compile("arg(\\d)").matcher(parameter.getName());
@@ -525,11 +516,10 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
     }
 
     private static List<KernelParameterMetadata<?>> getParameters(Method method) {
-        return
-            Arrays.stream(method
-                    .getParameters())
-                .map(KernelFunctionFromMethod::toKernelParameterMetadata)
-                .collect(Collectors.toList());
+        return Arrays.stream(method
+            .getParameters())
+            .map(KernelFunctionFromMethod::toKernelParameterMetadata)
+            .collect(Collectors.toList());
     }
 
     private static KernelParameterMetadata<?> toKernelParameterMetadata(Parameter parameter) {
@@ -555,7 +545,6 @@ public class KernelFunctionFromMethod<T> extends KernelFunction<T> {
             description,
             type,
             defaultValue,
-            isRequired
-        );
+            isRequired);
     }
 }

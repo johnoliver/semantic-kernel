@@ -12,10 +12,11 @@ public class FunctionInvokingEvent implements KernelHookEvent {
     private final KernelFunction function;
     private final KernelFunctionArguments arguments;
 
-    public FunctionInvokingEvent(KernelFunction function, 
+    public FunctionInvokingEvent(KernelFunction function,
         @Nullable KernelFunctionArguments arguments) {
         this.function = function;
-        this.arguments = arguments != null ? new KernelFunctionArguments(arguments) : new KernelFunctionArguments();
+        this.arguments = arguments != null ? new KernelFunctionArguments(arguments)
+            : new KernelFunctionArguments();
     }
 
     public KernelFunction getFunction() {

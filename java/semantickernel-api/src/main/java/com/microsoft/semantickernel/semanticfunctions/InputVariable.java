@@ -25,18 +25,11 @@ public class InputVariable {
 
     @JsonCreator
     public InputVariable(
-        @JsonProperty("name")
-        String name,
-        @JsonProperty("type")
-        String type,
-        @JsonProperty("description")
-        @Nullable
-        String description,
-        @JsonProperty("default")
-        @Nullable
-        String defaultValue,
-        @JsonProperty("is_required")
-        boolean isRequired) {
+        @JsonProperty("name") String name,
+        @JsonProperty("type") String type,
+        @JsonProperty("description") @Nullable String description,
+        @JsonProperty("default") @Nullable String defaultValue,
+        @JsonProperty("is_required") boolean isRequired) {
         this.name = name;
 
         if (type == null) {

@@ -14,8 +14,7 @@ public class NumberVariableContextVariableTypeConverter<T extends Number> extend
     public NumberVariableContextVariableTypeConverter(
         Class<T> clazz,
         Function<String, T> fromPromptString,
-        Function<Number, T> fromNumber
-    ) {
+        Function<Number, T> fromNumber) {
         super(
             clazz,
             s -> convert(s, clazz),
@@ -32,7 +31,7 @@ public class NumberVariableContextVariableTypeConverter<T extends Number> extend
         }
 
         // Let the parent class have a crack at it first
-        // since someone may have installed a special converter. 
+        // since someone may have installed a special converter.
         U obj = super.toObject(t, clazz);
         if (obj != null) {
             return obj;

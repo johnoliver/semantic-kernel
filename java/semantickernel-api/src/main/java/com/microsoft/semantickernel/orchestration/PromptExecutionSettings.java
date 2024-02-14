@@ -74,10 +74,8 @@ public class PromptExecutionSettings {
         @JsonProperty(RESULTS_PER_PROMPT) int resultsPerPrompt,
         @JsonProperty(BEST_OF) int bestOf,
         @JsonProperty(USER) String user,
-        @Nullable
-        @JsonProperty(STOP_SEQUENCES) List<String> stopSequences,
-        @Nullable
-        @JsonProperty(TOKEN_SELECTION_BIASES) Map<Integer, Integer> tokenSelectionBiases) {
+        @Nullable @JsonProperty(STOP_SEQUENCES) List<String> stopSequences,
+        @Nullable @JsonProperty(TOKEN_SELECTION_BIASES) Map<Integer, Integer> tokenSelectionBiases) {
         this.serviceId = serviceId;
         this.modelId = modelId;
         this.temperature = temperature;
@@ -88,11 +86,11 @@ public class PromptExecutionSettings {
         this.resultsPerPrompt = resultsPerPrompt;
         this.bestOf = bestOf;
         this.user = user;
-        this.stopSequences =
-            stopSequences != null ? new ArrayList<>(stopSequences) : Collections.emptyList();
-        this.tokenSelectionBiases =
-            tokenSelectionBiases != null ? new HashMap<>(tokenSelectionBiases)
-                : Collections.emptyMap();
+        this.stopSequences = stopSequences != null ? new ArrayList<>(stopSequences)
+            : Collections.emptyList();
+        this.tokenSelectionBiases = tokenSelectionBiases != null
+            ? new HashMap<>(tokenSelectionBiases)
+            : Collections.emptyMap();
     }
 
     @JsonProperty(SERVICE_ID)
@@ -167,7 +165,6 @@ public class PromptExecutionSettings {
     public static Builder builder() {
         return new Builder();
     }
-
 
     public static class Builder {
 
@@ -264,8 +261,7 @@ public class PromptExecutionSettings {
                 (String) settings.getOrDefault(USER, ""),
                 (List<String>) settings.getOrDefault(STOP_SEQUENCES, Collections.emptyList()),
                 (Map<Integer, Integer>) settings.getOrDefault(TOKEN_SELECTION_BIASES,
-                    Collections.emptyMap())
-            );
+                    Collections.emptyMap()));
         }
     }
 }

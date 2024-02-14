@@ -9,8 +9,7 @@ public class KernelReturnParameterMetadata<T> {
     private final Class<T> parameterType;
 
     public KernelReturnParameterMetadata(
-        @Nullable
-        String description,
+        @Nullable String description,
         Class<T> parameterType) {
         this.description = description;
         this.parameterType = parameterType;

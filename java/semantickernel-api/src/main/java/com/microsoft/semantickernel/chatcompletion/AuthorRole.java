@@ -6,10 +6,7 @@ package com.microsoft.semantickernel.chatcompletion;
  */
 public enum AuthorRole {
 
-    SYSTEM("system"),
-    ASSISTANT("assistant"),
-    USER("user"),
-    TOOL("tool");
+    SYSTEM("system"), ASSISTANT("assistant"), USER("user"), TOOL("tool");
 
     @Override
     public String toString() {

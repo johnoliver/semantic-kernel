@@ -12,7 +12,6 @@ public class FunctionResultMetadata {
     public static final String USAGE = "usage";
     public static final String CREATED_AT = "createdAt";
 
-
     private final CaseInsensitiveMap<ContextVariable<?>> metadata;
 
     public FunctionResultMetadata() {

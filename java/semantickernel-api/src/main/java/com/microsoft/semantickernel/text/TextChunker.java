@@ -19,21 +19,23 @@ import java.util.stream.Stream;
 public class TextChunker {
 
     private static final String s_spaceChar = " ";
-    private static final List<Pattern> s_plaintextSplitOptions =
-        Stream.of("[\n\r]", "\\.", "[\\?\\!]", ";", ":", ",", "[\\)\\]\\}]", " ", "\\-", null)
-            .map(it -> it == null ? null : Pattern.compile(it, Pattern.MULTILINE))
-            .collect(Collectors.toList());
+    private static final List<Pattern> s_plaintextSplitOptions = Stream
+        .of("[\n\r]", "\\.", "[\\?\\!]", ";", ":", ",", "[\\)\\]\\}]", " ", "\\-", null)
+        .map(it -> it == null ? null : Pattern.compile(it, Pattern.MULTILINE))
+        .collect(Collectors.toList());
 
-    private static final List<Pattern> s_markdownSplitOptions =
-        Stream.of("\\.", "[\\?\\!]", ";", ":", ",", "[\\)\\]\\}]", " ", "\\-", "[\n\r]", null)
-            .map(it -> it == null ? null : Pattern.compile(it, Pattern.MULTILINE))
-            .collect(Collectors.toList());
+    private static final List<Pattern> s_markdownSplitOptions = Stream
+        .of("\\.", "[\\?\\!]", ";", ":", ",", "[\\)\\]\\}]", " ", "\\-", "[\n\r]", null)
+        .map(it -> it == null ? null : Pattern.compile(it, Pattern.MULTILINE))
+        .collect(Collectors.toList());
 
     /**
      * Split plain text into lines
      *
-     * @param text             Text to split
-     * @param maxTokensPerLine Maximum number of tokens per line
+     * @param text
+     *            Text to split
+     * @param maxTokensPerLine
+     *            Maximum number of tokens per line
      * @return List of lines
      */
     public static List<String> splitPlainTextLines(String text, int maxTokensPerLine) {
@@ -43,8 +45,10 @@ public class TextChunker {
     /**
      * Split markdown text into lines
      *
-     * @param text             Text to split
-     * @param maxTokensPerLine Maximum number of tokens per line
+     * @param text
+     *            Text to split
+     * @param maxTokensPerLine
+     *            Maximum number of tokens per line
      * @return List of lines
      */
     public static List<String> splitMarkDownLines(String text, int maxTokensPerLine) {
@@ -56,8 +60,10 @@ public class TextChunker {
     /**
      * Split plain text into paragraphs
      *
-     * @param lines                 Lines of text
-     * @param maxTokensPerParagraph Maximum number of tokens per paragraph.
+     * @param lines
+     *            Lines of text
+     * @param maxTokensPerParagraph
+     *            Maximum number of tokens per paragraph.
      * @return List of paragraphs
      */
     public static List<String> splitPlainTextParagraphs(
@@ -65,16 +71,17 @@ public class TextChunker {
         return internalSplitTextParagraphs(
             lines,
             maxTokensPerParagraph,
-            (text) ->
-                internalSplitLines(
-                    text, maxTokensPerParagraph, false, s_plaintextSplitOptions));
+            (text) -> internalSplitLines(
+                text, maxTokensPerParagraph, false, s_plaintextSplitOptions));
     }
 
     /**
      * Split markdown text into paragraphs
      *
-     * @param lines                 Lines of text
-     * @param maxTokensPerParagraph Maximum number of tokens per paragraph
+     * @param lines
+     *            Lines of text
+     * @param maxTokensPerParagraph
+     *            Maximum number of tokens per paragraph
      * @return List of paragraphs
      */
     public static List<String> splitMarkdownParagraphs(
@@ -82,9 +89,8 @@ public class TextChunker {
         return internalSplitTextParagraphs(
             lines,
             maxTokensPerParagraph,
-            (text) ->
-                internalSplitLines(
-                    text, maxTokensPerParagraph, false, s_markdownSplitOptions));
+            (text) -> internalSplitLines(
+                text, maxTokensPerParagraph, false, s_markdownSplitOptions));
     }
 
     private static List<String> internalSplitTextParagraphs(
@@ -110,8 +116,8 @@ public class TextChunker {
         for (String line : lines) {
             // "+1" to account for the "new line" added by AppendLine()
             if (currentParagraph.length() > 0
-                && TokenCount(currentParagraph.length()) + TokenCount(line.length()) + 1
-                >= maxTokensPerParagraph) {
+                && TokenCount(currentParagraph.length()) + TokenCount(line.length())
+                    + 1 >= maxTokensPerParagraph) {
                 paragraphs.add(currentParagraph.toString().trim());
                 currentParagraph = new StringBuilder();
             }
@@ -129,20 +135,19 @@ public class TextChunker {
             String secondLastParagraph = paragraphs.get(paragraphs.size() - 2);
 
             if (TokenCount(lastParagraph.length()) < maxTokensPerParagraph / 4) {
-                List<String> lastParagraphTokens =
-                    Arrays.stream(lastParagraph.split(s_spaceChar))
-                        .filter(it -> it.length() != 0)
-                        .collect(Collectors.toList());
-                List<String> secondLastParagraphTokens =
-                    Arrays.stream(secondLastParagraph.split(s_spaceChar))
-                        .filter(it -> it.length() != 0)
-                        .collect(Collectors.toList());
+                List<String> lastParagraphTokens = Arrays.stream(lastParagraph.split(s_spaceChar))
+                    .filter(it -> it.length() != 0)
+                    .collect(Collectors.toList());
+                List<String> secondLastParagraphTokens = Arrays
+                    .stream(secondLastParagraph.split(s_spaceChar))
+                    .filter(it -> it.length() != 0)
+                    .collect(Collectors.toList());
 
                 int lastParagraphTokensCount = lastParagraphTokens.size();
                 int secondLastParagraphTokensCount = secondLastParagraphTokens.size();
 
-                if (lastParagraphTokensCount + secondLastParagraphTokensCount
-                    <= maxTokensPerParagraph) {
+                if (lastParagraphTokensCount
+                    + secondLastParagraphTokensCount <= maxTokensPerParagraph) {
                     StringBuilder newSecondLastParagraph = new StringBuilder();
                     for (int i = 0; i < secondLastParagraphTokensCount; i++) {
                         if (newSecondLastParagraph.length() != 0) {
@@ -184,16 +189,15 @@ public class TextChunker {
         String text, int maxTokensPerLine, boolean trim, List<Pattern> splitOptions) {
         text = text.replaceAll("\\r?\\n|\\r", "\n");
 
-        SplitString result =
-            split(text, maxTokensPerLine, Collections.singletonList(splitOptions.get(0)), trim);
+        SplitString result = split(text, maxTokensPerLine,
+            Collections.singletonList(splitOptions.get(0)), trim);
         if (result.inputWasSplit) {
             for (int i = 1; i < splitOptions.size(); i++) {
-                result =
-                    split(
-                        result.result,
-                        maxTokensPerLine,
-                        Collections.singletonList(splitOptions.get(i)),
-                        trim);
+                result = split(
+                    result.result,
+                    maxTokensPerLine,
+                    Collections.singletonList(splitOptions.get(i)),
+                    trim);
 
                 if (!result.inputWasSplit) {
                     break;
@@ -277,9 +281,8 @@ public class TextChunker {
                 SplitString first = split(firstHalf, maxTokens, separators, trim);
                 SplitString second = split(secondHalf, maxTokens, separators, trim);
 
-                result =
-                    Stream.concat(first.result.stream(), second.result.stream())
-                        .collect(Collectors.toList());
+                result = Stream.concat(first.result.stream(), second.result.stream())
+                    .collect(Collectors.toList());
                 inputWasSplit = first.inputWasSplit || second.inputWasSplit;
             }
 
@@ -292,7 +295,7 @@ public class TextChunker {
     private static int TokenCount(int inputLength) {
         // TODO: partitioning methods should be configurable to allow for different tokenization
         // strategies
-        //       depending on the model to be called. For now, we use an extremely rough estimate.
+        // depending on the model to be called. For now, we use an extremely rough estimate.
         return inputLength / 4;
     }
 }

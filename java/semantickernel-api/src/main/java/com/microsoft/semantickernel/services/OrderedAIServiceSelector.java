@@ -36,16 +36,14 @@ public class OrderedAIServiceSelector extends BaseAIServiceSelector {
     public <T extends AIService> AIServiceSelection<T> trySelectAIService(
         Class<T> serviceType,
 
-        @Nullable
-        KernelFunction<?> function,
+        @Nullable KernelFunction<?> function,
 
-        @Nullable
-        KernelFunctionArguments arguments,
+        @Nullable KernelFunctionArguments arguments,
         Map<Class<? extends AIService>, AIService> services) {
 
         // Allow the execution settings from the kernel arguments to take precedence
-        Map<String, PromptExecutionSettings> executionSettings = 
-            settingsFromFunctionSettings(function);
+        Map<String, PromptExecutionSettings> executionSettings = settingsFromFunctionSettings(
+            function);
 
         if (executionSettings == null || executionSettings.isEmpty()) {
             AIService service = getAnyService(serviceType);
@@ -64,7 +62,8 @@ public class OrderedAIServiceSelector extends BaseAIServiceSelector {
                     if (!Verify.isNullOrEmpty(serviceId)) {
                         AIService service = getService(serviceId);
                         if (service != null) {
-                            return castServiceSelection(new AIServiceSelection<>(service, settings));
+                            return castServiceSelection(
+                                new AIServiceSelection<>(service, settings));
                         }
                     }
 
@@ -87,7 +86,8 @@ public class OrderedAIServiceSelector extends BaseAIServiceSelector {
                     if (!Verify.isNullOrEmpty(settings.getModelId())) {
                         AIService service = getServiceByModelId(settings.getModelId());
                         if (service != null) {
-                            return castServiceSelection(new AIServiceSelection<>(service, settings));
+                            return castServiceSelection(
+                                new AIServiceSelection<>(service, settings));
                         }
                     }
 
@@ -129,7 +129,8 @@ public class OrderedAIServiceSelector extends BaseAIServiceSelector {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    private static <T extends AIService> AIServiceSelection<T> castServiceSelection(AIServiceSelection<?> selection) {
+    private static <T extends AIService> AIServiceSelection<T> castServiceSelection(
+        AIServiceSelection<?> selection) {
         try {
             // unchecked cast
             return (AIServiceSelection<T>) selection;
@@ -141,8 +142,7 @@ public class OrderedAIServiceSelector extends BaseAIServiceSelector {
 
     @Nullable
     private static Map<String, PromptExecutionSettings> settingsFromFunctionSettings(
-        @Nullable
-        KernelFunction function) {
+        @Nullable KernelFunction function) {
         if (function != null) {
             return function.getExecutionSettings();
         }
@@ -157,7 +157,6 @@ public class OrderedAIServiceSelector extends BaseAIServiceSelector {
             .findFirst()
             .orElseGet(() -> null);
     }
-
 
     @Nullable
     public AIService getService(String serviceId) {
@@ -204,13 +203,12 @@ public class OrderedAIServiceSelector extends BaseAIServiceSelector {
     }
 
     private List<AIService> getServices(Class<? extends AIService> serviceType) {
-        return
-            services
-                .entrySet()
-                .stream()
-                .filter(it -> serviceType.isAssignableFrom(it.getKey()))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+        return services
+            .entrySet()
+            .stream()
+            .filter(it -> serviceType.isAssignableFrom(it.getKey()))
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toList());
     }
 
 }

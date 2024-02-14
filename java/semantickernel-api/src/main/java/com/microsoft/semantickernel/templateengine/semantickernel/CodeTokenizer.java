@@ -42,11 +42,7 @@ import javax.annotation.Nullable;
 public class CodeTokenizer {
 
     private enum TokenTypes {
-        None(0),
-        Value(1),
-        Variable(2),
-        FunctionId(3),
-        NamedArg(4);
+        None(0), Value(1), Variable(2), FunctionId(3), NamedArg(4);
 
         TokenTypes(int i) {
         }
@@ -180,7 +176,8 @@ public class CodeTokenizer {
                     currentTokenContent = new StringBuilder();
                 } else if (currentTokenType == TokenTypes.FunctionId) {
                     String tokenContent = currentTokenContent.toString();
-                    // This isn't an expected block at this point but the TemplateTokenizer should throw an error when
+                    // This isn't an expected block at this point but the TemplateTokenizer should
+                    // throw an error when
                     // a named arg is used without a function call
 
                     NamedArgBlock namedArg = getNamedArg(tokenContent);
@@ -207,7 +204,8 @@ public class CodeTokenizer {
                 continue;
             }
 
-            // If reading a named argument and either the '=' or the value prefix ($, ', or ") haven't been found
+            // If reading a named argument and either the '=' or the value prefix ($, ', or ")
+            // haven't been found
             if (currentTokenType == TokenTypes.NamedArg && (!namedArgSeparatorFound
                 || namedArgValuePrefix == 0)) {
                 if (!namedArgSeparatorFound) {
@@ -267,7 +265,8 @@ public class CodeTokenizer {
             case FunctionId:
                 NamedArgBlock namedArg = getNamedArg(currentTokenContent.toString());
 
-                // This isn't an expected block at this point but the TemplateTokenizer should throw an error when
+                // This isn't an expected block at this point but the TemplateTokenizer should throw
+                // an error when
                 // a named arg is used without a function call
                 if (namedArg != null) {
                     blocks.add(namedArg);

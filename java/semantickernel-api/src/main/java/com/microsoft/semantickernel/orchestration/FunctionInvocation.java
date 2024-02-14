@@ -38,7 +38,6 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
     protected UnmodifiableToolCallBehavior toolCallBehavior;
     protected final ContextVariableTypes contextVariableTypes = new ContextVariableTypes();
 
-
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public FunctionInvocation(
         Kernel kernel,
@@ -53,8 +52,7 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
     public FunctionInvocation(
         Kernel kernel,
         KernelFunction<?> function,
-        @Nullable
-        ContextVariableType<T> resultType) {
+        @Nullable ContextVariableType<T> resultType) {
         this.function = function;
         this.kernel = kernel;
         this.resultType = resultType;
@@ -65,8 +63,7 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
     }
 
     public FunctionInvocation<T> withArguments(
-        @Nullable
-        KernelFunctionArguments arguments) {
+        @Nullable KernelFunctionArguments arguments) {
         if (arguments == null) {
             this.arguments = null;
         } else {
@@ -97,8 +94,7 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
     }
 
     public FunctionInvocation<T> addKernelHooks(
-        @Nullable
-        KernelHooks hooks) {
+        @Nullable KernelHooks hooks) {
         if (hooks == null) {
             return this;
         }
@@ -107,8 +103,7 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
     }
 
     public FunctionInvocation<T> withPromptExecutionSettings(
-        @Nullable
-        PromptExecutionSettings promptExecutionSettings) {
+        @Nullable PromptExecutionSettings promptExecutionSettings) {
         this.promptExecutionSettings = promptExecutionSettings;
         return this;
     }
@@ -122,7 +117,6 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
         contextVariableTypes.putConverter(typeConverter.getConverter());
         return this;
     }
-
 
     public FunctionInvocation<T> withTypes(ContextVariableTypes contextVariableTypes) {
         this.contextVariableTypes.putConverters(contextVariableTypes);
@@ -141,8 +135,7 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
                 hooks,
                 promptExecutionSettings,
                 toolCallBehavior,
-                contextVariableTypes
-            ));
+                contextVariableTypes));
     }
 
     // Extracted to static to ensure mutable state is not used
@@ -150,13 +143,9 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
         CoreSubscriber<? super FunctionResult<T>> coreSubscriber,
         Kernel kernel,
         KernelFunction<?> function,
-        @Nullable
-        KernelFunctionArguments arguments,
-        @Nullable
-        ContextVariableType<T> variableType,
-        @Nullable
-        InvocationContext context
-    ) {
+        @Nullable KernelFunctionArguments arguments,
+        @Nullable ContextVariableType<T> variableType,
+        @Nullable InvocationContext context) {
         if (variableType == null) {
             LOGGER.debug(
                 "No variable type explicitly specified by calling 'withResultType' for function invocation: "
@@ -175,16 +164,14 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
     }
 
     private static <T> BiConsumer<FunctionResult<?>, SynchronousSink<FunctionResult<T>>> convertToType(
-        @Nullable
-        ContextVariableType<T> variableType) {
+        @Nullable ContextVariableType<T> variableType) {
         return (result, sink) -> {
             // If a specific result type was requested, convert the result to that type.
             if (variableType != null) {
                 try {
                     sink.next(new FunctionResult<>(
                         ContextVariable.convert(result.getResult(), variableType),
-                        result.getMetadata()
-                    ));
+                        result.getMetadata()));
                 } catch (Exception e) {
                     sink.error(new SKException(
                         "Failed to convert result to requested type: "
@@ -192,7 +179,8 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
                         e));
                 }
             } else {
-                // Otherwise, just pass the result through and trust that the user requested the correct type.
+                // Otherwise, just pass the result through and trust that the user requested the
+                // correct type.
                 sink.next((FunctionResult<T>) result);
             }
         };
@@ -200,8 +188,7 @@ public class FunctionInvocation<T> extends Mono<FunctionResult<T>> {
 
     @Nullable
     private static UnmodifiableToolCallBehavior unmodifiableClone(
-        @Nullable
-        ToolCallBehavior toolCallBehavior) {
+        @Nullable ToolCallBehavior toolCallBehavior) {
         if (toolCallBehavior instanceof UnmodifiableToolCallBehavior) {
             return (UnmodifiableToolCallBehavior) toolCallBehavior;
         } else if (toolCallBehavior != null) {

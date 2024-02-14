@@ -131,7 +131,8 @@ public final class CodeBlock extends Block implements CodeRendering {
         // If the code syntax is {{functionName $varName}} use $varName instead of $input
         // If the code syntax is {{functionName 'value'}} use "value" instead of $input
         if (this.tokens.size() > 1) {
-            //Cloning the original arguments to avoid side effects - arguments added to the original arguments collection as a result of rendering template variables.
+            // Cloning the original arguments to avoid side effects - arguments added to the
+            // original arguments collection as a result of rendering template variables.
             arguments = this.enrichFunctionArguments(kernel, fBlock,
                 arguments == null
                     ? new KernelFunctionArguments()
@@ -148,23 +149,24 @@ public final class CodeBlock extends Block implements CodeRendering {
             .map(FunctionResult::getResultVariable);
     }
 
-
     /// <summary>
-    /// Adds function arguments. If the first argument is not a named argument, it is added to the arguments collection as the 'input' argument.
-    /// Additionally, for the prompt expression - {{MyPlugin.MyFunction p1=$v1}}, the value of the v1 variable will be resolved from the original arguments collection.
+    /// Adds function arguments. If the first argument is not a named argument, it is added to the
+    /// arguments collection as the 'input' argument.
+    /// Additionally, for the prompt expression - {{MyPlugin.MyFunction p1=$v1}}, the value of the
+    /// v1 variable will be resolved from the original arguments collection.
     /// Then, the new argument, p1, will be added to the arguments.
     /// </summary>
     /// <param name="kernel">Kernel instance.</param>
     /// <param name="fBlock">Function block.</param>
     /// <param name="arguments">The prompt rendering arguments.</param>
     /// <returns>The function arguments.</returns>
-    /// <exception cref="KernelException">Occurs when any argument other than the first is not a named argument.</exception>
+    /// <exception cref="KernelException">Occurs when any argument other than the first is not a
+    /// named argument.</exception>
     private KernelFunctionArguments enrichFunctionArguments(
         Kernel kernel,
         FunctionIdBlock fBlock,
         KernelFunctionArguments arguments,
-        @Nullable
-        InvocationContext context) {
+        @Nullable InvocationContext context) {
         Block firstArg = this.tokens.get(1);
 
         // Get the function metadata
@@ -202,9 +204,7 @@ public final class CodeBlock extends Block implements CodeRendering {
                     .convert(
                         firstPositionalInputValue,
                         functionMetadata.getParameters().get(0).getType(),
-                        context == null ? null : context.getContextVariableTypes()
-                    )
-            );
+                        context == null ? null : context.getContextVariableTypes()));
             namedArgsStartIndex++;
         }
 

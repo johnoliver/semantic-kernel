@@ -42,13 +42,10 @@ public class NamedArgBlock extends Block implements TextRendering {
     protected NamedArgBlock(
         String content,
         String name,
-        @Nullable
-        String value,
+        @Nullable String value,
         VarBlock argNameAsVarBlock,
-        @Nullable
-        VarBlock varBlock,
-        @Nullable
-        ValBlock valBlock) {
+        @Nullable VarBlock varBlock,
+        @Nullable ValBlock valBlock) {
         super(content, NamedArg);
         this.name = name;
         this.value = value;
@@ -59,7 +56,7 @@ public class NamedArgBlock extends Block implements TextRendering {
 
     public static NamedArgBlock from(String content) {
         String name = tryGetName(content);
-        if(name == null) {
+        if (name == null) {
             throw new SKException("Unable to extract name from: " + content);
         }
         String value = tryGetValue(content);
@@ -139,9 +136,12 @@ public class NamedArgBlock extends Block implements TextRendering {
     /// Attempts to extract the name and value of a named argument block from a string
     /// </summary>
     /// <param name="text">String from which to extract a name and value</param>
-    /// <param name="name">Name extracted from argument block, when successful. Empty string otherwise.</param>
-    /// <param name="value">Value extracted from argument block, when successful. Empty string otherwise.</param>
-    /// <returns>true when a name and value are successfully extracted from the given text, false otherwise</returns>
+    /// <param name="name">Name extracted from argument block, when successful. Empty string
+    /// otherwise.</param>
+    /// <param name="value">Value extracted from argument block, when successful. Empty string
+    /// otherwise.</param>
+    /// <returns>true when a name and value are successfully extracted from the given text, false
+    /// otherwise</returns>
 
     @Nullable
     public static String tryGetName(String text) {

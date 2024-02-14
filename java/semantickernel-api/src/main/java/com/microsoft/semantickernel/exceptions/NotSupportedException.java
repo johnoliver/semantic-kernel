@@ -17,7 +17,7 @@ public class NotSupportedException extends SKException {
     }
 
     public NotSupportedException(
-            @Nonnull ErrorCodes errorCode, @Nullable String message, @Nullable Throwable cause) {
+        @Nonnull ErrorCodes errorCode, @Nullable String message, @Nullable Throwable cause) {
         super(formatDefaultMessage(errorCode.getMessage(), message), cause);
         this.errorCode = errorCode;
     }
