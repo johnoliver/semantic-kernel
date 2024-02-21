@@ -432,6 +432,13 @@ public class OpenAIChatCompletion implements ChatCompletionService {
 
         @Override
         public OpenAIChatCompletion build() {
+            if (this.configuration != null) {
+                if (this.client != null) {
+                    throw new AIException(AIException.ErrorCodes.INVALID_REQUEST,
+                        "EITHER OpenAI client or configuration must be provided, not both");
+                }
+                this.client = configuration.buildAsyncClient();
+            }
 
             if (this.client == null) {
                 throw new AIException(AIException.ErrorCodes.INVALID_REQUEST,

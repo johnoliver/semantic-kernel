@@ -1,19 +1,18 @@
 package com.microsoft.semantickernel.samples.syntaxexamples;
 
-import com.azure.ai.openai.OpenAIAsyncClient;
-import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.credential.KeyCredential;
 import com.microsoft.semantickernel.Kernel;
+import com.microsoft.semantickernel.aiservices.openai.OpenAIClientConfiguration;
 import com.microsoft.semantickernel.aiservices.openai.textcompletion.OpenAITextGenerationService;
 import com.microsoft.semantickernel.exceptions.ConfigurationException;
-import com.microsoft.semantickernel.semanticfunctions.KernelFunction;
 import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
 import com.microsoft.semantickernel.plugin.KernelPluginFactory;
-import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
+import com.microsoft.semantickernel.semanticfunctions.KernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.KernelPromptTemplateFactory;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
+import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.services.textcompletion.TextGenerationService;
 
 public class Example06_TemplateLanguage {
@@ -43,21 +42,18 @@ public class Example06_TemplateLanguage {
 
         System.out.println("======== TemplateLanguage ========");
 
-        OpenAIAsyncClient client;
+        OpenAIClientConfiguration configuration = new OpenAIClientConfiguration();
 
         if (AZURE_CLIENT_KEY != null) {
-            client = new OpenAIClientBuilder()
+            configuration
                 .credential(new AzureKeyCredential(AZURE_CLIENT_KEY))
-                .endpoint(CLIENT_ENDPOINT)
-                .buildAsyncClient();
+                .endpoint(CLIENT_ENDPOINT);
         } else {
-            client = new OpenAIClientBuilder()
-                .credential(new KeyCredential(CLIENT_KEY))
-                .buildAsyncClient();
+            configuration.credential(new KeyCredential(CLIENT_KEY));
         }
 
         TextGenerationService textGenerationService = OpenAITextGenerationService.builder()
-            .withOpenAIAsyncClient(client)
+            .withConfiguration(configuration)
             .withModelId(MODEL_ID)
             .build();
 

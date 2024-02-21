@@ -8,6 +8,7 @@ import com.microsoft.semantickernel.builders.Buildable;
 import com.microsoft.semantickernel.builders.SemanticKernelBuilder;
 import com.microsoft.semantickernel.implementation.ServiceLoadUtil;
 import com.microsoft.semantickernel.orchestration.InvocationContext;
+import com.microsoft.semantickernel.services.AIServiceClientConfiguration;
 import com.microsoft.semantickernel.services.TextAIService;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -67,6 +68,8 @@ public interface ChatCompletionService extends Buildable, TextAIService {
 
         @Nullable
         protected OpenAIAsyncClient client;
+        @Nullable
+        protected AIServiceClientConfiguration<OpenAIAsyncClient> configuration;
 
         @Nullable
         protected String modelId;
@@ -107,6 +110,17 @@ public interface ChatCompletionService extends Buildable, TextAIService {
             this.serviceId = serviceId;
             return this;
         }
-    }
 
+        /**
+         * Sets the configuration for the service
+         *
+         * @param configuration The configuration
+         * @return The builder
+         */
+        public Builder withConfiguration(
+            AIServiceClientConfiguration<OpenAIAsyncClient> configuration) {
+            this.configuration = configuration;
+            return this;
+        }
+    }
 }
