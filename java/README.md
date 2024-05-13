@@ -16,7 +16,7 @@ To get an idea of how to use the Semantic Kernel for Java, you can check
 the [syntax examples](samples/sample-code/src/main/java/com/microsoft/semantickernel/samples/syntaxexamples) folder for
 examples of common AI-enabled scenarios.
 
-## Get started
+## OpenAI / Azure OpenAI API keys
 
 To run the LLM prompts and semantic functions in this kernel, make sure you have
 an [Open AI API Key](https://platform.openai.com/)
@@ -61,21 +61,6 @@ To build the Semantic Kernel for Java, you will need:
    run the following command:
 
         ./mvnw clean install -Prelease,bug-check,with-samples
-
-## Using the Semantic Kernel for Java
-
-The library is organized in a set of dependencies published to Maven Central. For a list of the Maven dependencies and
-how to use each of them, see [PACKAGES.md](PACKAGES.md).
-
-Alternatively, check the `samples` folder for examples of common AI-enabled scenarios implemented with Semantic Kernel
-for Java.
-
-## Discord community
-
-Join the [Microsoft Semantic Kernel Discord community](https://aka.ms/java-sk-discord) to discuss the Semantic Kernel
-and get help from the community. We have a `#java` channel for Java-specific questions.
-
-## Contributing
 
 ### Testing locally
 
