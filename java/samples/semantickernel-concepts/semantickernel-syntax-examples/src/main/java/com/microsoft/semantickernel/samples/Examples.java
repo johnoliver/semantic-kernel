@@ -10,6 +10,7 @@ import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatM
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIFunctionToolCall;
 import com.microsoft.semantickernel.hooks.KernelHooks;
 import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader;
+import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader.ResourceLocation;
 import com.microsoft.semantickernel.orchestration.InvocationContext;
 import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.orchestration.ToolCallBehavior;
@@ -26,6 +27,7 @@ import com.microsoft.semantickernel.services.textcompletion.TextGenerationServic
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 public class Examples {
 
@@ -173,7 +175,8 @@ public class Examples {
 
         Kernel kernel = getKernel();
 
-        String yaml = EmbeddedResourceLoader.readFile("petstore.yaml", Examples.class);
+        String yaml = EmbeddedResourceLoader.readFile("petstore.yaml", Examples.class,
+            ResourceLocation.CLASSPATH_ROOT);
 
         var args = KernelFunctionArguments.builder()
             .withVariable("input", "foo")
@@ -191,7 +194,8 @@ public class Examples {
 
         var summarize = KernelPluginFactory
             .importPluginFromDirectory(
-                Path.of("Plugins"),
+                Path.of(
+                    "java/samples/semantickernel-concepts/semantickernel-syntax-examples/src/main/resources/Plugins"),
                 "SummarizePlugin",
                 null);
 
@@ -225,6 +229,8 @@ public class Examples {
             .build();
 
         ChatHistory chatHistory = new ChatHistory();
+
+        chatHistory.addUserMessage("What day is it?");
 
         var result = openAIChatCompletion
             .getChatMessageContentsAsync(
@@ -265,13 +271,31 @@ public class Examples {
     }
 
 
-    public static void nine() {
+    public static void nine() throws FileNotFoundException {
 
-        var kernel = getKernel();
         var client = new OpenAIClientBuilder()
             .credential(new AzureKeyCredential(AZURE_CLIENT_KEY))
             .endpoint(CLIENT_ENDPOINT)
             .buildAsyncClient();
+
+        ChatCompletionService openAIChatCompletion = OpenAIChatCompletion.builder()
+            .withOpenAIAsyncClient(client)
+            .withModelId(MODEL_ID)
+            .build();
+
+        String yaml = EmbeddedResourceLoader.readFile("petstore.yaml", Examples.class,
+            ResourceLocation.CLASSPATH_ROOT);
+
+        var openApiPlugin = SemanticKernelOpenAPIImporter.builder()
+            .withPluginName("petstore")
+            .withSchema(yaml)
+            .withServer("http://localhost:8090/api/v3")
+            .build();
+
+        Kernel kernel = Kernel.builder()
+            .withAIService(ChatCompletionService.class, openAIChatCompletion)
+            .withPlugin(openApiPlugin)
+            .build();
 
         var chat = OpenAIChatCompletion.builder()
             .withOpenAIAsyncClient(client)
@@ -280,7 +304,7 @@ public class Examples {
 
         ////////////////////////////////////////////////
         var plan = chat.getChatMessageContentsAsync(
-                "What time is it in Paris?",
+                "Add a cat named Sandy",
                 kernel,
                 InvocationContext.builder()
                     .withToolCallBehavior(ToolCallBehavior.allowAllKernelFunctions(false))
@@ -290,7 +314,9 @@ public class Examples {
         List<OpenAIFunctionToolCall> toolCalls = plan
             .stream()
             .filter(it -> it instanceof OpenAIChatMessageContent)
-            .flatMap(it -> ((OpenAIChatMessageContent) it).getToolCall().stream())
+            .map(it -> ((OpenAIChatMessageContent) it).getToolCall())
+            .filter(Objects::nonNull)
+            .flatMap(List::stream)
             .toList();
         ////////////////////////////////////////////////
     }
