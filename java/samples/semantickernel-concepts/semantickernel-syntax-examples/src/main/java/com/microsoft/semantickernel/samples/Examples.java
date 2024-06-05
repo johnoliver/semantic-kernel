@@ -8,6 +8,7 @@ import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatMessageContent;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIFunctionToolCall;
+import com.microsoft.semantickernel.hooks.FunctionInvokingEvent;
 import com.microsoft.semantickernel.hooks.KernelHooks;
 import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader;
 import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader.ResourceLocation;
@@ -28,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class Examples {
 
@@ -119,6 +121,10 @@ public class Examples {
         Kernel kernel = getKernel();
         // Initialize function
         String functionPrompt = "Write a paragraph about Handlers.";
+        Function<FunctionInvokingEvent<?>, FunctionInvokingEvent<?>> hook = event -> {
+            // PROCESS EVENT
+            return event;
+        };
 
         var writerFunction = KernelFunctionFromPrompt.builder()
             .withTemplate(functionPrompt)
@@ -143,6 +149,9 @@ public class Examples {
             .withArguments(KernelFunctionArguments.builder().build())
             .addKernelHooks(kernelHooks)
             .block();
+
+        var hookId = kernel.getGlobalKernelHooks().addFunctionInvokingHook(hook);
+        kernel.getGlobalKernelHooks().removeHook(hookId);
         ///////////////////////////////////////////////////////////////
     }
 

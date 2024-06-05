@@ -11,12 +11,16 @@ import com.microsoft.semantickernel.implementation.EmbeddedResourceLoader;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
 import com.microsoft.semantickernel.plugin.KernelPluginFactory;
 import com.microsoft.semantickernel.samples.plugins.TimePlugin;
+import com.microsoft.semantickernel.semanticfunctions.HandlebarsPromptTemplateFactory;
+import com.microsoft.semantickernel.semanticfunctions.KernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.KernelFunctionArguments;
+import com.microsoft.semantickernel.semanticfunctions.KernelFunctionFromPrompt;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateConfig;
 import com.microsoft.semantickernel.semanticfunctions.PromptTemplateFactory;
 import com.microsoft.semantickernel.services.ServiceNotFoundException;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
 import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
+import com.microsoft.semantickernel.templateengine.handlebars.HandlebarsPromptTemplate;
 import java.io.FileNotFoundException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -80,8 +84,9 @@ public class Example30_ChatWithPrompts {
             new TimePlugin(), "time");
         kernel = kernel.toBuilder().withPlugin(timePlugin).build();
 
-        // Adding required arguments referenced by the prompt templates.
 
+
+        // Adding required arguments referenced by the prompt templates.
         var arguments = KernelFunctionArguments
             .builder()
             .withVariable("selectedText", selectedText)
