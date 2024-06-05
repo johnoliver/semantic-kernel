@@ -192,19 +192,22 @@ public class Examples {
             .build();
 
         ////////////////////////////////////////////////
+
+        // Import OpenAPI schema
         var openApiPlugin = SemanticKernelOpenAPIImporter.builder()
             .withPluginName("petstore")
             .withSchema(yaml)
             .withServer("http://localhost:8090/api/v3")
             .build();
 
+        // Import from Object
         var textPlugins = KernelPluginFactory
             .createFromObject(new StaticTextPlugin(), "text");
 
+        // Import from File Directory
         var summarize = KernelPluginFactory
             .importPluginFromDirectory(
-                Path.of(
-                    "java/samples/semantickernel-concepts/semantickernel-syntax-examples/src/main/resources/Plugins"),
+                Path.of("Plugins"),
                 "SummarizePlugin",
                 null);
 
@@ -242,11 +245,7 @@ public class Examples {
         chatHistory.addUserMessage("What day is it?");
 
         var result = openAIChatCompletion
-            .getChatMessageContentsAsync(
-                chatHistory,
-                kernel,
-                invocationContext)
-            .block();
+            .getChatMessageContentsAsync(chatHistory, kernel, invocationContext).block();
 
         chatHistory.addUserMessage(userInput);
 
