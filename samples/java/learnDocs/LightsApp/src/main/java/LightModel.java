@@ -2,37 +2,37 @@
 
 public class LightModel {
 
-    private int id;
-    private String name;
-    private Boolean isOn;
+  private int id;
+  private String name;
+  private Boolean isOn;
 
-    public LightModel(int id, String name, Boolean isOn) {
-        this.id = id;
-        this.name = name;
-        this.isOn = isOn;
-    }
+  public LightModel(int id, String name, Boolean isOn) {
+    this.id = id;
+    this.name = name;
+    this.isOn = isOn;
+  }
 
-    public int getId() {
-        return id;
-    }
+  public int getId() {
+    return id;
+  }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Boolean getIsOn() {
-        return isOn;
-    }
+  public Boolean getIsOn() {
+    return isOn;
+  }
 
-    public void setIsOn(Boolean isOn) {
-        this.isOn = isOn;
-    }
+  public void setIsOn(Boolean isOn) {
+    this.isOn = isOn;
+  }
 }
