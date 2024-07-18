@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
+// <model>
 public class LightModel {
 
   private int id;
@@ -36,3 +37,4 @@ public class LightModel {
     this.isOn = isOn;
   }
 }
+// </model>
